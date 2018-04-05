@@ -3,14 +3,14 @@ Section: net
 Priority: optional
 Maintainer: Denis Bonnenfant <denis.bonnenfant@sambaedu.org>
 Build-Depends: debhelper (>=9)
-Standards-Version: 3.9.6
+Standards-Version: 3.9.7
 Homepage: https://sambaedu.org
 #Vcs-Git: https://github.com/SambaEdu/se4.git
 
 
 Package: sambaedu-config
 Architecture: all
-Depends:  ${misc:Depends}
+Depends:  ${misc:Depends}, dialog
 Description: infrastructure de configuration Sambaedu.
  Configuration de l'infrastructure serveurs sambaedu. Le kit samba-edu est un  ensemble de scripts et de fichiers de configuration permettant de fournir aux etablissements scolaires une configuration "cle en main" d'un serveur Samba Active Directory DC.
 

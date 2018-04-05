@@ -26,11 +26,11 @@ case "$1" in
         
         # conf dhcpd
         if [ ! -e /etc/sambaedu/sambaedu.conf.d/dhcp.conf ]; then
-	    cp -a /usr/share/doc/sambaedu-boot-server/dhcp.conf.example /etc/sambaedu/sambaedu.conf.d/dhcp.conf
-	fi
+			cp -a /usr/share/doc/sambaedu-boot-server/dhcp.conf.example /etc/sambaedu/sambaedu.conf.d/dhcp.conf
+		fi
         get_config
         my_network
-	if [ "$config_dhcp_interface" != "my_interface" ]; then  
+		if [ "$config_dhcp_interface" != "my_interface" ]; then  
             get_config
             conf_dhcp 
             if [ "$REPONSE" == "yes" ]; then

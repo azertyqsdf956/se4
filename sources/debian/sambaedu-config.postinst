@@ -1,5 +1,5 @@
-#!/bin/sh
-# postinst script for sambaedu-master
+#!/bin/bash
+# postinst script for sambaedu-config
 #
 # see: dh_installdeb(1)
 
@@ -20,7 +20,27 @@ set -e
 
 case "$1" in
     configure)
-    ;;
+        . /usr/share/sambaedu/includes/config.inc.sh        
+        . /usr/share/sambaedu/includes/utils.inc.sh
+        couleurs   
+        # modele de conf par défaut
+		CONFIGFILE=/etc/sambaedu/sambaedu.conf
+        if [ ! -e /etc/sambaedu/sambaedu.conf ]; then
+			cp -a /usr/share/doc/sambaedu-config/sambaedu.conf.example /etc/sambaedu/sambaedu.conf
+		fi
+        get_config
+        my_network
+		# renseignement des parametres indispensables
+        . /usr/share/debconf/confmodule
+
+        # Substitute in the values from the debconf db.
+        # There are obvious optimizations possible here.
+        # The cp before the sed ensures we do not mess up
+        # the config file's ownership and permissions.
+        db_get sambaedu/se4ad_ip
+        set_config se4ad_ip "$RET"
+ 		
+   ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
     ;;

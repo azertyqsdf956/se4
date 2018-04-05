@@ -1,14 +1,14 @@
 <VirtualHost *:80>
 
-	DocumentRoot /var/www
-    Alias /diconf/ /var/www/diconf	
-    <Directory /var/www/diconf>
+	DocumentRoot /var/www/boot
+    Alias /diconf/ /var/www/boot/diconf/	
+    <Directory /var/www/boot>
 		Options Indexes FollowSymLinks MultiViews
 		AllowOverride None
 		Order allow,deny
 		allow from all
 	</Directory>
-	<FilesMatch ".tar.gz$">
+	<FilesMatch "diconf/*.tar.gz$">
         AllowOverride None
         Order deny,allow
         Deny from all
