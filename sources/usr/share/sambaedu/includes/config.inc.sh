@@ -25,7 +25,7 @@ function set_config() {
         if [ -f "$conf" ]; then
             if $(grep -q "$2" $conf); then
                if [ -z "$3" ]; then
-                   sed -i "|^${2}\s*=.*$|d" $conf
+                   sed -i "/^${2}\s*=.*$/d" $conf
 	       else
                    sed -i "s|^${2}\s*=\s*.*$|${2} = \"${3}\"|" $conf
                fi

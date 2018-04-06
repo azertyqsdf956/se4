@@ -1,4 +1,36 @@
-# Templates pour la conf du serveur
+Template: sambaedu/domain
+Type: note
+Default: 
+Description: Nom de domaine : ${sambaedu/domain}
+ Nom de domaine complet : Sur un domaine AD, le serveur de domaine gère le DNS interne. Le choix du nom de domaine est donc important.
+ Il est composé de plusieurs parties : le nom de domaine samba suivi de son suffixe, séparés par un point.
+ .
+ Si votre établissement possède un nom dns public, il est conseillé de l'utiliser également pour le dns interne.
+ . 
+ Exemple de domaine AD : clg-dupontel.belville.ac-dijon.fr 
+  * le domaine samba sera clg-dupontel 
+  * le suffixe sera belville.ac-acad.fr 
+ .
+ Note : 
+  * le domaine samba ne doit en aucun cas dépasser 15 caractères
+  * Les domaines du type sambaedu.lan ou etab.local sont déconseillés en production par l'équipe samba
+
+Template: sambaedu/samba_domain
+Type: string
+Default: SAMBAEDU
+Description: Nom Netbios du domaine Sambaedu
+ Nom de domaine windows court : ne doit pas dépasser 15 caractères. Cela peut être un préfixe au nom de domaine externe. Vérifiez alors que votre fournisseur d'accès internet (le rectorat) vous permet d'ajouter un prefixe sur le dns externe pour votre domaine.
+
+Template: sambaedu/samba_domain_cut
+Type: error
+Default: Attention, le nom a été tronqué car trop long !
+Description: Nom Netbios du domaine Sambaedu tronqué
+
+Template: sambaedu/se4ad_ip
+Type: string
+Default: 
+Description: Adresse IP du serveur Active Directory
+ Le serveur se4ad aura une adresse ip fixe. Il est conseillé de la choisir dans la même plage que l'adresse du serveur de fichiers.
 
 Template: sambaedu/dhcp_begin_range
 Type: string

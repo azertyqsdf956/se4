@@ -23,17 +23,22 @@ case "$1" in
         . /usr/share/sambaedu/includes/config.inc.sh        
         . /usr/share/sambaedu/includes/utils.inc.sh
         . /usr/share/debconf/confmodule
+         get_config
+        my_network
+    	# renseignement des parametres indispensables
+
+        db_get sambaedu/se4ad_ip
+        set_config sambaedu se4ad_ip "$RET"
+        db_get sambaedu/samba_domain
+        set_config sambaedu samba_domain "$RET"
 
         # conf dhcpd
-        if [ ! -e /etc/sambaedu/sambaedu.conf.d/dhcp.conf ]; then
-	    cp -a /usr/share/doc/sambaedu-boot-server/dhcp.conf.example /etc/sambaedu/sambaedu.conf.d/dhcp.conf
-	fi
         get_config
         my_network
-	if [ "$config_dhcp_interface" != "my_interface" ]; then  
+	    if [ "$config_dhcp_interface" != "my_interface" ]; then  
             get_config
             db_get sambaedu/dhcp_begin_range
-	    set_config dhcp dhcp_begin_range $RET
+	        set_config dhcp dhcp_begin_range $RET
             db_get sambaedu/dhcp_end_range
             set_config dhcp dhcp_end_range $RET
             set_config dhcp dhcp_iface $my_interface
@@ -49,7 +54,7 @@ case "$1" in
 
         # conf apache
         if [ ! -e /etc/apache2/sites.available/ipxe.conf ]; then
-            cp -a /usr/share/doc/sambaedu-boot-server/ipxe.conf.example /etc/apache2/sites-available/ipxe.conf
+            cp -a /usr/share/doc/sambaedu/ipxe.conf.example /etc/apache2/sites-available/ipxe.conf
         fi        
         write_param /etc/apache2/sites-available/ipxe.conf config_se4ad_ip
         write_param /etc/apache2/sites-available/ipxe.conf config_se4fs_ip      

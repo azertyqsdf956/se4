@@ -30,7 +30,7 @@ my_fqdn=$(hostname -f)
 my_dnsserver=$(grep -m 1 "^nameserver" /etc/resolv.conf | cut -d" " -f2)
 my_proxy="$http_proxy"
 if [ -e "etc/sambaedu/sambaedu.conf.d/dhcp.conf" ]; then
-    my_vlan=$(grep $my_network /etc/sambaedu/sambaedu.conf.d/dhcpd.conf | cut -d= -f1 | sed "s/^.*_//")
+    my_vlan=$(grep $my_network /etc/sambaedu/sambaedu.conf.d/dhcp.conf | cut -d= -f1 | sed "s/^.*_//")
 fi
 }
 

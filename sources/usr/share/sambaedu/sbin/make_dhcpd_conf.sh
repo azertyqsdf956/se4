@@ -29,8 +29,8 @@ if  [ -n "$config_wpad" ]; then
     echo "option wpad-url \"$config_wpad\";">>$conf
 fi
 if [ -n "$config_se4ad_ip" ]; then
-    echo "option domain-name-servers \"$config_se4ad_ip\";">>$conf
-    echo "option netbios-name-servers \"$config_se4ad_ip\";">>$conf
+    echo "option domain-name-servers $config_se4ad_ip;">>$conf
+    echo "option netbios-name-servers $config_se4ad_ip;">>$conf
 fi
 # boot ipxe
 echo "###       BOOT OPTIONS          ##############################################">>$conf
