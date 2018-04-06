@@ -1,0 +1,12 @@
+# Templates pour la conf du serveur
+
+Template: sambaedu/dhcp_begin_range
+Type: string
+Default:
+Description: Début de la plage d'adresses dynamiques DHCP
+
+Template: sambaedu/dhcp_end_range
+Type: string
+Default:
+Description: Fin de la plage d'adresses dynamiques DHCP
+

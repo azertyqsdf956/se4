@@ -1,9 +1,13 @@
 se4ad_ip=
-se3ip=se4fs_ip
-smb4_domain=se3domain ?
+#se4fs_ip=ipse3
+se4fs_ip=
+#samba_domain=se3domain <15
+samba_domain="sambaedu"
+#domain 
 suffix_domain=
 ad_domain=
-nameserver=dns réseau
+# dns routeur
+nameserver=
 ##Pass admin LDAP##" >> $se4ad_config
 adminPw=\"$adminPw\"" >> $se4ad_config
 ldap_base_dn=

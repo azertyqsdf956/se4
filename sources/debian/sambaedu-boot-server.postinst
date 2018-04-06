@@ -22,18 +22,20 @@ case "$1" in
     configure)
         . /usr/share/sambaedu/includes/config.inc.sh        
         . /usr/share/sambaedu/includes/utils.inc.sh
-        couleurs
-        
+        . /usr/share/debconf/confmodule
+
         # conf dhcpd
         if [ ! -e /etc/sambaedu/sambaedu.conf.d/dhcp.conf ]; then
-			cp -a /usr/share/doc/sambaedu-boot-server/dhcp.conf.example /etc/sambaedu/sambaedu.conf.d/dhcp.conf
-		fi
+	    cp -a /usr/share/doc/sambaedu-boot-server/dhcp.conf.example /etc/sambaedu/sambaedu.conf.d/dhcp.conf
+	fi
         get_config
         my_network
-		if [ "$config_dhcp_interface" != "my_interface" ]; then  
+	if [ "$config_dhcp_interface" != "my_interface" ]; then  
             get_config
-            conf_dhcp 
-            if [ "$REPONSE" == "yes" ]; then
+            db_get sambaedu/dhcp_begin_range
+	    set_config dhcp dhcp_begin_range $RET
+            db_get sambaedu/dhcp_end_range
+            set_config dhcp dhcp_end_range $RET
             set_config dhcp dhcp_iface $my_interface
             set_config dhcp dhcp_dns_server_prim $my_dnsserver
             set_config dhcp dhcp_gateway $my_gateway
@@ -41,11 +43,6 @@ case "$1" in
             set_config dhcp dhcp_reseau $my_network
             set_config dhcp dhcp_tftp_server $my_address
             set_config dhcp dhcp_domain_name $my_domain
-            set_config dhcp dhcp_begin_range $dhcp_begin_range
-            set_config dhcp dhcp_end_range $dhcp_end_range
-            else
-                exit 1
-            fi
         fi    
         set_config dhcp ipxe_url "http://$my_address/ipxe/"
         /usr/share/sambaedu/sbin/make_dhcpd_conf.sh

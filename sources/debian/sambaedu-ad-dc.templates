@@ -1,0 +1,14 @@
+# Templates pour la conf du serveur
+
+Template: sambaedu/type_server
+Type: select
+Choices: LXC, VM
+Default: LXC
+Description: Type d'installation pour le serveur Active Directory
+ LXC : serveur virtualisé léger en conteneur LXC. Le meilleur choix pour les serveurs avec des ressources limitées
+ .
+ VM : Serveur indépendant, pouvant soit être virtualisé par exemple avec Proxmox, soit être une machine physique. Le serveur sera installé automatiquement en boot PXE, ou à l'aide de fichiers preseed. 
+
+Template: sambaedu/test_ad
+Type: note
+Description: Le serveur AD n'est pas encore démarré. Vous devez le mettre en service...
