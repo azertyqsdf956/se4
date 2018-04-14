@@ -1,14 +1,33 @@
-# Templates pour la conf du serveur
-
-Template: sambaedu/type_server
+Template: sambaedu/action_ad
 Type: select
-Choices: LXC, VM
-Default: LXC
+Choices: Test, LXC, VM, Quit
+Default: Quit
 Description: Type d'installation pour le serveur Active Directory
  LXC : serveur virtualisé léger en conteneur LXC. Le meilleur choix pour les serveurs avec des ressources limitées
  .
  VM : Serveur indépendant, pouvant soit être virtualisé par exemple avec Proxmox, soit être une machine physique. Le serveur sera installé automatiquement en boot PXE, ou à l'aide de fichiers preseed. 
 
 Template: sambaedu/test_ad
-Type: note
-Description: Le serveur AD n'est pas encore démarré. Vous devez le mettre en service...
+Type: error
+Description: Le serveur AD n'est pas joignable
+ Le serveur AD ne peut pas être joint avec les identifiants fournis.
+ .
+ Soit il n'est pas encore en service, dans ce cas vous devez commencer par le configurer en lancant....
+ .
+ Soit les identifiants sont incorrects.
+
+Template: sambaedu/ldap_base_dn
+Type: string
+Description: DN ldap de base de l'AD
+ DN de base de l'annuaire ldap. Normalement directement dérivé du nom de domaine
+
+Template: sambaedu/ldap_admin_name
+Type: string
+Description: admin ldap de l'AD
+ nom d'utilisateur utilisé pour le bind ldap sur le ad
+
+Template: sambaedu/ldap_admin_passwd
+Type: password
+Description: mot de passe admin ldap de l'AD
+ mot de passe utilisé pour le bind ldap sur le ad
+

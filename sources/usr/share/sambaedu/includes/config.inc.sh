@@ -23,7 +23,7 @@ function set_config() {
     fi
     if [ -n "$2" ]; then
         if [ -f "$conf" ]; then
-            if $(grep -q "$2" $conf); then
+            if $(grep -q "^$2[= ]" $conf); then
                if [ -z "$3" ]; then
                    sed -i "/^${2}\s*=.*$/d" $conf
 	       else
@@ -40,6 +40,19 @@ function set_config() {
 #        eval $2="$3" 
         eval config_$2="$3"
     fi
+}
+
+# fonction permettant le renommage d'un parametre
+# mv_config module old_param new_param [value]
+# si pas de valeur on garde l'existante.
+function mv_config() {
+    if [ -n "$4" ]; then
+        set_config $1 $3 "$4"
+    else
+        param=config_$2         
+        set_config $1 $3 "${!param}"
+    fi
+    set_config $1 $2
 }
 
 # fonction pour écrire un parametre dans un fichier de conf

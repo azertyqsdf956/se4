@@ -10,8 +10,8 @@ Homepage: https://sambaedu.org
 
 Package: sambaedu-config
 Architecture: all
-Depends:  ${misc:Depends}, dialog
-Description: infrastructure de configuration Sambaedu.
+Depends:  ${misc:Depends}, dialog, ldap-utils 
+Description: scripts et fichiers de configuration Sambaedu.
  Configuration de l'infrastructure serveurs sambaedu. Le kit samba-edu est un  ensemble de scripts et de fichiers de configuration permettant de fournir aux etablissements scolaires une configuration "cle en main" d'un serveur Samba Active Directory DC.
 
 Package: sambaedu-boot-server

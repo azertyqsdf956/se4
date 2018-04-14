@@ -31,7 +31,9 @@ case "$1" in
         set_config sambaedu se4ad_ip "$RET"
         db_get sambaedu/samba_domain
         set_config sambaedu samba_domain "$RET"
-
+        db_get sambaedu/domain
+        set_config sambaedu domain "$RET"
+        set_config sambaedu se4fs_ip $my_address
         # conf dhcpd
         get_config
         my_network
@@ -47,7 +49,7 @@ case "$1" in
             set_config dhcp dhcp_masque $my_mask
             set_config dhcp dhcp_reseau $my_network
             set_config dhcp dhcp_tftp_server $my_address
-            set_config dhcp dhcp_domain_name $my_domain
+            set_config dhcp dhcp_domain_name $config_domain
         fi    
         set_config dhcp ipxe_url "http://$my_address/ipxe/"
         /usr/share/sambaedu/sbin/make_dhcpd_conf.sh

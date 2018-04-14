@@ -1,5 +1,5 @@
 Template: sambaedu/domain
-Type: note
+Type: string
 Default: 
 Description: Nom de domaine : ${sambaedu/domain}
  Nom de domaine complet : Sur un domaine AD, le serveur de domaine gère le DNS interne. Le choix du nom de domaine est donc important.

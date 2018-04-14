@@ -21,6 +21,12 @@ set -e
 case "$1" in
     configure)
     . /usr/share/debconf/confmodule
+    # conf TLS à faire suffisamment tôt    
+    if $(grep -q "^TLS_REQCERT" /etc/ldap/ldap.conf >/dev/null 2>&1) ; then
+        sed -i "s/^TLS_REQCERT.*$/TLS_REQCERT never/" /etc/ldap/ldap.conf
+    else
+        echo "TLS_REQCERT never">>/etc/ldap/ldap.conf
+    fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
