@@ -1,6 +1,7 @@
-sambaedu (3.9.1) UNRELEASED; urgency=medium
+sambaedu (3.9.2) unstable; urgency=medium
 
-  * premiers paquets
+  * premier paquet ad-dc
+  * corrections de bugs
 
  -- Denis Bonnenfant <denis.bonnenfant@sambaedu.org>  Thu, 05 Apr 2018 00:49:30 +0200
 
