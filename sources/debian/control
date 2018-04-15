@@ -27,3 +27,9 @@ Depends:  ${misc:Depends}, sambaedu-boot-server
 Description: configuration d'une machine virtuelle ou conteneur pour le DC sambaedu.
  Configuration d'un serveur controleur de domaine AD samba. Ce paquet contient des scripts de configuration lxc ou preseed pour creer une machine distincte. Ce paquet sera en erreur tant que le controleur de domaine ne sera pas actif.  Le kit samba-edu est un ensemble de scripts et de fichiers de configuration permettant de fournir aux etablissements scolaires une configuration "cle en main" d'un serveur Samba Active Directory DC.
 
+Package: sambaedu-ad-client
+Architecture: all
+Depends:  ${misc:Depends}, sambaedu-ad-dc, ntp, krb5-user, samba, winbind, samba-dsdb-modules, libnss-winbind, libpam-krb5
+Description: serveur membre domaine ad
+ Ce paquet contient des scripts de configuration pour la mise au domaine sambaedu d'un poste linux. Il prend en charge la configuration de l'authentification centralisée kerberos sur l'ad, ainsi que l'installation de winbind. 
+

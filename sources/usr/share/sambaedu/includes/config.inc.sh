@@ -56,13 +56,30 @@ function mv_config() {
 }
 
 # fonction pour écrire un parametre dans un fichier de conf
-# write_param fichier param
+# usage : write_param fichier config_param
 # remplace ###_PARAM_### par la valeur de $config_param dans le fichier
 function write_param() {
     param=${2/config_/}
     param=${param^^}
-    sed -i "s|###_$param_###|$config_param|g" $1
+    valeur=$2
+    sed -i "s|###_$param_###|${!valeur}|g" $1
 }
 
+# fonction pour mettre à jour un fichier de conf :
+# usage : update_conf fichier field param
+# field[ ]= valeur : remplace valeur par $config_param
+
+function update_conf() {
+    conf=$1
+    field=$2
+    param=$3
+    if [ -n "$field" ]; then
+        if $(grep -q "^\s*$field[= ]" $conf); then
+            sed -i "s|^\(\s*$field\s*=*\s*\).*$|\1 $param|" $conf
+        else
+            echo "$field = $param">>$conf
+        fi
+fi
+}    
 # lecture de la conf
 get_config

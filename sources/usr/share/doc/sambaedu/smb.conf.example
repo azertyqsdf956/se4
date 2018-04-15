@@ -1,0 +1,21 @@
+[global]
+       security = ADS
+       workgroup = ###_DOMAIN_###
+       realm = ###_REALM_###
+
+       log file = /var/log/samba/%m.log
+       log level = 1
+
+# utilisateurs locaux
+
+       idmap config * : backend = tdb
+       idmap config * : range = 3000-7999
+
+# domaine sambaedu
+
+       idmap config ###_DOMAIN_### : backend = rid
+       idmap config ###_DOMAIN_### : range = 10000-999999
+        
+       template homedir = /home/%U
+       template shell = /bin/bash
+
