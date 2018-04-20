@@ -18,4 +18,5 @@
         
        template homedir = /home/%U
        template shell = /bin/bash
+       username map = /etc/samba/user.map
 

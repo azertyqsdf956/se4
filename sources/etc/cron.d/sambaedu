@@ -1,0 +1,3 @@
+# cron sambaedu  à completer a partir de celui du se3
+# rafraichissement du ticket kerberos
+00 01 * * * www-admin kinit -k -t /var/www-admin/www-sambaedu.keytab www-sambaedu

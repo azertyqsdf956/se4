@@ -1,0 +1,4 @@
+# fichiers du paquet sambadu-ad-client
+etc/cron.d/sambaedu
+usr/share/doc/sambaedu/web.conf.example
+
