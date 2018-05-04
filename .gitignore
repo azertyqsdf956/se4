@@ -1,4 +1,4 @@
-/sources/debian/sambeadu-*/*
+/sources/debian/sambeadu-*/
 /nbproject/private/
 *.deb
 *.dsc
