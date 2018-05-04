@@ -1,0 +1,62 @@
+<VirtualHost admin.###_DOMAIN_###:80>
+        ServerAdmin www-sambaedu@localhost
+        DocumentRoot /var/www/sambaedu/
+        <FilesMatch "\.php$">
+            SetHandler "proxy:fcgi://127.0.0.1:9000/"
+        </FilesMatch>
+#        <Proxy "fcgi://localhost/" enablereuse=on>
+#        </Proxy>
+
+        <Directory />
+            Options +FollowSymLinks
+            AllowOverride None
+            Require all granted
+	    </Directory>
+        <Directory /var/www/sambaedu>
+#	        AuthType Kerberos
+#                AuthName "Authentification au domaine SE3"
+#                KrbMethodNegotiate On
+#                KrbMethodK5Passwd On
+#                KrbAuthRealms SAMBAEDU3.MAISON
+#                require valid-user
+#                Krb5KeyTab /var/www/se3/se3.keytab
+#                KrbLocalUserMapping On
+            Options -Indexes +FollowSymLinks +MultiViews +ExecCGI
+            AllowOverride None
+            Require all granted
+        </Directory>
+
+        <Directory /var/www/sambaedu/setup>
+                AllowOverride All
+        </Directory>
+        ScriptAlias /cgi-bin/ /usr/lib/cgi-binse/
+        <Directory "/usr/lib/cgi-binse">
+                AllowOverride None
+                Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+                Require all granted
+        </Directory>
+
+        ErrorLog /var/log/apache2/errorse.log
+
+        # Possible values include: debug, info, notice, warn, error, crit,
+        # alert, emerg.
+        LogLevel warn
+
+        CustomLog /var/log/apache2/accessse.log combined
+        ServerSignature On
+
+        Alias /doc/ "/usr/share/doc/"
+        <Directory "/usr/share/doc/">
+        	Options +Indexes +MultiViews +FollowSymLinks
+        	AllowOverride None
+	        Require  host 127.0.0.0/255.0.0.0 ::1/128
+        </Directory>
+
+	    Alias /trombine /var/sambaedu/Docs/trombine
+	    <Directory /var/sambaedu/Docs/trombine>
+		    AllowOverride None
+		    Require all granted
+	    </Directory>
+
+</VirtualHost>
+

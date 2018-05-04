@@ -29,12 +29,19 @@ Description: configuration d'une machine virtuelle ou conteneur pour le DC samba
 
 Package: sambaedu-ad-client
 Architecture: all
-Depends:  ${misc:Depends}, sambaedu-ad-dc, krb5-user, samba, winbind, samba-dsdb-modules, libnss-winbind, libpam-krb5
+Depends:  ${misc:Depends}, sambaedu-ad-dc, krb5-user, samba, samba-dsdb-modules, libpam-krb5
 Description: serveur membre domaine ad
- Ce paquet contient des scripts de configuration pour la mise au domaine sambaedu d'un poste linux. Il prend en charge la configuration de l'authentification centralisée kerberos sur l'ad, ainsi que l'installation de winbind. 
+ Ce paquet contient des scripts de configuration pour la mise au domaine sambaedu d'un poste linux. Il prend en charge la configuration de l'authentification centralisée kerberos sur l'ad. 
+
+Package: sambaedu-winbind
+Architecture: all
+Depends:  ${misc:Depends}, sambaedu-ad-client, winbind, libnss-winbind
+Description: utilisateurs winbind
+ Ce paquet contient des scripts de configuration pour la mise au domaine sambaedu d'un poste linux. Il prend en charge la configuration l'installation de winbind et de libnss. 
+
 
 Package: sambaedu-web-common
 Architecture: all
-Depends:  ${misc:Depends}, php-fpm, php7.0-opcache, php-apcu, apache2-suexec-pristine
+Depends:  ${misc:Depends}, php-fpm, php7.0-opcache, php-apcu, apache2-suexec-pristine, sambaedu-ad-client, default-mysql-server
 Description: Interface d'administration web
  

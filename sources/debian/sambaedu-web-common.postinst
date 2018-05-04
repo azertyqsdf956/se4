@@ -27,24 +27,71 @@ case "$1" in
         my_network
 
         # creation de l'utilisateur www-admin
-        useradd -u 599 www-admin -s /bin/bash
-	    adduser www-admin lpadmin
+        if ! id www-admin > /dev/null ; then
+            useradd -u 599 www-admin -s /bin/bash -d /var/www-admin
+        fi
+#	    adduser www-admin lpadmin
         # copie du keytab de www-sambaedu
-        scp root@$config_se4ad_ip:/root/www-sambaedu.keytab /var/www-admin/sambaedu.keytab
+        if [ ! -f /var/www-admin/www-sambaedu.keytab ]; then
+            mkdir -p /var/www-admin
+            scp root@$config_se4ad_ip:/root/www-sambaedu.keytab /var/www-admin/www-sambaedu.keytab
+            chown -R www-admin /var/www-admin/
+            chmod 700 /var/www-admin/www-sambaedu.keytab
+        fi
         # activation kerberos
-        su www-admin -c "kinit -k -t /var/www-admin/www-sambaedu.keytab www-sambaedu@${config_samba_domain^^}"
+        su www-admin -c "kinit -k -t /var/www-admin/www-sambaedu.keytab www-sambaedu"
+
+        # enregistrement dns
+        su www-admin -c "samba-tool dns add $config_se4ad_name $config_domain admin A $config_se4fs_ip -k yes" || true
         
         # virtualhost admin.domaine
+        chown -R www-admin /var/www/sambaedu
         cp -a /usr/share/doc/sambaedu/web.conf.example /etc/apache2/sites-available/sambaedu.conf
-        write_param /etc/apache2/sites-available.sambaedu.conf config_domain
+        write_param /etc/apache2/sites-available/sambaedu.conf config_domain
         a2ensite sambaedu.conf
+        a2enmod proxy_fcgi setenvif
+        a2enconf php7.0-fpm
         apachectl restart
         
-        # config mysql
+        # config mysql : import des tables connexion se3 si elles existent, sinon initialisation
+        # config root
+#        mysql_root_pass=$(grep "^password =" /etc/mysql/debian.cnf | head -n1 | sed "s/^password = //")
+#        if [ -z "$mysql_root_pass" ]; then
+#            # on fixe un mdp
+#            mysql_root_pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c10)
+#            sed -i "s/^password =.*$/password = $mysql_root_pass/g" /etc/mysql/debian.cnf
+#        fi
+#        if ! mysql -u root -p $config_sql_passwd -e "exit" ; then
+#            systemctl set-environment MYSQLD_OPTS="--skip-grant-tables"
+#            systemctl restart mariadb
+#            mysql -u root --batch -e "SET PASSWORD FOR root@'localhost'=PASSWORD('$mysql_root_pass')"  
+#            systemctl unset-environment MYSQLD_OPTS
+#            systemctl restart mariadb
+#        fi
         
-        # service winbind
-        systemctl enable winbind.service
-        systemctl start winbind.service         
+
+        # Initialisation de la Base de Données
+        if ! mysql --batch --user=sambaedu --password=$config_sql_passwd sambaedu -e exit ; then
+            config_sql_passwd=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c10)
+            set_config sambaedu sql_passwd "$config_sql_passwd"
+            mysql --batch -e "CREATE DATABASE IF NOT EXISTS \`sambaedu\` character set = 'utf8';"
+            mysql --batch -e "CREATE USER 'sambaedu'@'localhost' IDENTIFIED BY '${config_sql_passwd}';"
+            mysql --batch -e "GRANT ALL PRIVILEGES ON  \`sambaedu\` . * TO  'sambaedu'@'localhost';"
+            zcat /usr/share/doc/sambaedu/sambaedu.sql | mysql --batch
+        fi
+        
+        # import des tables se3 si elles existent
+        if [ -f /tmp/se3_connexions.sql ]; then
+            mysql --batch sambaedu -e "DROP DATABASE IF EXISTS connexions;"
+            mysql --batch sambaedu < /tmp/se3_connexions.sql
+            rm -f /tmp/se3_connexions.sql
+        fi
+        if [ -f /tmp/se3_quotas.sql ]; then
+            mysql --batch sambaedu -e "DROP DATABASE IF EXISTS quotas;"
+            mysql --batch sambaedu < /tmp/se3_quotas.sql
+            rm -f /tmp/se3_quotas.sql
+        fi  
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
@@ -61,4 +108,4 @@ esac
 
 
 
-exit 0/
+exit 0

@@ -62,7 +62,7 @@ function write_param() {
     param=${2/config_/}
     param=${param^^}
     valeur=$2
-    sed -i "s|###_$param_###|${!valeur}|g" $1
+    sed -i "s|###_${param}_###|${!valeur}|g" $1
 }
 
 # fonction pour mettre à jour un fichier de conf :
@@ -74,8 +74,8 @@ function update_conf() {
     field=$2
     param=$3
     if [ -n "$field" ]; then
-        if $(grep -q "^\s*$field[= ]" $conf); then
-            sed -i "s|^\(\s*$field\s*=*\s*\).*$|\1 $param|" $conf
+        if $(grep -q "^\s*${field}[= ]" $conf); then
+            sed -i "s|^\(\s*${field}\s*=*\s*\).*$|\1 $param|" $conf
         else
             echo "$field = $param">>$conf
         fi

@@ -1,2 +1,12 @@
-sources/debian/sambeadu*/*
+/sources/debian/sambeadu-*/*
 /nbproject/private/
+*.deb
+*.dsc
+/sources/debian/debhel*
+/sources/debian/*.debhelper
+/sources/debian/*.log
+/sources/debian/*.substvars
+/sambaedu*
+/build
+/sources/debian/files
+/sources/debian/tmp

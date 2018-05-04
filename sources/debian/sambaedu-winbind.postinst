@@ -24,21 +24,14 @@ case "$1" in
         . /usr/share/sambaedu/includes/utils.inc.sh
         . /usr/share/debconf/confmodule
         get_config
-        my_network
-    	# renseignement des parametres indispensables
-        # kerberos
-        config_REALM=${config_domain^^}
-        config_DOMAIN=${config_samba_domain^^}
-        cp -a /usr/share/doc/sambaedu/krb5.conf.example /etc/krb5.conf
-        write_param /etc/krb5.conf config_REALM
- 
-        # samba winbind
-        cp -a /usr/share/doc/sambaedu/smb.conf.example /etc/samba/smb.conf
-        write_param /etc/samba/smb.conf config_REALM
-        write_param /etc/samba/smb.conf config_DOMAIN
+        # nsswitch
+        update_conf /etc/nsswitch.conf "passwd.*compat" winbind
+        update_conf /etc/nsswitch.conf "group.*compat" winbind
+        update_conf /etc/nsswitch.conf "shadow.*compat"      
         
-        # mise au domaine
-        net ads join -U $config_ldap_admin_name%$config_ldap_admin_passwd
+        # service winbind
+        systemctl enable winbind.service
+        systemctl start winbind.service         
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
