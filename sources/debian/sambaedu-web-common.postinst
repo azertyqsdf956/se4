@@ -50,24 +50,14 @@ case "$1" in
         write_param /etc/apache2/sites-available/sambaedu.conf config_domain
         a2ensite sambaedu.conf
         a2enmod proxy_fcgi setenvif
+        cp -a /usr/share/doc/sambaedu/fpm.conf /etc/php/7.0/fpm/pool.d/sambaedu.conf
+
+
         a2enconf php7.0-fpm
         apachectl restart
         
         # config mysql : import des tables connexion se3 si elles existent, sinon initialisation
         # config root
-#        mysql_root_pass=$(grep "^password =" /etc/mysql/debian.cnf | head -n1 | sed "s/^password = //")
-#        if [ -z "$mysql_root_pass" ]; then
-#            # on fixe un mdp
-#            mysql_root_pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c10)
-#            sed -i "s/^password =.*$/password = $mysql_root_pass/g" /etc/mysql/debian.cnf
-#        fi
-#        if ! mysql -u root -p $config_sql_passwd -e "exit" ; then
-#            systemctl set-environment MYSQLD_OPTS="--skip-grant-tables"
-#            systemctl restart mariadb
-#            mysql -u root --batch -e "SET PASSWORD FOR root@'localhost'=PASSWORD('$mysql_root_pass')"  
-#            systemctl unset-environment MYSQLD_OPTS
-#            systemctl restart mariadb
-#        fi
         
 
         # Initialisation de la Base de Données
