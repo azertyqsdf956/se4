@@ -39,7 +39,7 @@ $login=$_SESSION['login'];
 
 
 // Prise en compte de la page demandee initialement - leb 25/6/2005
-if (($login == "") || (ldap_get_right("se3_is_admin",$login)!="Y") )  {
+if (($login == "") || (ldap_get_right($config, "se3_is_admin", $login)!="Y") )  {
 	//	header("Location:$urlauth");
 	$request = $_SERVER['PHP_SELF'];
 	if ( $_SERVER['QUERY_STRING'] != "") $request .= "?".$_SERVER['QUERY_STRING'];

@@ -41,9 +41,9 @@ $action=isset($_GET['action']) ? $_GET['action'] : "";
 $_SESSION["pageaide"]="Informations_syst%C3%A8me#Diagnostic";
 
 // Si pas se3_is_admin
-if (ldap_get_right("se3_is_admin",$login)!="Y")
+if (ldap_get_right($config,"se3_is_admin",$login)!="Y")
         die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
-//	if (ldap_get_right("se3_is_admin",$login)=="Y")  {
+//	if (ldap_get_right($config,"se3_is_admin",$login)=="Y")  {
 
 	if ((isset($action))&&($action == "setadminse3smbpass")) {
 			exec('/usr/bin/sudo /usr/share/sambaedu/scripts/change_adminse3_smbpass.sh');

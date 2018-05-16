@@ -37,7 +37,7 @@ if ($login =="" ) {
 }
 
 $registred=2;
-set_config_se4("registred",2); ///A quoi ça sert ? mrfi
+set_config("registred",2); ///A quoi ça sert ? mrfi
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
@@ -49,7 +49,7 @@ set_config_se4("registred",2); ///A quoi ça sert ? mrfi
 <FRAMESET COLS="227,*">
 <FRAME SRC="menu.php" NAME="menu" frameborder="0" /><!--/FRAME-->
 
-<?php if (ldap_get_right("se3_is_admin",$login)=="Y")  {
+<?php if (ldap_get_right($config, "se3_is_admin",$login)=="Y")  {
 
     if ($affiche_etat == "1") {
      if ($registred <= 1)  { ?>
@@ -67,3 +67,4 @@ set_config_se4("registred",2); ///A quoi ça sert ? mrfi
 <?php } ?>
 </FRAMESET>
 </html>
+

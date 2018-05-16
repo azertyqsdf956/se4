@@ -1,3 +1,9 @@
+sambaedu (3.9.3~) UNRELEASED; urgency=medium
+
+  * refactoring
+
+ -- Denis Bonnenfant <denis.bonnenfant@sambaedu.org>  Tue, 15 May 2018 14:37:15 +0200
+
 sambaedu (3.9.2) unstable; urgency=medium
 
   * premier paquet ad-dc

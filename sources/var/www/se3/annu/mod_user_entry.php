@@ -336,7 +336,7 @@ if (($isadmin=="Y") or ((tstclass($login,$cn)==1) and (ldap_get_right("sovajon_i
 		// Modification des entrees
 		$ds = @ldap_connect ( $ldap_server, $ldap_port );
 		if ( $ds ) {
-			$r = @ldap_bind ( $ds, $adminDn, $adminPw ); // Bind en admin
+			$r = @ldap_bind ( $ds, $adminDn, $ldap_admin_passwd ); // Bind en admin
 			if ($r) {
 				if (@ldap_modify ($ds, "cn=".$cn.",".$dn["people"],$entry)) {
 					echo "<strong>".gettext("Les entr&#233;es ont &#233;t&#233; modifi&#233;es avec succ&#232;s.")."</strong><br />\n";

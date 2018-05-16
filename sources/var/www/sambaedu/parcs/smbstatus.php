@@ -39,7 +39,7 @@ textdomain ('sambaedu-parcs');
 //aide
 $_SESSION["pageaide"]="Informations_syst%C3%A8me#Connexions_actives";
 
-if (is_admin("system_is_admin",$login)!="Y")
+if (is_admin($config, "system_is_admin",$login)!="Y")
         die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 
 $smb_login = smbstatus();

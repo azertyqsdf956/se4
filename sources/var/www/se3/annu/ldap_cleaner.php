@@ -577,7 +577,7 @@ echo "	<body>\n";
 							// Modification de l'entree dn ou=Trash -> ou=People
                                                         $ds = @ldap_connect ( $ldap_server, $ldap_port );
 	                                                if ( $ds ) {
-	          						$r = @ldap_bind ( $ds, $adminDn, $adminPw ); // Bind en admin
+	          						$r = @ldap_bind ( $ds, $adminDn, $ldap_admin_passwd ); // Bind en admin
         	  						if ($r) {
 										// Ajout dans la branche people
               									if ( @ldap_add ($ds, "cn=".$user[0]["cn"].",".$dn["people"],$user[0] ) ) {

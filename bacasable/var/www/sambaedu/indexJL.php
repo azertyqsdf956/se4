@@ -8,7 +8,7 @@ echo "ldap_server $ldap_server<br />";
 echo "lang : $lang<br />";
 
 #echo "DBG > CN=administrator,CN=users,DC=sambaedu,DC=home<br />";
-#echo "adminDN : $adminDn adminPWD : $adminPw<br />";
+#echo "adminDN : $adminDn adminPWD : $ldap_admin_passwd<br />";
 
 echo "<b>fonction user_valid_pwd</b> : vérification du couple login/pwd de l'utilisateur<br />";
 

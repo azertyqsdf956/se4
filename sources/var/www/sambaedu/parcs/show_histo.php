@@ -56,9 +56,9 @@ $_SESSION["pageaide"]="Informations_syst%C3%A8me#Historique";
 // Affichage du formulaire de saisie d'adresse IP
 echo "<H1>".gettext("Historique des connexions")."</H1>";
 
-if ((is_admin("computers_is_admin",$login)=="Y") or (is_admin("parc_can_view",$login)=="Y") or (is_admin("parc_can_manage",$login)=="Y")  or (is_admin("Annu_is_admin",$login)=="Y") or $login == $user) {
+if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, "parc_can_view",$login)=="Y") or (is_admin($config, "parc_can_manage",$login)=="Y")  or (is_admin($config, "Annu_is_admin",$login)=="Y") or $login == $user) {
 
-	if ((is_admin("computers_is_admin",$login)=="N") and ((is_admin("parc_can_view",$login)=="Y") or (is_admin("parc_can_manage",$login)=="Y"))) {
+	if ((is_admin($config, "computers_is_admin",$login)=="N") and ((is_admin($config, "parc_can_view",$login)=="Y") or (is_admin($config, "parc_can_manage",$login)=="Y"))) {
                 echo "<h3>".gettext("Votre d&#233;l&#233;gation a &#233;t&#233; prise en compte pour l'affichage de cette page.")."</h3>";
                 $acces_restreint=1;
                 $list_delegate=list_parc_delegate($login);
@@ -171,7 +171,7 @@ if ((is_admin("computers_is_admin",$login)=="Y") or (is_admin("parc_can_view",$l
 			// echo "</FONT></STRONG> connexion(s) en cours sous le login <STRONG><FONT color='red'>$user</FONT></STRONG> sur ";
 			echo "</FONT></STRONG>".gettext(" connexion(s) en cours sous le login")." <A HREF='../annu/people.php?uid=$user'><STRONG><FONT color='red'><U>$user</U></FONT></STRONG></A>".gettext(" sur ");
  			foreach($machines as $machine) {
-				if (is_admin("computers_is_admin",$login)=="Y")  echo "<A HREF='show_histo.php?selectionne=2&mpenc=".urlencode($machine)."'><U>$machine</U></A> ";
+				if (is_admin($config, "computers_is_admin",$login)=="Y")  echo "<A HREF='show_histo.php?selectionne=2&mpenc=".urlencode($machine)."'><U>$machine</U></A> ";
 				else echo "<STRONG>$machine</STRONG> ";
 			}
 		} else {
@@ -206,15 +206,15 @@ if ((is_admin("computers_is_admin",$login)=="Y") or (is_admin("parc_can_view",$l
 			while ($r=mysqli_fetch_array($result)) {
 				// echo "<TR align='center'><TD>".$r["netbios_name"]."</TD>\n";
 				echo "<TR align='center'><TD>";
-				if (is_admin("computers_is_admin",$login)=="Y") { echo "<A HREF='show_histo.php?selectionne=2&mpenc=".$r["netbios_name"]."'>"; }
+				if (is_admin($config, "computers_is_admin",$login)=="Y") { echo "<A HREF='show_histo.php?selectionne=2&mpenc=".$r["netbios_name"]."'>"; }
 				echo $r["netbios_name"];
-				if (is_admin("computers_is_admin",$login)=="Y") echo "</A>";
+				if (is_admin($config, "computers_is_admin",$login)=="Y") echo "</A>";
 				echo "</TD>\n";
 				//echo "<TD>".$r["ip_address"]."</TD>\n";
 				echo "<TD>";
-				if (is_admin("computers_is_admin",$login)=="Y") { echo "<A HREF='show_histo.php?selectionne=1&ipaddr=".$r["ip_address"]."'>"; }
+				if (is_admin($config, "computers_is_admin",$login)=="Y") { echo "<A HREF='show_histo.php?selectionne=1&ipaddr=".$r["ip_address"]."'>"; }
 				echo $r["ip_address"];
-				if (is_admin("computers_is_admin",$login)=="Y") {"</A>"; }
+				if (is_admin($config, "computers_is_admin",$login)=="Y") {"</A>"; }
 				echo "</TD>\n";
 				echo "<TD>".$r["logintime"]."</TD>\n";
 				echo "<TD>".$r["logouttime"]."</TD></TR>\n";

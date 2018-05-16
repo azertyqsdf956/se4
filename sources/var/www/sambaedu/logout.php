@@ -25,7 +25,7 @@
 session_name("Sambaedu");
 @session_start();
 
-require ("config.inc.php");
+require_once("config.inc.php");
 require ("functions.inc.php");
 unset($_SESSION['comptes_crees']) ;
 close_session();

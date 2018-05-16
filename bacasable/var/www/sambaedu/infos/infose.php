@@ -42,7 +42,7 @@ $_SESSION["pageaide"]="Informations_syst%C3%A8me#Informations_g.C3.A9n.C3.A9rale
 //ticket  kerberos
 $domN= strtoupper($domain);
 exec("kinit -k -t /var/remote_adm/www-data.keytab www-data@$domN",$Err);
-system("/usr/share/sambaedu/scripts/infose.sh \"$peopleRdn\" \"$groupsRdn\" \"$ldap_base_dn\" $path2smbconf $domain" );
+system("/usr/share/sambaedu/scripts/infose.sh \"$people_rdn\" \"$groups_rdn\" \"$ldap_base_dn\" $path2smbconf $domain" );
 
 require ("pdp.inc.php");
 ?>

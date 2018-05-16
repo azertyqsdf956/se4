@@ -45,7 +45,7 @@ $texte_alert = "Vous allez supprimer tout le repertoire classe. Voulez vous vrai
 </script>
 
 <?php
-if ((is_admin("se3_is_admin", $login) == "Y") or ( is_admin("annu_is_admin", $login) == "Y")) {
+if ((is_admin($config, "se3_is_admin", $login) == "Y") or ( is_admin($config, "annu_is_admin", $login) == "Y")) {
 
     function my_echo_debug($chaine) {
         $debug = 1;

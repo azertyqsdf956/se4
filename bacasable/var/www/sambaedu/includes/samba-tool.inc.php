@@ -54,7 +54,7 @@ function sambatool ($command) {
 
     if(isset($config['crobLdapTotallyDegraded'])) {
         if($debug=='y') {echo("/usr/bin/samba-tool $command -U Administrator --password=XXXXXXXXXXXX -H ldap://$ldap_server"."\n");}
-        exec ("/usr/bin/samba-tool $command -U Administrator --password=".$config['adminPw']." -H ldap://$ldap_server", $RET);
+        exec ("/usr/bin/samba-tool $command -U Administrator --password=".$config['ldap_admin_passwd']." -H ldap://$ldap_server", $RET);
     }
     else {
         if($debug=='y') {echo("/usr/bin/samba-tool $command -k yes -H ldap://$ldap_server"."\n");}
@@ -652,11 +652,11 @@ function crob_bind_ldap($ds) {
     else {
         /*
         echo "crobLdapTotallyDegraded=y\n";
-        echo "\$config['adminRdn']=".$config["adminRdn"]."\n";
+        echo "\$config['ldap_admin_name']=".$config["ldap_admin_name"]."\n";
         echo "\$config['adminDn']=".$config["adminDn"]."\n";
-        echo "\$config['adminPw']=".$config["adminPw"]."\n";
+        echo "\$config['ldap_admin_passwd']=".$config["ldap_admin_passwd"]."\n";
         */
-        $r=ldap_bind($ds, $config["adminRdn"], $config["adminPw"]);// Bind admin LDAP
+        $r=ldap_bind($ds, $config["ldap_admin_name"], $config["ldap_admin_passwd"]);// Bind admin LDAP
     }
     return $r;
 }

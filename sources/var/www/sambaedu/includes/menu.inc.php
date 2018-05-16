@@ -21,7 +21,7 @@
    * @Repertoire: includes/
    */
 
-
+include_once "config.inc.php";
 include "ldap.inc.php";
 
     // Fin Recherche de la nature mono ou multi serveur de la plateforme SE3
@@ -30,8 +30,7 @@ include "ldap.inc.php";
     //$menu_fond_ecran=$config["menu_fond_ecran"];
     $menu_unattended=$config["unattended"];
 
-$liens=array(0
-    );
+$liens=array(0);
     exec("ls /var/www/sambaedu/includes/menu.d/*.inc",$files,$return);
     for ($i=0; $i< count($files); $i++) {
 

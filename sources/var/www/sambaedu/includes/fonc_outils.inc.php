@@ -464,8 +464,8 @@ function type_os($nom_machine) { // retourne l'os de la machine
 function move_computer_parc($parc,$computer) { // Supprime une machine d'un parc
 	 // Suppression des machines dans le parc
 	require_once "config.php";
-	$cDn = "cn=".$computer.",".$computersRdn.",".$ldap_base_dn;
-	$pDn = "cn=".$parc.",".$parcsRdn.",".$ldap_base_dn;
+	$cDn = "cn=".$computer.",".$computers_rdn.",".$ldap_base_dn;
+	$pDn = "cn=".$parc.",".$parcs_rdn.",".$ldap_base_dn;
 	exec ("/usr/share/se3/sbin/groupDelEntry.pl \"$cDn\" \"$pDn\"");
         exec ("/usr/share/se3/sbin/printers_group.pl");
 
@@ -481,7 +481,7 @@ function move_computer_parc($parc,$computer) { // Supprime une machine d'un parc
 
 function move_parc($parc) {
 	require_once "config.php";
-	$cDn = "cn=".$parc.",".$parcsRdn.",".$ldap_base_dn;
+	$cDn = "cn=".$parc.",".$parcs_rdn.",".$ldap_base_dn;
         exec ("/usr/share/se3/sbin/entryDel.pl \"$cDn\"");
 	exec ("/usr/share/se3/sbin/printers_group.pl");
 }
@@ -776,7 +776,7 @@ function entree_table_param_exist($nom,$valeur,$cat,$comment) {
 	// si la variable $nom n'est pas definie on cree l'entree dans la base sql
 	if ( !isset($$nom)) {
 	        //$resultat=mysql_query("INSERT into params set id='NULL', name='$nom', value='$valeur', srv_id='0',descr='$comment',cat='$cat'");
-            set_config_se4($nom, $valeur);
+            set_config($nom, $valeur);
 		return 0;
 	}
 }

@@ -150,7 +150,7 @@ if (($login == "admin")&&($registred <= 1)) {
 }
 
 
-if (ldap_get_right("se3_is_admin",$login)!="Y")
+if (ldap_get_right($config,"se3_is_admin",$login)!="Y")
         die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BO
 DY></HTML>");
 

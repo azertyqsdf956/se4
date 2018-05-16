@@ -46,49 +46,18 @@ function get_config_se4 ($module = "sambaedu") {
 	} elseif ($module == "sambaedu") {
 		$conf_file = "/etc/sambaedu/sambaedu.conf";
 		$config = parse_ini_file ($conf_file);
-		$config['adminDn'] = $config['adminRdn'].",".$config['ldap_base_dn'];
-		$config['dn']['people'] = $config['peopleRdn'].",".$config['ldap_base_dn'];
-		$config['dn']['groups'] = $config['groupsRdn'].",".$config['ldap_base_dn'];
-		$config['dn']['rights'] = $config['rightsRdn'].",".$config['ldap_base_dn'];
-		$config['dn']['printers'] = $config['printersRdn'].",".$config['ldap_base_dn'];
-		$config['dn']['trash'] = $config['trashRdn'].",".$config['ldap_base_dn'];
+		$config['dn']['admin'] = $config['ldap_admin_name'].",".$config['ldap_base_dn'];
+		$config['dn']['people'] = $config['people_rdn'].",".$config['ldap_base_dn'];
+		$config['dn']['groups'] = $config['groups_rdn'].",".$config['ldap_base_dn'];
+		$config['dn']['rights'] = $config['rights_rdn'].",".$config['ldap_base_dn'];
+		$config['dn']['printers'] = $config['printers_rdn'].",".$config['ldap_base_dn'];
+		$config['dn']['trash'] = $config['trash_rdn'].",".$config['ldap_base_dn'];
 
 	} else {
 		$conf_file = "/etc/sambaedu/sambaedu.conf.d/$module.conf";
 		$config = parse_ini_file ($conf_file);
 	}
 	return ($config);
-}
-
-/*
- * fonction pour ecrire de se4 ou des modules d
- * @Parametres : "nom du module", parametre, valeur
- * @return succes
- */
-
-function set_config_se4( $param, $valeur, $module = "base") {
-
-    if ($module == "base") {
-		$conf_file = "/etc/sambaedu/sambaedu.conf";
-	} else {
-		$conf_file = "/etc/sambaedu/sambaedu.conf.d/$module.conf";
-	}
-	$config = parse_ini_file ($conf_file);
-	//$config = get_config_se4 ($module);
-	$config[$param] = $valeur;
-    $content="";
-	foreach($config as $key=>$value){
-		$content .= $key."='".$value."'\n";
-	}
-	//write it into file
-
-	if (!$handle = fopen($conf_file,"w"))
-		return false;
-
-	$success = fwrite($handle, $content);
-	fclose($handle);
-
-	return $success;
 }
 
 /*
@@ -176,7 +145,7 @@ function get_config ($force = false) {
  * @return :  $config ou false
  */
 
-function set_config($param, $value, $module = "base") {
+function set_config($param, $value, $module = "sambaedu") {
 
 	while (apc_fetch('config_lock')) {
 		sleep(1);
@@ -184,18 +153,21 @@ function set_config($param, $value, $module = "base") {
 
 	unset($config);
 	$config = get_config_se4 ($module);
-	$config[$param] = $valeur;
+	$config[$param] = $value;
+	$content = "";
 	foreach($config as $key=>$value){
-		$content .= $key."=".$value."\n";
+		if (!("$key" == "dn")) {
+			$content .= $key."=\"".$value."\"\n";
+		}
 	}
 	//write it into file
-	if ($module == "base") {
+	if ($module == "sambaedu") {
 		$conf_file = "/etc/sambaedu/sambaedu.conf";
 	} else {
 		$conf_file = "/etc/sambaedu/sambaedu.conf.d/$module.conf";
 	}
 	apc_add('config_lock',1,60);
-	if (!$handle = fopen($conf_file)) {
+	if (!$handle = fopen($conf_file, "w")) {
 		apc_delete('config_lock');
 		die ("Erreur d'ecriture de la configuration se4 : $module $param $value");
 	}
@@ -209,7 +181,7 @@ function set_config($param, $value, $module = "base") {
 }
 
 
-#$urlauth=$urlse3."/auth.php";
+$urlauth = "/auth.php";
 
 # Gettext
 
@@ -227,17 +199,18 @@ $config = get_config ();
 	foreach ($config as $key=>$value) {
 		$$key = $value;
 	}
-	$adminDn= "$adminRdn,$ldap_base_dn";
+	$adminDn= "$ldap_admin_name,$ldap_base_dn";
 
 	# Declaration des «branches» de l'annuaire LCS/SE3 dans un tableau
 	$dn = array();
-	$dn["people"] = "$peopleRdn,$ldap_base_dn";
-	$dn["groups"] = "$groupsRdn,$ldap_base_dn";
-	$dn["rights"] = "$rightsRdn,$ldap_base_dn";
-	$dn["parcs"] = "$parcsRdn,$ldap_base_dn";
-	$dn["computers"] = "$computersRdn,$ldap_base_dn";
-	$dn["printers"] = "$printersRdn,$ldap_base_dn";
-	$dn["trash"] = "$trashRdn,$ldap_base_dn";
+	$dn['admin'] = $config['ldap_admin_name'].",".$config['ldap_base_dn'];
+	$dn["people"] = "$people_rdn,$ldap_base_dn";
+	$dn["groups"] = "$groups_rdn,$ldap_base_dn";
+	$dn["rights"] = "$rights_rdn,$ldap_base_dn";
+	$dn["parcs"] = "$parcs_rdn,$ldap_base_dn";
+	$dn["computers"] = "$computers_rdn,$ldap_base_dn";
+	$dn["printers"] = "$printers_rdn,$ldap_base_dn";
+	$dn["trash"] = "$trash_rdn,$ldap_base_dn";
 //}
 
 ?>

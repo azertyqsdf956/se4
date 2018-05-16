@@ -33,7 +33,7 @@ require_once ("lang.inc.php");
 bindtextdomain('sambaedu-infos',"/var/www/sambaedu/locale");
 textdomain ('sambaedu-infos');
 
-if (is_admin("system_is_admin",$login)!="Y")
+if (is_admin($config, "system_is_admin",$login)!="Y")
 	die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 
 
@@ -42,7 +42,7 @@ $_SESSION["pageaide"]="Informations_syst%C3%A8me#Informations_g.C3.A9n.C3.A9rale
 //ticket  kerberos
 $domN= strtoupper($domain);
 exec("kinit -k -t /var/remote_adm/www-data.keytab www-data@$domN",$Err);
-system("/usr/share/sambaedu/scripts/infose.sh \"$peopleRdn\" \"$groupsRdn\" \"$ldap_base_dn\" $path2smbconf $domain" );
+system("/usr/share/sambaedu/scripts/infose.sh \"$people_rdn\" \"$groups_rdn\" \"$ldap_base_dn\" $path2smbconf $domain" );
 
 require ("pdp.inc.php");
 ?>

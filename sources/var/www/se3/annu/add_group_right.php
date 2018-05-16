@@ -59,8 +59,8 @@ if (ldap_get_right("se3_is_admin",$login)=="Y") {
       		for ($loop=0; $loop < count($newrights); $loop++) {
         		$right=$newrights[$loop];
         		echo gettext("D&#233;l&#233;gation du droit")." <U>$right</U> ".gettext("&#224; l'utilisateur")." $cn<BR>";
-        		$cDn = "cn=$cn,$groupsRdn,$ldap_base_dn";
-        		$pDn = "cn=$right,$rightsRdn,$ldap_base_dn";
+        		$cDn = "cn=$cn,$groups_rdn,$ldap_base_dn";
+        		$pDn = "cn=$right,$rights_rdn,$ldap_base_dn";
         		exec ("/usr/share/se3/sbin/groupAddEntry.pl \"$cDn\" \"$pDn\"");
         		echo "<BR>";
       		}
@@ -74,8 +74,8 @@ if (ldap_get_right("se3_is_admin",$login)=="Y") {
       		for ($loop=0; $loop < count($delrights); $loop++) {
         		$right=$delrights[$loop];
         		echo gettext("Suppression du droit")." <U>$right</U> ".gettext("pour le groupe")." $cn<BR>";
-        		$cDn = "cn=$cn,$groupsRdn,$ldap_base_dn";
-        		$pDn = "cn=$right,$rightsRdn,$ldap_base_dn";
+        		$cDn = "cn=$cn,$groups_rdn,$ldap_base_dn";
+        		$pDn = "cn=$right,$rights_rdn,$ldap_base_dn";
         		exec ("/usr/share/se3/sbin/groupDelEntry.pl \"$cDn\" \"$pDn\"");
         		echo "<BR>";
       		}
@@ -87,7 +87,7 @@ if (ldap_get_right("se3_is_admin",$login)=="Y") {
     	echo gettext("S&#233;lectionnez les droits &#224; supprimer (liste de gauche) ou &#224; ajouter (liste de droite)");
     	echo gettext("et validez &#224; l'aide du bouton correspondant.")."<BR><BR>\n";
     	// Lecture des droits disponibles
-    	$userDn="cn=$cn,$groupsRdn,$ldap_base_dn";
+    	$userDn="cn=$cn,$groups_rdn,$ldap_base_dn";
     	$list_possible_rights=search_machines("(!(member=$userDn))","rights");
     	$list_current_rights=search_machines("(member=$userDn)","rights");
     	?>

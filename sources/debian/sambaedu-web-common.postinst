@@ -56,6 +56,9 @@ case "$1" in
         a2enconf php7.0-fpm
         apachectl restart
         
+        mkdir -p /var/log/sambaedu
+        chown www-admin /var/log/sambaedu
+        
         # config mysql : import des tables connexion se3 si elles existent, sinon initialisation
         # config root
         

@@ -1,21 +1,21 @@
 
 <?php
 
-require ("config.inc.php");
+require_once("config.inc.php");
 require ("functions.inc.php");
 
 echo "ldap_server $ldap_server<br />";
 echo "lang : $lang<br />";
 
 #echo "DBG > CN=administrator,CN=users,DC=sambaedu,DC=home<br />";
-#echo "adminDN : $adminDn adminPWD : $adminPw<br />";
+#echo "adminDN : $adminDn adminPWD : $ldap_admin_passwd<br />";
 
 echo "<b>fonction user_valid_pwd</b> : vérification du couple login/pwd de l'utilisateur<br />";
 
 if (user_valid_passwd ("jchretien", "Bri1lola") )  {
     echo "auth OK<br />";
         echo "<b>On cherche si jchretien possede le droit se_is_admin </b><br />";
-        $RES=ldap_get_right("se_is_admin", "jchretien");
+        $RES=ldap_get_right($config, "se_is_admin", "jchretien");
         echo "RES : $RES<br />";
 } else
     echo "auth NOK<br />";

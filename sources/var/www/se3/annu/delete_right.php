@@ -96,7 +96,7 @@ if (ldap_get_right("se3_is_admin",$login)=="Y") {
             			echo $form;
             			for ($loop=0; $loop < count($mp); $loop++) { 
                 			$value=extract_login($mp[$loop]);
-                			if (preg_match("/$groupsRdn/",$mp[$loop])) {
+                			if (preg_match("/$groups_rdn/",$mp[$loop])) {
 						$type = "groupe";
 						$value="$value ($type)";
 					} else {
@@ -125,10 +125,10 @@ if (ldap_get_right("se3_is_admin",$login)=="Y") {
                 		$pers=$old_rights[$loop];
 				$pers=extract_login ($pers);
                 		echo gettext("Suppression de")." $pers ".gettext("du droit ")." <U>$right</U><BR>";
-                		$pDn = "cn=".$right.",".$rightsRdn.",".$ldap_base_dn;
-                		if ($type=="utilisateur") $persDn = "cn=$pers".",".$peopleRdn.",".$ldap_base_dn;
-				else $persDn = "cn=$pers".",".$groupsRdn.",".$ldap_base_dn;
-				#echo "cn=$pers".",".$groupsRdn.",".$ldap_base_dn;
+                		$pDn = "cn=".$right.",".$rights_rdn.",".$ldap_base_dn;
+                		if ($type=="utilisateur") $persDn = "cn=$pers".",".$people_rdn.",".$ldap_base_dn;
+				else $persDn = "cn=$pers".",".$groups_rdn.",".$ldap_base_dn;
+				#echo "cn=$pers".",".$groups_rdn.",".$ldap_base_dn;
                 		exec ("/usr/share/se3/sbin/groupDelEntry.pl \"$persDn\" \"$pDn\"");
                 		echo "<BR>";
             		}

@@ -46,12 +46,12 @@ function get_config_se4 ($module = "sambaedu") {
 	} elseif ($module == "sambaedu") {
 		$conf_file = "/etc/sambaedu/sambaedu.conf";
 		$config = parse_ini_file ($conf_file);
-		$config['adminDn'] = $config['adminRdn'].",".$config['ldap_base_dn'];
-		$config['dn']['people'] = $config['peopleRdn'].",".$config['ldap_base_dn'];
-		$config['dn']['groups'] = $config['groupsRdn'].",".$config['ldap_base_dn'];
-		$config['dn']['rights'] = $config['rightsRdn'].",".$config['ldap_base_dn'];
-		$config['dn']['printers'] = $config['printersRdn'].",".$config['ldap_base_dn'];
-		$config['dn']['trash'] = $config['trashRdn'].",".$config['ldap_base_dn'];
+		$config['adminDn'] = $config['ldap_admin_name'].",".$config['ldap_base_dn'];
+		$config['dn']['people'] = $config['people_rdn'].",".$config['ldap_base_dn'];
+		$config['dn']['groups'] = $config['groups_rdn'].",".$config['ldap_base_dn'];
+		$config['dn']['rights'] = $config['rights_rdn'].",".$config['ldap_base_dn'];
+		$config['dn']['printers'] = $config['printers_rdn'].",".$config['ldap_base_dn'];
+		$config['dn']['trash'] = $config['trash_rdn'].",".$config['ldap_base_dn'];
 
 	} else {
 		$conf_file = "/etc/sambaedu/sambaedu.conf.d/$module.conf";
@@ -227,17 +227,17 @@ $config = get_config ();
 	foreach ($config as $key=>$value) {
 		$$key = $value;
 	}
-	$adminDn= "$adminRdn,$ldap_base_dn";
+	$adminDn= "$ldap_admin_name,$ldap_base_dn";
 
 	# Declaration des «branches» de l'annuaire LCS/SE3 dans un tableau
 	$dn = array();
-	$dn["people"] = "$peopleRdn,$ldap_base_dn";
-	$dn["groups"] = "$groupsRdn,$ldap_base_dn";
-	$dn["rights"] = "$rightsRdn,$ldap_base_dn";
-	$dn["parcs"] = "$parcsRdn,$ldap_base_dn";
-	$dn["computers"] = "$computersRdn,$ldap_base_dn";
-	$dn["printers"] = "$printersRdn,$ldap_base_dn";
-	$dn["trash"] = "$trashRdn,$ldap_base_dn";
+	$dn["people"] = "$people_rdn,$ldap_base_dn";
+	$dn["groups"] = "$groups_rdn,$ldap_base_dn";
+	$dn["rights"] = "$rights_rdn,$ldap_base_dn";
+	$dn["parcs"] = "$parcs_rdn,$ldap_base_dn";
+	$dn["computers"] = "$computers_rdn,$ldap_base_dn";
+	$dn["printers"] = "$printers_rdn,$ldap_base_dn";
+	$dn["trash"] = "$trash_rdn,$ldap_base_dn";
 //}
-
+$urlauth = "/auth.php"
 ?>

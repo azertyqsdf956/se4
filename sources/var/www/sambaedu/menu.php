@@ -116,7 +116,7 @@ function P7_autoLayers()
 		if (! isset($menu)) $menu=0;
 		//echo "<body bgcolor=\"ghostwhite\" onLoad=\"P7_autoLayers('menu" . $menu ."')\">";
 		echo "<body bgcolor=\"#f8f8ff\" onLoad=\"P7_autoLayers('menu" . $menu ."')\">";
-		menuprint($login);
+		menuprint($config, $login);
 
 		include("pdp.inc.php");
 	}

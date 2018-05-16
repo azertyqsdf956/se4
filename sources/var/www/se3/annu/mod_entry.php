@@ -167,7 +167,7 @@ if (is_admin("Annu_is_admin",$login)=="Y") {
       		// Modification des entrees
       		$ds = @ldap_connect ( $ldap_server, $ldap_port );
       		if ( $ds ) {
-        		$r = @ldap_bind ( $ds, $adminDn, $adminPw ); // Bind en admin
+        		$r = @ldap_bind ( $ds, $adminDn, $ldap_admin_passwd ); // Bind en admin
         		if ($r) {
           			if (@ldap_modify ($ds, "cn=".$people_attr[0]["cn"].",".$dn["people"],$entry)) {
             				echo "<strong>".gettext("Vos entr&#233;es ont &#233;t&#233; modifi&#233;e avec succ&#232;s.")."</strong><BR>\n";

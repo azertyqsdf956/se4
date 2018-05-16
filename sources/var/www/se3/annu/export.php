@@ -41,7 +41,7 @@
 		if (isset($_POST['filtre'])) {
 			$filtre=$_POST['filtre'];
 			if ($filtre == "") $filtre = "objectclass=*";
-			system("ldapsearch -xLLL -h $ldap_server -D \"$adminRdn,$ldap_base_dn\" -w $adminPw $filtre > /tmp/export.ldif");
+			system("ldapsearch -xLLL -h $ldap_server -D \"$ldap_admin_name,$ldap_base_dn\" -w $ldap_admin_passwd $filtre > /tmp/export.ldif");
 			header("Content-Type: octet-stream");
 			header("Content-Length: ".filesize ("/tmp/export.ldif") );
 			header("Content-Disposition: attachment; filename=\"/tmp/export.ldif\"");

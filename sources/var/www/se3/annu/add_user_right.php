@@ -61,8 +61,8 @@ if (ldap_get_right("se3_is_admin",$login)=="Y") {
       	for ($loop=0; $loop < count($newrights); $loop++) {
         	$right=$newrights[$loop];
         	echo gettext("D&#233;l&#233;gation du droit")." <U>$right</U> ".gettext("&#224; l'utilisateur")." $cn<BR>";
-        	$cDn = "cn=$cn,$peopleRdn,$ldap_base_dn";
-        	$pDn = "cn=$right,$rightsRdn,$ldap_base_dn";
+        	$cDn = "cn=$cn,$people_rdn,$ldap_base_dn";
+        	$pDn = "cn=$right,$rights_rdn,$ldap_base_dn";
         	exec ("/usr/share/se3/sbin/groupAddEntry.pl \"$cDn\" \"$pDn\"");
                 if ($right == "computers_is_admin") {
                     //echo "MAj interface wpkg";
@@ -79,8 +79,8 @@ if (ldap_get_right("se3_is_admin",$login)=="Y") {
       	for ($loop=0; $loop < count($delrights); $loop++) {
         	$right=$delrights[$loop];
         	echo gettext("Suppression du droit")." <U>$right</U> ".gettext("pour l'utilisateur")." $cn<BR>";
-        	$cDn = "cn=$cn,$peopleRdn,$ldap_base_dn";
-        	$pDn = "cn=$right,$rightsRdn,$ldap_base_dn";
+        	$cDn = "cn=$cn,$people_rdn,$ldap_base_dn";
+        	$pDn = "cn=$right,$rights_rdn,$ldap_base_dn";
         	exec ("/usr/share/se3/sbin/groupDelEntry.pl \"$cDn\" \"$pDn\"");
         	echo "<BR>";
       	}
@@ -91,7 +91,7 @@ if (ldap_get_right("se3_is_admin",$login)=="Y") {
     echo gettext("S&#233;lectionnez les droits &#224; supprimer (liste de gauche) ou &#224; ajouter (liste de droite) ");
     echo gettext("et validez &#224; l'aide du bouton correspondant.")."<BR><BR>\n";
     // Lecture des droits disponibles
-    $userDn="cn=$cn,$peopleRdn,$ldap_base_dn";
+    $userDn="cn=$cn,$people_rdn,$ldap_base_dn";
     $list_possible_rights=search_machines("(!(member=$userDn))","rights");
     $list_current_rights=search_machines("(member=$userDn)","rights");
     ?>
@@ -123,7 +123,7 @@ if (ldap_get_right("se3_is_admin",$login)=="Y") {
 	if ( count($groups) ) {
                 for ($loop=0; $loop < count ($groups) ; $loop++) {
                		$groupe=$groups[$loop]["cn"];
-			$GroupDn="cn=$groupe,$groupsRdn,$ldap_base_dn";
+			$GroupDn="cn=$groupe,$groups_rdn,$ldap_base_dn";
 			$list_heritage_rights=search_machines("(member=$GroupDn)","rights");
 			if   ( count($list_heritage_rights)>15) $size=15; else $size=count($list_heritage_rights);
 			if ( $size>0) {

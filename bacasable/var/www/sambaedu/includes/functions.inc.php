@@ -185,7 +185,7 @@ function ldap_get_right_search ($type,$search_filter,$ldap)
 
 function ldap_get_right($type,$login)
 {
-    global $ldap_server, $ldap_port, $adminDn, $adminPw, $dn;
+    global $ldap_server, $ldap_port, $adminDn, $ldap_admin_passwd, $dn;
 
     $nom="cn=" . $login . "," . $dn["people"];
 
@@ -196,7 +196,7 @@ function ldap_get_right($type,$login)
         echo "Error connecting to LDAP server";
     } else {
         if ( $adminDn != "")
-            $r = ldap_bind ( $ldap, $adminDn, $adminPw );     // bind as administrator
+            $r = ldap_bind ( $ldap, $adminDn, $ldap_admin_passwd );     // bind as administrator
         else
             $r = ldap_bind ( $ldap ); // bind as anonymous
 

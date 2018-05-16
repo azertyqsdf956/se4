@@ -20,6 +20,27 @@
 
 //=================================================
 
+function bind_ad_gssapi($config) {
+   /*
+    * établit une connexion avec l'AD en GSSAPI
+    */
+    $error = 0;    
+	$url = "ldap://".$config['se4ad_name'].".".$config['domain'];
+    $ds = ldap_connect($url, '389');
+    if ($ds) {
+        ldap_set_option ($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option ($ds, LDAP_OPT_REFERRALS, 0);
+        $r = ldap_sasl_bind ($ds, null, null, 'GSSAPI');
+        if ( ! $r ) {
+       		 $error = gettext("Echec de l'Authentification.");
+        }
+    }  else {
+    	$error = gettext("Erreur de connection kerberos au serveur AD");
+    }
+    return array ($ds,$r,$error);
+}
+
+
 /**
 * Verification du couple login / mot de passe d'un utilisateur
 
@@ -28,13 +49,13 @@
 * @Modif pour AD SMB4
 */
 
-function user_valid_passwd ( $login, $password ) {
-  global $ldap_server, $ldap_port, $dn;
+function user_valid_passwd ($config, $login, $password ) {
+  $url = "ldaps://".$config['domain'];
   $ret = false;
 
-  $ds = @ldap_connect ( "ldaps://".$ldap_server, $ldap_port );
+  $ds = @ldap_connect ( $url, $config['ldap_port'] );
   if ( $ds ) {
-    $r = @ldap_bind ( $ds,"cn=".$login.",".$dn["people"] , $password );
+    $r = @ldap_bind ( $ds,"cn=".$login.",".$config['dn']["people"] , $password );
     if ( $r ) {
                 $ret = true;
     } else $error = gettext("Echec de l'Authentification.");
@@ -59,7 +80,7 @@ function isauth()
     return $login;
 }
 
-function open_session($login, $passwd,$al)
+function open_session($config, $login, $passwd,$al)
 {
     global $urlauth, $authlink, $secook;
     global  $dbhost, $dbuser, $dbpass, $autologon, $REMOTE_ADDR;
@@ -92,7 +113,7 @@ function open_session($login, $passwd,$al)
                         //echo $passwd;///exit;
                         // Si le decodage ne comporte pas d'erreur
                         if (!$error) {
-                                $auth_ldap = user_valid_passwd ( $login ,  $passwd);
+                                $auth_ldap = user_valid_passwd ( $config, $login ,  $passwd);
                                 if (!$auth_ldap) $error=4;
                         }
                         if ($error) {
@@ -144,14 +165,15 @@ function close_session()
 * @Return
 */
 
-function ldap_get_right_search ($type,$search_filter,$ldap)
+
+
+function ldap_get_right_search ($config, $login, $type, $search_filter, $ldap)
 {
-    global $dn,$login;
     $ret="N";
     $typearr=explode("|","$type");
     $i=0;
     while (($ret=="N") and ($i < count($typearr))) {
-      $base_search="cn=".$typearr[$i]."," . $dn["rights"];
+      $base_search="cn=".$typearr[$i]."," . $config['dn']["rights"];
       $search_attributes=array("cn");
       $result = @ldap_read($ldap, $base_search, $search_filter, $search_attributes);
       if ($result) {
@@ -160,7 +182,7 @@ function ldap_get_right_search ($type,$search_filter,$ldap)
       } else {
     	// Analyse pour les membres d'un groupe
     	// jLCF 18 > A quoi sert cette section ?
-        $base_search="cn=".$typearr[$i]."," . $dn["groups"];
+        $base_search="cn=".$typearr[$i]."," . $config['dn']["groups"];
         $result = @ldap_read($ldap, $base_search, "cn=$login", $search_attributes);
         if ($result) {
           if (ldap_count_entries ($ldap,$result) == 1) $ret="Y";
@@ -183,74 +205,44 @@ function ldap_get_right_search ($type,$search_filter,$ldap)
 */
 
 
-function ldap_get_right($type,$login)
+function ldap_get_right($config,$type, $login)
 {
-    global $ldap_server, $ldap_port, $adminDn, $adminPw, $dn;
 
-    $nom="cn=" . $login . "," . $dn["people"];
+    $nom="cn=" . $login . "," . $config['dn']["people"];
 
     $ret="N";
 
-    $ldap = ldap_connect ("ldaps://".$ldap_server, $ldap_port);
-    if ( !$ldap ) {
-        echo "Error connecting to LDAP server";
-    } else {
-        if ( $adminDn != "")
-            $r = ldap_bind ( $ldap, $adminDn, $adminPw );     // bind as administrator
-        else
-            $r = ldap_bind ( $ldap ); // bind as anonymous
-
-        if (!$r)
-            echo "Invalid Admin's login for LDAP Server";
-        else {
-            // Recherche du nom exact
-            $search_filter = "(member=$nom)";
-            //$ret=ldap_get_right_search ($type,$search_filter,$ldap,$base_search);
-            $ret=ldap_get_right_search ($type,$search_filter,$ldap);
-/*
-            if ($ret=="N") {
-            // Recherche sur les Posixgroups d'appartenance
-                $result1 = @ldap_list ( $ldap, $dn["groups"], "memberUid=$login", array ("cn") );
-                if ($result1) {
-                $info = @ldap_get_entries ( $ldap, $result1 );
-                   if ( $info["count"]) {
-                    $loop=0;
-                    while (($loop < $info["count"]) && ($ret=="N")){
-                        $search_filter = "(member=cn=".$info[$loop]["cn"][0].",".$dn["groups"].")";
-                        //$ret=ldap_get_right_search ($type,$search_filter,$ldap,$base_search,$search_attributes);
-                        $ret=ldap_get_right_search ($type,$search_filter,$ldap);
-                        $loop++;
-                    }
-                }
-                @ldap_free_result ( $result1 );
-                }
-            }
-*/
-            #if ($ret=="N") {
+   // Connect and sasl bind
+    list($ds,$r,$error) = bind_ad_gssapi($config);
+    if ( $r ) {
+             // Recherche du nom exact
+       $search_filter = "(member=$nom)";
+       $ret=ldap_get_right_search ($config, $login, $type, $search_filter,$ds);
             // Recherche sur les GroupsOfNames d'appartenance
-                $result1 = @ldap_list ( $ldap, $dn["groups"], "member=cn=$login,".$dn["people"], array ("cn") );
-                if ($result1) {
-                	$info = @ldap_get_entries ( $ldap, $result1 );
+       $result1 = @ldap_list ( $ds, $config['dn']["groups"], "member=cn=$login,".$config['dn']["people"], array ("cn") );
+       if ($result1) {
+                	$info = @ldap_get_entries ( $ds, $result1 );
               		if ( $info["count"]) {
-                    	$loop=0;
-                    	while (($loop < $info["count"]) && ($ret=="N")){
-                        		$search_filter = "(member=cn=".$info[$loop]["cn"][0].",".$dn["groups"].")";
-                        		//$ret=ldap_get_right_search ($type,$search_filter,$ldap,$base_search,$search_attributes);
-                        		$ret=ldap_get_right_search ($type,$search_filter,$ldap);
+                            $loop=0;
+                            while (($loop < $info["count"]) && ($ret=="N")){
+                        		$search_filter = "(member=cn=".$info[$loop]["cn"][0].",".$config['dn']["groups"].")";
+                        		$ret=ldap_get_right_search ($config, $type, $search_filter, $ds);
                         		$loop++;
-                    	}
+                            }
                 	}
                 	@ldap_free_result ( $result1 );
-                }
-            #}
         }
-    	ldap_close ($ldap);
+    	ldap_close ($ds);
+    }
+//  hack
+    if ("$login" == "administrator") {
+        $ret = "Y";
     }
     return $ret;
 }
 
 
-function menuprint($login) {
+function menuprint($config, $login) {
     global $liens,$menu;
     for ($idmenu=0; $idmenu<count($liens); $idmenu++)
     {
@@ -262,7 +254,7 @@ function menuprint($login) {
 
         echo "
         <table width=\"200\" border=\"0\" cellspacing=\"3\" cellpadding=\"6\">\n";
-        $ldapright["se3_is_admin"]=ldap_get_right("se3_is_admin",$login);
+        $ldapright["se3_is_admin"]=ldap_get_right($config, "se3_is_admin", $login);
         $getintlevel = getintlevel();
         for ($menunbr=1; $menunbr<count($liens); $menunbr++)
         {
@@ -275,8 +267,8 @@ function menuprint($login) {
             $level=$liens[$menunbr][2];
             if (($rightname=="") or ($afftest)) $afftest=1==1;
             else {
-                //if ($ldapright["$rightname"]=="") $ldapright["$rightname"]=ldap_get_right($rightname,$login);
-                if ((!isset($ldapright["$rightname"]))||($ldapright["$rightname"]=="")) { $ldapright["$rightname"]=ldap_get_right($rightname,$login);}
+                //if ($ldapright["$rightname"]=="") $ldapright["$rightname"]=ldap_get_right($config, $rightname,$login);
+                if ((!isset($ldapright["$rightname"]))||($ldapright["$rightname"]=="")) { $ldapright["$rightname"]=ldap_get_right($config, $rightname, $login);}
                 $afftest=($ldapright["$rightname"]=="Y");
             }
             if ($level > $getintlevel) $afftest=0;
@@ -298,7 +290,7 @@ function menuprint($login) {
                     $level=$liens[$menunbr][$i+3];
                     if (($rightname=="") or ($afftest)) $afftest=1==1;
                     else {
-                        if ((!isset($ldapright["$rightname"]))||($ldapright["$rightname"]=="")) {$ldapright["$rightname"]=ldap_get_right($rightname,$login);}
+                        if ((!isset($ldapright["$rightname"]))||($ldapright["$rightname"]=="")) {$ldapright["$rightname"]=ldap_get_right($config, $rightname, $login);}
                         $afftest=($ldapright[$rightname]=="Y");
                     }
                     if ($level > $getintlevel ) $afftest=0;
@@ -372,7 +364,14 @@ function setintlevel($new_level)
 */
 
 function setparam($name,$value){
-    set_config_se4($name, $value);
+    set_config($name, $value);
 }
+
+function mktable ($title, $content)
+{
+	echo "<H3>$title</H3>";
+	echo $content;
+}
+
 
 ?>

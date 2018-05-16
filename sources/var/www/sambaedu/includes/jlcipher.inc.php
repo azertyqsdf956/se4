@@ -27,7 +27,7 @@
 // Constantes j-LCipher
 $MaxLifeTime = "5"; /* seconde */
 
-# Messages d'erreur  j-LCipher  loges dans /var/log/se3/auth.log
+# Messages d'erreur  j-LCipher  loges dans /var/log/sambaedu/auth.log
 $MsgError[1]="Possible spoof IP source address";
 $MsgError[2]="MaxTimeLife expire";
 $MsgError[3]=$MsgError[1]." and ".$MsgError[2];
@@ -168,8 +168,8 @@ function remote_ip()
 
 function decode_pass($string_auth) {
         global  $MaxLifeTime,$path_to_wwwse;
-        $error="";
-        $fpdebug=fopen("/var/log/se3/debug.log","a");
+        $error="0";
+        $fpdebug=fopen("/var/log/sambaedu/debug.log","a");
 	fputs($fpdebug,date("j/m/y:H:i").":function decode_pass():\$string_auth: ".$string_auth."\n");
 	//$argument=explode("\n", $string_auth);
 	//fputs($fpdebug,date("j/m/y:H:i").":function decode_pass():\$argument: ".$argument[0]."\n");
@@ -178,7 +178,7 @@ function decode_pass($string_auth) {
 	fputs($fpdebug,date("j/m/y:H:i").":function decode_pass():\$string_auth_clean: ".$string_auth_clean."\n");
         // Decodage de la chaine d'authentification cote serveur avec une cle privee
         //$commande="/usr/bin/python ".$path_to_sambaedu."/includes/decode.py $string_auth";
-        $commande="(/usr/bin/python $path_to_wwwse/includes/decode.py '$string_auth_clean')";
+        $commande="(/usr/bin/python /var/www/sambaedu/includes/decode.py '$string_auth_clean')";
         fputs($fpdebug,date("j/m/y:H:i")." : function decode_pass() : \$commande : ".$commande."\n");
         unset($AllOutPut);
         exec ($commande,$AllOutPut,$ReturnValue);

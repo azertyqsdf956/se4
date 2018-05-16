@@ -36,7 +36,7 @@ textdomain ('se3-annu');
 if (is_admin("system_is_admin",$login)!="Y")
 	die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 
-$texte_alert=gettext("Attention vous risquez de perdre le contrôle de votre serveur. Voir la documentation avant de mettre cela en oeuvre. Etes vous sure de vouloir continuer ?");
+$texte_alert=gettext("Attention vous risquez de perdre le contrï¿½le de votre serveur. Voir la documentation avant de mettre cela en oeuvre. Etes vous sure de vouloir continuer ?");
 
 ?>
 <script language="JavaScript">
@@ -108,16 +108,16 @@ if ($action == "Ok" || $replica=="0") {
 		$ip_revers = long2ip($ip_long);
 		if ($ip != $ip_revers) { $ok = 0; }
 	
-		$result=mysqli_query($GLOBALS["___mysqli_ston"], "SELECT * from params where name='adminRdn'");
+		$result=mysqli_query($GLOBALS["___mysqli_ston"], "SELECT * from params where name='ldap_admin_name'");
 		if ($result)
     			while ($r=mysqli_fetch_array($result)) {
-        			$adminRdn=$r[2];
+        			$ldap_admin_name=$r[2];
 			}
 	
-		$result=mysqli_query($GLOBALS["___mysqli_ston"], "SELECT * from params where name='adminPw'");
+		$result=mysqli_query($GLOBALS["___mysqli_ston"], "SELECT * from params where name='ldap_admin_passwd'");
 		if ($result)
  	   		while ($r=mysqli_fetch_array($result)) {
-        			$adminPw=$r[2];
+        			$ldap_admin_passwd=$r[2];
 			}
 
 		$result=mysqli_query($GLOBALS["___mysqli_ston"], "SELECT * from params where name='ldap_base_dn'");
@@ -126,11 +126,11 @@ if ($action == "Ok" || $replica=="0") {
         			$basedn=$r[2];
 			}
 		
-		$admin_dn="$adminRdn,$basedn";
+		$admin_dn="$ldap_admin_name,$basedn";
 
 		$ldapconn = ldap_connect("$ip");
 		if ($ldapconn) {    //Connexion au serveur LDAP   
-			$ldapbind = @ldap_bind($ldapconn, $admin_dn, $adminPw);    // Identification    
+			$ldapbind = @ldap_bind($ldapconn, $admin_dn, $ldap_admin_passwd);    // Identification    
 			if ($ldapbind) {        
 				$ldap_ok="1";  // Connexion LDAP reussie
 			} else {

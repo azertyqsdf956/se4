@@ -50,7 +50,7 @@ if (is_admin("se3_is_admin",$login)=="Y") {
 			echo "<H3>".gettext("Publication du fichier")."</H3>";
 			echo "<PRE>\n";	
 
-   			system ("ldapadd -x -c -h $ldap_server -D $adminRdn,$ldap_base_dn -w $adminPw -f $ldiffile");
+   			system ("ldapadd -x -c -h $ldap_server -D $ldap_admin_name,$ldap_base_dn -w $ldap_admin_passwd -f $ldiffile");
    			echo "</PRE>\n";
    			unlink ("$ldiffile");
 		} else {

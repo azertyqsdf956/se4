@@ -35,7 +35,7 @@ textdomain ('se4-core');
 //aide
 $_SESSION["pageaide"]="L\'interface_web_administrateur#Configuration_g.C3.A9n.C3.A9rale";
 
-if (ldap_get_right("se3_is_admin",$login)!="Y")
+if (ldap_get_right($config, "se3_is_admin",$login)!="Y")
         die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 
 $action = (isset($_GET['action'])?$_GET['action']:"");
@@ -46,7 +46,7 @@ if ($action == "change") {
 	if ($_GET['varb'] == "proxy") {
 		system("/usr/bin/sudo /usr/share/se3/scripts/modifProxy.sh ".$_GET['valeur']);
 	} else {
-		set_config_se4($_GET['varb'], $_GET['valeur']);
+		set_config($_GET['varb'], $_GET['valeur']);
 
 	}
 	if ($_GET['varb'] == "corbeille") {
@@ -54,7 +54,7 @@ if ($action == "change") {
 	}
 	if ($_GET['varb'] == "defaultintlevel") {
 		setintlevel($_GET['valeur']);
-		set_config_se4($_GET['varb'], $_GET['valeur']);
+		set_config($_GET['varb'], $_GET['valeur']);
 	}
 
 	if ($_GET['varb'] == "defaultshell") {
@@ -65,7 +65,7 @@ if ($action == "change") {
 	}
 
 	if ($_GET['varb'] == "autoriser_part_pub") {
-		set_config_se4($_GET['varb'], $_GET['valeur']);
+		set_config($_GET['varb'], $_GET['valeur']);
 		
 		exec ("/usr/bin/sudo /usr/share/se3/scripts/autoriser_partage_public.sh autoriser=".$_GET['valeur'],$AllOutPut,$ReturnValue);
 	}

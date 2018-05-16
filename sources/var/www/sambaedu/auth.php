@@ -40,11 +40,11 @@
 
   // Pas de fichier entête donc on place ici HTMLPurifier
   require_once ("includes/traitement_data.inc.php");
-
+$autologon = 0;
 // section auth.php de SE3 V  2.1.6495
 if (!isset($_GET["request"])) $_GET["request"]="";
 if ((!isset($_GET["al"])||($_GET["al"]!=0)) && (($_POST["login"] != "" && $_POST["dummy"] != "") || ($autologon==1))) {
-	if ( open_session($_POST["login"], $_POST["string_auth"], $_GET["al"]) == 1 ) {
+	if ( open_session($config, $_POST["login"], $_POST["string_auth"], $_GET["al"]) == 1 ) {
 		if (isset($_GET["request"]) && ($_GET["request"] != '')) {
 			header("Location:".rawurldecode($_GET["request"]));exit;
 		} else {
