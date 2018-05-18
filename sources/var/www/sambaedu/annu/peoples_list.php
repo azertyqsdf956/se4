@@ -52,18 +52,18 @@ if ((is_admin($config, "Annu_is_admin",$login)=="Y") || (is_admin($config, "Annu
 	echo "<div style='float:right; width:16px; '><a href='add_user.php' title='Ajouter un utilisateur'><img src='/elements/images/add.png' width='16px' height='16px'  alt='Ajouter un utilisateur' /></a></div>\n";
 
 	// Convertion en utf_8
-	//$nom = utf8_encode($nom);
-	//$fullname = utf8_encode($fullname);
+	$nom = utf8_encode($nom);
+	$fullname = utf8_encode($fullname);
 
 	// Construction du filtre de la branche people
 	if ($nom && !$fullname) {
 		// Recherche sur sn
 	    	if ($priority_name=="contient") {
-	      		$filter_people="(displayname=*$nom*)";
+	      		$filter_people="(sn=*$nom*)";
 	    	} elseif($priority_name=="commence") {
-	      		$filter_people="(displayname=$nom*)";
+	      		$filter_people="(sn=$nom*)";
 	    	} else {
-	      		$filter_people="(displayname=*$nom)";
+	      		$filter_people="(sn=*$nom)";
 	    	}
 	} elseif ($fullname && !$nom) {
 		// Recherche sur cn
@@ -78,28 +78,28 @@ if ((is_admin($config, "Annu_is_admin",$login)=="Y") || (is_admin($config, "Annu
 		// Recherche sur sn ET cn
 	    	if ($priority_name=="contient") {
 	      		if ($priority_surname=="contient") {
-	        		$filter_people="(&(sn=*$nom*)(cn=*$fullname*))";
+	        		$filter_people="(&(sn=*$nom*)(displayname=*$fullname*))";
 	      		} elseif($priority_surname=="commence") {
-	        		$filter_people="(&(sn=*$nom*)(cn=$fullname*))";
+	        		$filter_people="(&(sn=*$nom*)(displayname=$fullname*))";
 	      		} else {
-	        		$filter_people="(&(sn=*$nom*)(cn=*$fullname))";
+	        		$filter_people="(&(sn=*$nom*)(displayname=*$fullname))";
 	      		}
 
 	    	} elseif($priority_name=="commence") {
 	      		if ($priority_surname=="contient") {
-	        		$filter_people="(&(sn=$nom*)(cn=*$fullname*))";
+	        		$filter_people="(&(sn=$nom*)(displayname=*$fullname*))";
 	      		} elseif($priority_surname=="commence") {
-	        		$filter_people="(&(sn=$nom*)(cn=$fullname*))";
+	        		$filter_people="(&(sn=$nom*)(displayname=$fullname*))";
 	      		} else {
-	        		$filter_people="(&(sn=$nom*)(cn=*$fullname))";
+	        		$filter_people="(&(sn=$nom*)(displayname=*$fullname))";
 	      		}
 	    	} else {
 	      		if ($priority_surname=="contient") {
-	        		$filter_people="(&(sn=*$nom)(cn=*$fullname*))";
+	        		$filter_people="(&(sn=*$nom)(displayname=*$fullname*))";
 	      		} elseif($priority_surname=="commence") {
-	        		$filter_people="(&(sn=*$nom)(cn=$fullname*))";
+	        		$filter_people="(&(sn=*$nom)(displayname=$fullname*))";
 	      		} else {
-	        		$filter_people="(&(sn=*$nom)(cn=*$fullname))";
+	        		$filter_people="(&(sn=*$nom)(displayname=*$fullname))";
 	      		}
 	    	}
 	}
@@ -110,7 +110,7 @@ if ((is_admin($config, "Annu_is_admin",$login)=="Y") || (is_admin($config, "Annu
 	if ($filter_people && !$classe) {
 		// recherche dans la branche People
 		#$TimeStamp_0=microtime();
-	    	$users = search_people ($filter_people);
+	    	$users = search_people ($config, $filter_people);
 	    	#$TimeStamp_1=microtime();
 	
 	    	// Affichage menu haut de page
@@ -151,8 +151,8 @@ if ((is_admin($config, "Annu_is_admin",$login)=="Y") || (is_admin($config, "Annu
 	       	$filter_classe = preg_replace("/\*\*\*/","*",$filter_classe);
 	       	$filter_classe = preg_replace("/\*\*/","*",$filter_classe);
 	       	#$TimeStamp_0=microtime();
-	       	$cns = search_cns ($filter_classe);
-	       	$people = search_people_groups ($cns,$filter_people,"group");
+	       	$cns = search_cns ($config, $filter_classe);
+	       	$people = search_people_groups ($config,$cns,$filter_people,"group");
 	       	#$TimeStamp_1=microtime();
 	       	// Affichage menu haut de page
 	       	aff_trailer("3");

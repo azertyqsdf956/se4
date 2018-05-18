@@ -91,9 +91,9 @@ function useradd ($config, $prenom, $nom, $userpwd, $naissance, $sexe, $categori
 
         if (empty($employeeNumber)) {
             # Pas de champ job-title pour employeeNumber dans ce cas
-            $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@$sedomainename' --physical-delivery-office='$office'";
+            $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@".$config['mail_domain']."' --physical-delivery-office='$office'";
         } else {
-            $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@$sedomainename' --job-title='$employeeNumber' --physical-delivery-office='$office'";
+            $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@".$config['mail_domain']."' --job-title='$employeeNumber' --physical-delivery-office='$office'";
         }
 
         $RES= sambatool ( $command );

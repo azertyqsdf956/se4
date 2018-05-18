@@ -41,7 +41,7 @@ Description: utilisateurs winbind
 
 Package: sambaedu-php-libs
 Architecture: all
-Depends:  ${misc:Depends}, php-fpm, php-htmlpurifier
+Depends:  ${misc:Depends}, php-fpm, php-htmlpurifier, php7.0-xml
 Description: libs php non packagées debian
  libs pdf2html, ... récupérées avec composer.
 

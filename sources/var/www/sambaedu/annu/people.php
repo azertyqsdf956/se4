@@ -26,7 +26,6 @@
 
 
 
-
 include "entete.inc.php";
 include "ldap.inc.php";
 include "ihm.inc.php";
@@ -56,7 +55,7 @@ if(isset($user)) {
 	// fin correctif
 }
 
-list($user, $groups)=people_get_variables($cn, true);
+list($user, $groups)=people_get_variables($config, $cn, true);
 
 #$TimeStamp_1=microtime();
 #############
@@ -150,12 +149,7 @@ echo "<table width=\"80%\"><tr><td>";
 		<li><a href=\"mod_user_entry.php?cn=".$user["cn"].">".gettext("Modifier le compte")."</a><br />
 		<li><a href=\"pass_user_init.php?cn=".$user["cn"].">".gettext("R&#233;initialiser le mot de passe")."</a><br />";
 
-		//si compte actif
-		if ("$smbversion" == "samba3") {
-			$test_desac=search_people("(&(cn=".$user["cn"].") (sambaAcctFlags=[U ]))");
-		} else {
-			$test_desac=search_people("(&(cn=".$user["cn"].") (acctFlags=[U ]))");
-		}
+	    $test_desac=search_people($config, "(&(cn=".$user["cn"].") (acctFlags=[U ]))");
 
 		if (count($test_desac)==1) {
 			echo "
