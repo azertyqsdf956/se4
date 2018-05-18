@@ -25,6 +25,8 @@
 
   */
 
+require_once "config.inc.php";
+require_once ("functions.inc.php");
 
 require_once ("lang.inc.php");
 bindtextdomain('se4-core',"/var/www/sambaedu/locale");
@@ -53,9 +55,7 @@ if (isset ($register)) {
 		}
    		$http=exec("wget -q -T 10 -O - http://wawadeb.crdp.ac-caen.fr && echo \$? ",$out,$retour);
       		if ($retour=="0") {
-			require_once "config.inc.php";
-			require ("functions.inc.php");
-			setparam("registred",3);
+			set_config("registred",3);
 			header("location:http://wawadeb.crdp.ac-caen.fr/majse3/register.php?usage=".$usage."&srvcomm=".$srvcomm."&typetab=".$typetab."&dept=".$dept."&vernbr=".$vernbr."&rne=".$rne."");
             	} else {
 			require ("entete.inc.php");
@@ -83,9 +83,8 @@ if (isset ($register)) {
 
 require ("entete.inc.php");
 
-if (($login == "admin")&&($registred <= 1)) {
-    require_once "config.inc.php";
-	if ($registred=="1") {
+if (($login == "admin")&&($config['registred'] <= 1)) {
+	if ($config['registred']=="1") {
 		echo "<H1><FONT color=red>".gettext("Mise a jour du recensement")."</FONT></H1>";
 		echo gettext("Vous avez recens&#233; votre serveur SambaEdu et nous vous en remercions. Afin d'affiner nos statistiques, nous avons &#233;t&#233; amen&#233;s &#224; ajouter le champ num�ro RNE aux champs remont&#233;s dans notre base de donn&#233;e. Nous vous serions reconnaissants de bien vouloir compl&#233;ter &#224; nouveau le formulaire de recensement afin que nous puissions mettre a jour nos statistiques d'usage. D'avance, merci.");
 	}
@@ -160,13 +159,12 @@ if ($registred > 1) {
 	// Ajout popup d'alerte
 	include("fonc_outils.inc.php");
 
-	entree_table_param_exist("url_popup_alert","http://wwdeb.crdp.ac-caen.fr/mediase3/index.php/Alerte_popup.html",4,"Url du popup alerte");
+	init_config(url_popup_alert, "http://wwdeb.crdp.ac-caen.fr/mediase3/index.php/Alerte_popup.html");
 	// $url="http://bcdi.crdp.ac-creteil.fr/alerte_popup.html";
-
-	entree_table_param_exist("tag_popup_alert",0,4,"Tag du popup alerte");
+	init_config("tag_popup_alert", 0);
 	// On relit la table
-	require_once "config.inc.php";
-	system("cd /tmp; wget -q --tries=1 --timeout=2 $url_popup_alert");
+	$config = get_config(true);
+	system("cd /tmp; wget -q --tries=1 --timeout=2 ".$config['url_popup_alert']);
    	if (file_exists("/tmp/Alerte_popup.html")) {
         	$lines = file("/tmp/Alerte_popup.html");
 	        foreach ($lines as $line_num => $line) {
@@ -174,7 +172,7 @@ if ($registred > 1) {
 			if(preg_match("/([0-9]{2})\/([0-9]{2})\/([0-9]{4})/","$line",$matche)) {
 				// test la persence du tag precedent
 				$tag_alerte=$matche[1].$matche[2].$matche[3];
-				if ($tag_alerte==$tag_popup_alert) {
+				if ($tag_alerte==$config['tag_popup_alert']) {
 					$ok_alert="0";
 				} else {
 	                        	$ok_alert="1";
@@ -185,11 +183,11 @@ if ($registred > 1) {
 	@unlink("/tmp/Alerte_popup.html");
 	if ($ok_alert=="1") {
 		echo "<SCRIPT LANGUAGE=JavaScript>";
-		echo "window.open(\"$url_popup_alert\",\"PopUp\",\"width=500,height=350,location=no,status=no,toolbars=no,scrollbars=no,left=100,top=80\")";
+		echo "window.open(\"".$config['url_popup_alert']."\",\"PopUp\",\"width=500,height=350,location=no,status=no,toolbars=no,scrollbars=no,left=100,top=80\")";
 		echo "</SCRIPT>";
 
 		// require ("functions.inc.php");
-		setparam("tag_popup_alert",$tag_alerte);
+		set_config("tag_popup_alert",$tag_alerte);
 	}
 	// Fin popup
 

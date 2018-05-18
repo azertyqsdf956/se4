@@ -23,19 +23,20 @@
 
   */	
 
-session_start();
-set_time_limit (300);
+if (!session_status()) {
+    session_start();
+    set_time_limit (300);
 
-	require "config.inc.php";
-	require "functions.inc.php";
-	require "ihm.inc.php";
+	require_once "config.inc.php";
+	require_once "functions.inc.php";
+	require_once "ihm.inc.php";
 
 
         // HTMLPurifier
         require_once ("traitement_data.inc.php");
         
 	$login=isauth();
-
+]
 	if (!is_admin($config, "Annu_is_admin",$login)=="Y") {
 		// dégage crétin
 		echo "dégage...";
@@ -94,7 +95,7 @@ usort($listing, "trieleve");
 	$content .="</page>";
 	
 
-	require_once(dirname(__FILE__).'/../html2pdf/html2pdf.class.php');
+	require_once(dirname(__FILE__).'/../html2pdf/vendor/autoload.php');
 	$html2pdf = new HTML2PDF('P','A4','fr', true, 'UTF-8');
 	$html2pdf->WriteHTML($content);
 	$html2pdf->Output('liste.pdf');

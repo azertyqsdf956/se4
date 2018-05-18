@@ -26,7 +26,7 @@
 
 
 	// Si le menu fond d'ecran est active, on ajoute la ligne correspondante:
-	if ($menu_fond_ecran=="1") {
+	if (isset($config['menu_fond_ecran'])) {
 		$liens1=array(array(
 		gettext("Clients Windows"),"computers_is_admin|parc_can_manage",1,
 		gettext("Gestion des cl&#233;s"),"registre/gestion_interface.php","computers_is_admin",1,

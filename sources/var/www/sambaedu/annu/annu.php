@@ -59,9 +59,9 @@ if (ldap_get_right($config, "Annu_is_admin",$login)=="Y") {
     	echo "</ul>\n";
 	echo "</li>\n";
 	echo "</ul>\n";
-
-include("listing.inc.php");
-
+	if (isset($_POST['hiddeninput'])) {
+        include("listing.inc.php");
+	}
 }
 
 include ("pdp.inc.php");

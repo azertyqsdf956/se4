@@ -51,8 +51,8 @@ set_config("registred",2); ///A quoi ça sert ? mrfi
 
 <?php if (ldap_get_right($config, "se3_is_admin",$login)=="Y")  {
 
-    if ($affiche_etat == "1") {
-     if ($registred <= 1)  { ?>
+    if (isset($config['affiche_etat'])) {
+     if ($config['registred'] <= 1)  { ?>
 	<FRAME SRC="blank.php" NAME="main" frameborder="0" /><!--/FRAME-->
 <?php
      } else {

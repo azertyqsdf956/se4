@@ -39,9 +39,14 @@ Depends:  ${misc:Depends}, sambaedu-ad-client, winbind, libnss-winbind
 Description: utilisateurs winbind
  Ce paquet contient des scripts de configuration pour la mise au domaine sambaedu d'un poste linux. Il prend en charge la configuration l'installation de winbind et de libnss. 
 
+Package: sambaedu-php-libs
+Architecture: all
+Depends:  ${misc:Depends}, php-fpm, php-htmlpurifier
+Description: libs php non packagées debian
+ libs pdf2html, ... récupérées avec composer.
 
 Package: sambaedu-web-common
 Architecture: all
-Depends:  ${misc:Depends}, php-fpm, php7.0-opcache, php-apcu, apache2-suexec-pristine, sambaedu-ad-client, default-mysql-server, php-htmlpurifier, php-ldap, 
+Depends:  ${misc:Depends}, php-fpm, php7.0-opcache, php-apcu, apache2-suexec-pristine, sambaedu-ad-client, default-mysql-server, php-ldap, sambaedu-php-libs
 Description: Interface d'administration web
  

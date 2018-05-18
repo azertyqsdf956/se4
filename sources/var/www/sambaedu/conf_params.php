@@ -71,12 +71,8 @@ if ($action == "change") {
 	}
 
 
-	exec('/usr/bin/sudo /usr/share/se3/scripts/refresh_cache_params.sh');
     //on recharge la config après modif
     $config= get_config(1);
-    foreach ($config as $key=>$value) {
-		$$key = $value;
-	}
 }
 
 
@@ -101,18 +97,19 @@ if ($action=="modif_intlevel") {
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
 	echo "<input type=\"hidden\" name=\"varb\" value=\"defaultintlevel\">";
 	echo "<select name =\"valeur\" ONCHANGE=\"this.form.submit();\">";
-	echo "<option"; if ($defaultintlevel=="1") { echo " selected"; } echo " value=\"1\">".gettext("D&#233;butant")."</option>";
-	echo "<option"; if ($defaultintlevel=="2") { echo " selected"; } echo " value=\"2\">".gettext("Interm&#233;diaire")."</option>";
-	echo "<option"; if ($defaultintlevel=="3") { echo " selected"; } echo " value=\"3\">".gettext("Confirm&#233;")."</option>";
-	echo "<option"; if ($defaultintlevel=="4") { echo " selected"; } echo " value=\"4\">".gettext("Exp&#233;rimental")."</option>";
+	echo "<option"; if ($config['defaultintlevel']=="1") { echo " selected"; } echo " value=\"1\">".gettext("D&#233;butant")."</option>";
+	echo "<option"; if ($config['defaultintlevel']=="2") { echo " selected"; } echo " value=\"2\">".gettext("Interm&#233;diaire")."</option>";
+	echo "<option"; if ($config['defaultintlevel']=="3") { echo " selected"; } echo " value=\"3\">".gettext("Confirm&#233;")."</option>";
+	echo "<option"; if ($config['defaultintlevel']=="4") { echo " selected"; } echo " value=\"4\">".gettext("Exp&#233;rimental")."</option>";
 	echo "</select>\n";
 	echo "<u onmouseover=\"return escape".gettext("('Permet de s&#233;lectionner le niveau de l\'interface Se3.')")."\"><img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"help\"></u>";
 	echo "</form>\n";
 } else {
-	if ($defaultintlevel=="1") { $intlevel="D&#233;butant"; }
-	if ($defaultintlevel=="2") { $intlevel="Interm&#233;diaire"; }
-	if ($defaultintlevel=="3") { $intlevel="Confirm&#233;"; }
-	if ($defaultintlevel=="4") { $intlevel="Exp&#233;rimental"; }
+    if (!isset($config['defaultintlevel'])) $config['defaultintlevel'] = "0";
+	if ($config['defaultintlevel']=="1") { $intlevel="D&#233;butant"; }
+	if ($config['defaultintlevel']=="2") { $intlevel="Interm&#233;diaire"; }
+	if ($config['defaultintlevel']=="3") { $intlevel="Confirm&#233;"; }
+	if ($config['defaultintlevel']=="4") { $intlevel="Exp&#233;rimental"; }
 	echo "<u onmouseover=\"return escape".gettext("('Mode d\'affichage')")."\">";
 	echo "<a href=conf_params.php?action=modif_intlevel>$intlevel</a>";
 	echo "</u>";
@@ -121,7 +118,7 @@ echo "</td></tr>\n";
 
 
 // Adresse de l'interface
-echo "<TR><TD>".gettext("Adresse de l'interface SambaEdu")."</TD><TD align=\"center\">";
+/*echo "<TR><TD>".gettext("Adresse de l'interface SambaEdu")."</TD><TD align=\"center\">";
 if ($action == "modif_urlsambaedu") {
 	echo "<form method=\"get\" action=\"conf_params.php\">";
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
@@ -139,11 +136,11 @@ if ($action == "modif_urlsambaedu") {
 	echo "</u>";
 }
 echo "</td></tr>\n";
-
+*/
 
 // Affichage page Etat
 echo "<TR><TD>".gettext("Affiche la page d'&#233;tat")."</TD><TD align=\"center\">";
-if ($affiche_etat=="0") {
+if (!isset($config['affiche_etat'])) {
 	echo "<u onmouseover=\"return escape".gettext("('<b>Etat : D&#233;sactiv&#233;</b><br><br>Permet d\'afficher l\'&#233;tat du serveur &#224; chaque d&#233;marrage de l\'interface')")."\">";
 	echo "<a href=conf_params.php?action=change&amp;varb=affiche_etat&amp;valeur=1&amp;cat=6><IMG style=\"border: 0px solid;\" SRC=\"elements/images/disabled.png\" alt=\"Disabled\"></a>";
 	echo "</u>";
@@ -176,22 +173,23 @@ if ($action=="modif_uidP") {
 	echo "<input type=\"hidden\" name=\"varb\" value=\"uidPolicy\">";
 	echo "<select name =\"valeur\" ONCHANGE=\"this.form.submit();\">";
 	//echo "<option"; if ($uidPolicy=="0") { echo " selected"; } echo " value=\"0\">".gettext("prenom.nom")."</option>";
-	echo "<option"; if ($uidPolicy=="1") { echo " selected"; } echo " value=\"1\">".gettext("prenom.nom (tronqu&#233; &#224; 19)")."</option>";
-	echo "<option"; if ($uidPolicy=="2") { echo " selected"; } echo " value=\"2\">".gettext("pnom (tronqu&#233; &#224; 19)")."</option>";
-	echo "<option"; if ($uidPolicy=="3") { echo " selected"; } echo " value=\"3\">".gettext("pnom (tronqu&#233; &#224; 8)")."</option>";
-	echo "<option"; if ($uidPolicy=="4") { echo " selected"; } echo " value=\"4\">".gettext("nomp (tronqu&#233; &#224; 8)")."</option>";
-	echo "<option"; if ($uidPolicy=="5") { echo " selected"; } echo " value=\"5\">".gettext("nomprenom (tronqu&#233; &#224; 18)")."</option>";
+	echo "<option"; if ($config['uidPolicy']=="1") { echo " selected"; } echo " value=\"1\">".gettext("prenom.nom (tronqu&#233; &#224; 19)")."</option>";
+	echo "<option"; if ($config['uidPolicy']=="2") { echo " selected"; } echo " value=\"2\">".gettext("pnom (tronqu&#233; &#224; 19)")."</option>";
+	echo "<option"; if ($config['uidPolicy']=="3") { echo " selected"; } echo " value=\"3\">".gettext("pnom (tronqu&#233; &#224; 8)")."</option>";
+	echo "<option"; if ($config['uidPolicy']=="4") { echo " selected"; } echo " value=\"4\">".gettext("nomp (tronqu&#233; &#224; 8)")."</option>";
+	echo "<option"; if ($config['uidPolicy']=="5") { echo " selected"; } echo " value=\"5\">".gettext("nomprenom (tronqu&#233; &#224; 18)")."</option>";
 	echo "</select>\n";
 	echo "<u onmouseover=\"return escape".gettext("('Permet de choisir le type de login.<br> Cette option ne modifie pas les comptes existants, mais les comptes qui seront cr&#233;&#233;s.<br><br>Si vous avez un Slis vous devez choisir nomp (tronqu&#233; &#224; 8)')")."\">";
 	echo "<img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"Help\">";
 	echo "</u></form>";
 } else {
-	if ($uidPolicy=="0") { $uidP=gettext("prenom.nom"); }
-	if ($uidPolicy=="1") { $uidP=gettext("prenom.nom (tronqu&#233; &#224; 19)"); }
-	if ($uidPolicy=="2") { $uidP=gettext("pnom (tronqu&#233; &#224; 19)"); }
-	if ($uidPolicy=="3") { $uidP=gettext("pnom (tronqu&#233; &#224; 8)"); }
-	if ($uidPolicy=="4") { $uidP=gettext("nomp (tronqu&#233; &#224; 8)"); }
-	if ($uidPolicy=="5") { $uidP=gettext("nomprenom (tronqu&#233; &#224; 18)"); }
+    if (!isset($config['uidPolicy'])) $config['uidPolicy'] = "0";
+    if ($config['uidPolicy']=="0") { $uidP=gettext("prenom.nom"); }
+	if ($config['uidPolicy']=="1") { $uidP=gettext("prenom.nom (tronqu&#233; &#224; 19)"); }
+	if ($config['uidPolicy']=="2") { $uidP=gettext("pnom (tronqu&#233; &#224; 19)"); }
+	if ($config['uidPolicy']=="3") { $uidP=gettext("pnom (tronqu&#233; &#224; 8)"); }
+	if ($config['uidPolicy']=="4") { $uidP=gettext("nomp (tronqu&#233; &#224; 8)"); }
+	if ($config['uidPolicy']=="5") { $uidP=gettext("nomprenom (tronqu&#233; &#224; 18)"); }
 	echo "<u onmouseover=\"return escape".gettext("('Permet de modifier le format de login.<br> Ce changement ne modifie pas les comptes d&#233;j&#224; cr&#233;&#233;s.<br><br>Les types disponibles sont :<br>prenom.nom<br>prenom.nom (tronqu&#233; &#224; 19)<br>pnom (tronqu&#233; &#224; 19)<br>pnom (tronqu&#233; &#224; 8)<br>nomp (tronqu&#233; &#224; 8).<br>nomprenom (tronqu&#233; &#224; 18).<br><br>Si vous avez un Slis, vous devez choisir nomp (troqu&#233; &#224; 8). ')")."\">";
 	echo "<a href=conf_params.php?action=modif_uidP>$uidP</a>";
 	echo "</u>";
@@ -206,17 +204,18 @@ if ($action=="modif_pwdP") {
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
 	echo "<input type=\"hidden\" name=\"varb\" value=\"pwdPolicy\">";
 	echo "<select name =\"valeur\" ONCHANGE=\"this.form.submit();\">";
-	echo "<option"; if ($pwdPolicy=="0") { echo " selected"; } echo " value=\"0\">".gettext("bas&#233; sur la date de naissance")."</option>";
-	echo "<option"; if ($pwdPolicy=="1") { echo " selected"; } echo " value=\"1\">".gettext("semi-al&#233;atoire (6 car.)")."</option>";
-	echo "<option"; if ($pwdPolicy=="2") { echo " selected"; } echo " value=\"2\">".gettext("al&#233;atoire (8 car.)")."</option>";
+	echo "<option"; if ($config['pwdPolicy']=="0") { echo " selected"; } echo " value=\"0\">".gettext("bas&#233; sur la date de naissance")."</option>";
+	echo "<option"; if ($config['pwdPolicy']=="1") { echo " selected"; } echo " value=\"1\">".gettext("semi-al&#233;atoire (6 car.)")."</option>";
+	echo "<option"; if ($config['pwdPolicy']=="2") { echo " selected"; } echo " value=\"2\">".gettext("al&#233;atoire (8 car.)")."</option>";
 	echo "</select>\n";
 	echo "<u onmouseover=\"return escape".gettext("('Permet de choisir le format des mots de passe.')")."\">";
 	echo "<img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"Help\">";
 	echo "</u></form>";
 } else {
-	if ($pwdPolicy=="0") { $pwdP=gettext("bas&#233; sur la date de naissance"); }
-	if ($pwdPolicy=="1") { $pwdP=gettext("semi-al&#233;atoire (6 car.)"); }
-	if ($pwdPolicy=="2") { $pwdP=gettext("al&#233;atoire (8 car.)"); }
+    if (!isset($config['pwdPolicy'])) $config['pwdPolicy'] = "0";
+    if ($config['pwdPolicy']=="0") { $pwdP=gettext("bas&#233; sur la date de naissance"); }
+	if ($config['pwdPolicy']=="1") { $pwdP=gettext("semi-al&#233;atoire (6 car.)"); }
+	if ($config['pwdPolicy']=="2") { $pwdP=gettext("al&#233;atoire (8 car.)"); }
 	echo "<u onmouseover=\"return escape".gettext("('Permet de choisir le format des mots de passe. ')")."\">";
 	echo "<a href=conf_params.php?action=modif_pwdP>$pwdP</a>";
 	echo "</u>";
@@ -230,27 +229,28 @@ if ($action=="modif_import_sconet_csv_ENT") {
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
 	echo "<input type=\"hidden\" name=\"varb\" value=\"import_sconet_csv_ENT\">";
 	echo "<select name =\"valeur\" ONCHANGE=\"this.form.submit();\">";
-	echo "<option"; if ($import_sconet_csv_ENT=="aucun") { echo " selected"; } echo " value=\"aucun\">".gettext("Pas de CSV ENT")."</option>";
-	echo "<option"; if ($import_sconet_csv_ENT=="kosmos") { echo " selected"; } echo " value=\"kosmos\">".gettext("CSV ENT Kosmos")."</option>";
+	echo "<option"; if ($config['import_sconet_csv_ENT']=="aucun") { echo " selected"; } echo " value=\"aucun\">".gettext("Pas de CSV ENT")."</option>";
+	echo "<option"; if ($config['import_sconet_csv_ENT']=="kosmos") { echo " selected"; } echo " value=\"kosmos\">".gettext("CSV ENT Kosmos")."</option>";
 	echo "</select>\n";
 	echo "<u onmouseover=\"return escape".gettext("('Permet de fournir un CSV ENT pour l import des comptes &#233;l&#232;ves.')")."\">";
 	echo "<img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"Help\">";
 	echo "</u></form>";
 } else {
-	if($import_sconet_csv_ENT=="") {
-		$import_sconet_csv_ENT="aucun";
+	if(!isset($config['import_sconet_csv_ENT'])) {
+		$config['import_sconet_csv_ENT']="aucun";
 	}
-	if ($import_sconet_csv_ENT=="aucun") { $import_sconet_csv_ENT=gettext("Pas de CSV ENT"); }
-	if ($import_sconet_csv_ENT=="kosmos") { $pwdP=gettext("CSV ENT Kosmos"); }
+	if ($config['import_sconet_csv_ENT']=="aucun") { $config['import_sconet_csv_ENT']=gettext("Pas de CSV ENT"); }
+	if ($config['import_sconet_csv_ENT']=="kosmos") { $pwdP=gettext("CSV ENT Kosmos"); }
 	echo "<u onmouseover=\"return escape".gettext("('Permet de fournir un CSV ENT pour l import des comptes &#233;l&#232;ves.')")."\">";
-	echo "<a href=conf_params.php?action=modif_import_sconet_csv_ENT>$import_sconet_csv_ENT</a>";
+	echo "<a href=conf_params.php?action=modif_import_sconet_csv_ENT>".$config['import_sconet_csv_ENT']."</a>";
 	echo "</u>";
 }
 echo "</td></tr>\n";
 
 
-// Bash
-echo "<TR><TD>".gettext("Shell par d&#233;faut")."</TD><TD align=\"center\">";
+// Bash (inutile en AD ?)
+/*echo "<TR><TD>".gettext("Shell par d&#233;faut")."</TD><TD align=\"center\">";
+if (!isset($config['defaultshell'])) $config['defaultshell'] = "0";
 if ($defaultshell=="/bin/false") {
 	echo "<u onmouseover=\"return escape".gettext("('<b>Etat : Pas de shell (/bin/false)</b><br><br>Cliquer sur le bouton pour permettre aux utilisateurs d\'avoir un shell. <br>Cela est n&#233;cessaire pour les clients Linux.<br><br>Attention: Cela s\'applique pour tous les comptes d&#233;j&#224; cr&#233;&#233;s et pour les comptes qui seront cr&#233;&#233;s.')")."\">";
 	echo "<a href=conf_params.php?action=change&amp;varb=defaultshell&amp;valeur=/bin/bash><IMG style=\"border: 0px solid;\" SRC=\"elements/images/disabled.png\" alt=\"Disabled\"></a>";
@@ -261,10 +261,10 @@ if ($defaultshell=="/bin/false") {
 	echo "</u>";
 }
 echo "</td></tr>\n";
-
+*/
 // Autologon
 echo "<TR><TD>".gettext("Connexion automatique &#224; l'interface")."</TD><TD align=\"center\">";
-if ($autologon=="0") {
+if (!isset($config['autologon'])) {
 	echo "<u onmouseover=\"return escape".gettext("('<b>Etat : D&#233;sactiv&#233;</b><br><br>Permet d\'avoir une connexion automatique &#224; l\'interface sambaEdu sans avoir besoin de se r&#233;authentifier')")."\">";
 	echo "<a href=conf_params.php?action=change&amp;varb=autologon&amp;valeur=1><IMG style=\"border: 0px solid;\" SRC=\"elements/images/disabled.png\" alt=\"Disabled\"></a>";
 	echo "</u>";
@@ -277,7 +277,7 @@ echo "</td></tr>\n";
 
 // Corbeille
 echo "<TR><TD>".gettext("Corbeille r&#233;seau")."</TD><TD align=\"center\">";
-if ($corbeille=="0") {
+if (!isset($config['corbeille'])) {
 	echo "<u onmouseover=\"return escape".gettext("('<b>Etat : D&#233;sactiv&#233;</b>')")."\">";
 	echo "<a href=conf_params.php?action=change&amp;varb=corbeille&amp;valeur=1&amp;cat=4><IMG style=\"border: 0px solid;\" SRC=\"elements/images/disabled.png\" alt=\"Disabled\"></a>";
 	echo "</u>";
@@ -289,7 +289,7 @@ if ($corbeille=="0") {
 echo "</td></tr>\n";
 
 // Gid
-echo "<TR><TD>".gettext("Groupe par defaut des nouveaux utilisateurs (gidNumber)")."</TD><TD align=\"center\">";
+/*echo "<TR><TD>".gettext("Groupe par defaut des nouveaux utilisateurs (gidNumber)")."</TD><TD align=\"center\">";
 if ($action == "modif_gid") {
 	echo "<form method=\"get\" action=\"conf_params.php\">";
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
@@ -307,9 +307,9 @@ if ($action == "modif_gid") {
 	echo "</u>";
 }
 echo "</td></tr>\n";
-
+*/
 // Affichage ou non script de login
-
+/*
 echo "<TR><TD>".gettext("Masquage du script &#224; l'ouverture de session windows")."</TD><TD align=\"center\">";
 if ($hide_logon=="0") {
 	echo "<u onmouseover=\"return escape".gettext("('<b>Etat : D&#233;sactiv&#233;</b><br><br>Le script de connexion de windows est actuellement visible des utilisateurs.<br><br> Cliquez sur le bouton si vous voulez le masquer.')")."\">";
@@ -321,7 +321,7 @@ if ($hide_logon=="0") {
 	echo "</u>";
 }
 echo "</td></tr>\n";
-
+*/
 // Configuration du serveur smtp
 echo "<TR><TD colspan=\"2\" align=\"center\" class=\"menuheader\">\n";
 echo gettext("Configuration de l'exp&#233;dition des messages syst&#232;me");
@@ -329,16 +329,19 @@ echo "</TD></TR>
 ";
 // domaine
 echo "<TR><TD>".gettext("Domaine")." </TD><TD align=\"center\">";
+if ($config['mail_domain'] == "") {
+    $config['mail_domain'] = $config['domain'];
+}
 if ($action == "modif_domain") {
 	echo "<form method=\"get\" action=\"conf_params.php\">";
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
-	echo "<input type=\"hidden\" name=\"varb\" value=\"domain\">";
-	echo "<input type=\"text\" name=\"valeur\"  value=\"$domain\"><input type=\"submit\" value=\"Ok\"> ";
+	echo "<input type=\"hidden\" name=\"varb\" value=\"mail_domain\">";
+	echo "<input type=\"text\" name=\"valeur\"  value=\"".$config['mail_domain']."\"><input type=\"submit\" value=\"Ok\"> ";
 	echo "<u onmouseover=\"return escape".gettext("('Indiquer le domaine, qui sera ajout&#233; aux mails. Ce changemant n\'affectera que les nouveaux comptes cr&#233;&#233;s.')")."\"><img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"Help\"></u>";
 	echo "</form>";
-} elseif ($domain!="") {
+} elseif (isset($config['mail_domain'])) {
 	echo "<u onmouseover=\"return escape".gettext("('Indiquer le domaine, qui sera ajout&#233; aux  mails. Ce changemant n\'affectera que les nouveaux comptes cr&#233;&#233;s.')")."\">";
-	echo "<a href=conf_params.php?action=modif_domain>$domain</a>";
+	echo "<a href=conf_params.php?action=modif_domain>".$config['mail_domain']."</a>";
 	echo "</u>";
 } else {
 	echo "<u onmouseover=\"return escape".gettext("('Indiquer le domaine, qui sera ajout&#233; aux  mails. Ce changemant n\'affectera que les nouveaux comptes cr&#233;&#233;s.')")."\">";
@@ -398,7 +401,7 @@ echo "</td></tr>\n";
 
 
 // Serveur de temps
-echo "<TR><TD>".gettext("Serveur de temps")."</TD><TD align=\"center\">";
+/*echo "<TR><TD>".gettext("Serveur de temps")."</TD><TD align=\"center\">";
 if ($action == "modif_ntp")  {
 	echo "<form method=\"get\" action=\"conf_params.php\">";
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
@@ -416,49 +419,49 @@ if ($action == "modif_ntp")  {
 	echo "</u>";
 }
 echo "</td></tr>\n";
-
-// Serveur de mises &#224; jour
-echo "<TR><TD>".gettext("Adresse des scripts de mises &#224; jour")."</TD><TD align=\"center\">";
-if ($action=="modif_urlmaj") {
+*/
+// depôt sambaedu
+echo "<TR><TD>".gettext("Adresse du dépôt des paquets sambaedu")."</TD><TD align=\"center\">";
+if ($action=="modif_url_deb") {
 	echo "<form method=\"get\" action=\"conf_params.php\">";
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
-	echo "<input type=\"hidden\" name=\"varb\" value=\"urlmaj\">";
-	echo "<input type=\"text\" name=\"valeur\" size=\"40\" value=\"$urlmaj\"><input type=\"submit\" value=\"Ok\"> ";
-	echo "<u onmouseover=\"return escape".gettext("('Indiquer le serveur de mises &#224; jour de votre serveur Se3. ')")."\"><img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"Help\"></u>";
+	echo "<input type=\"hidden\" name=\"varb\" value=\"url_deb\">";
+	echo "<input type=\"text\" name=\"valeur\" size=\"40\" value=\"".$config['url_deb']."\"><input type=\"submit\" value=\"Ok\"> ";
+	echo "<u onmouseover=\"return escape".gettext("('Indiquer l'url du dépôt sambaedu. ')")."\"><img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"Help\"></u>";
 	echo "</form>";
-} elseif ($urlmaj!="") {
-	echo "<u onmouseover=\"return escape".gettext("('Indiquer le serveur de mises &#224; jour de votre serveur Se3. ')")."\">";
-	echo "<a href=conf_params.php?action=modif_urlmaj>$urlmaj</a>";
+} elseif (isset($config['url_deb'])) {
+	echo "<u onmouseover=\"return escape".gettext("('Indiquer l\'url du dépôt sambaedu. ')")."\">";
+	echo "<a href=conf_params.php?action=modif_url_deb>".$config['url_deb']."</a>";
 	echo "</u>";
 } else {
-	echo "<u onmouseover=\"return escape".gettext("('Indiquer le serveur de mises &#224; jour de votre serveur Se3. ')")."\">";
-	echo "<a href=conf_params.php?action=modif_urlmaj><IMG style=\"border: 0px solid;\" SRC=\"elements/images/disabled.png\" alt=\"Disabled\"></a></u>";
+	echo "<u onmouseover=\"return escape".gettext("('Indiquer l\'url du dépôt sambaedu.')")."\">";
+	echo "<a href=conf_params.php?action=modif_url_deb><IMG style=\"border: 0px solid;\" SRC=\"elements/images/disabled.png\" alt=\"Disabled\"></a></u>";
 }
 echo "</td></tr>\n";
 
-// Serveur de mises &#224; jour
-echo "<TR><TD>".gettext("Adresse de t&#233;l&#233;chargement de mises &#224; jour")."</TD><TD align=\"center\">";
-if ($action=="modif_ftpmaj") {
+// branche
+echo "<TR><TD>".gettext("Branche des paquets")."</TD><TD align=\"center\">";
+if ($action=="modif_branch") {
 	echo "<form method=\"get\" action=\"conf_params.php\">";
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
-	echo "<input type=\"hidden\" name=\"varb\" value=\"ftpmaj\">";
-	echo "<input type=\"text\" name=\"valeur\" size=\"40\" value=\"$ftpmaj\"><input type=\"submit\" value=\"Ok\"> ";
-	echo "<u onmouseover=\"return escape".gettext("('Indiquer le serveur ftp de mises &#224; jour de votre serveur Se3. ')")."\"><img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"help\"></u>";
+	echo "<input type=\"hidden\" name=\"varb\" value=\"deb_branch\">";
+	echo "<input type=\"text\" name=\"valeur\" size=\"40\" value=\"".$config['deb_branch']."\"><input type=\"submit\" value=\"Ok\"> ";
+	echo "<u onmouseover=\"return escape".gettext("('Indiquer la branche des paquets')")."\"><img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"help\"></u>";
 	echo "</form>";
-} elseif ($ftpmaj!="") {
-	echo "<u onmouseover=\"return escape".gettext("('Indiquer le serveur ftp de mises &#224; jour de votre serveur Se3. ')")."\">";
-	echo "<a href=conf_params.php?action=modif_ftpmaj>$ftpmaj</a>";
+} elseif (isset($config['deb_branch'])) {
+	echo "<u onmouseover=\"return escape".gettext("('Indiquer la branche des paquets ')")."\">";
+	echo "<a href=conf_params.php?action=modif_branch>".$config['deb_branch']."</a>";
 	echo "</u>";
 } else {
-	echo "<u onmouseover=\"return escape".gettext("('Indiquer le serveur ftp de mises &#224; jour de votre serveur Se3. ')")."\">";
-	echo "<a href=conf_params.php?action=modif_ftpmaj><IMG style=\"border: 0px solid;\" SRC=\"elements/images/disabled.png\" alt=\"Disabled\"></a></u>";
+	echo "<u onmouseover=\"return escape".gettext("('Indiquer la branche des paquets ')")."\">";
+	echo "<a href=conf_params.php?action=modif_branch><IMG style=\"border: 0px solid;\" SRC=\"elements/images/disabled.png\" alt=\"Disabled\"></a></u>";
 }
 echo "</td></tr>\n";
 
 
 // Configuration des serveurs
 echo "<TR><TD colspan=\"2\" align=\"center\" class=\"menuheader\">\n";
-echo gettext("Configuration de l'annuaire")." ($ldap_base_dn) ";
+echo gettext("Configuration de l'annuaire")." (".$config['ldap_base_dn'].") ";
 echo "</TD></TR>\n";
 
 
@@ -467,7 +470,7 @@ $se3_pam=exec("dpkg -l|grep 'ii  se3-pla'|wc -l");
 
 echo "<TR><TD>".gettext("Droit d'&#233;criture dans l'annuaire")." (phpldapadmin)</TD><TD align=\"center\">";
 if ($se3_pam) {
-	if ($yala_bind=="0") {
+	if (!isset($config['yala_bind'])) {
 		echo "<u onmouseover=\"return escape".gettext("('<b>Etat : D&#233;sactiv&#233;</b><br><br>Cliquer ici afin de pouvoir activer la possibilit&#233; d\'&#233;crire directement dans l\'annuaire.<br>Cette possibilit&#233; est &#224; utiliser avec prudence.<br>Normalement, vous ne devriez pas &#224; avoir besoin d\'&#233;crire directement dans l\'annuaire.')")."\">";
 		echo "<a href=conf_params.php?action=change&amp;varb=yala_bind&amp;valeur=1><IMG style=\"border: 0px solid;\" SRC=\"elements/images/disabled.png\" alt=\"Disabled\"></a>";
 		echo "</u>";
@@ -506,7 +509,7 @@ if ($rsync_actif!="ok") {
 
 echo "</td></tr>\n";
 echo "<tr><td>".gettext("Sauvegarde hebdomadaire")."</td><td align=\"center\">";
-if ($svgsyst_cnsv_hebdo=="1") {
+if (isset($config['svgsyst_cnsv_hebdo'])) {
 	echo "<u onmouseover=\"return escape".gettext("('<b>Etat : Activ&#233;</b><br><br>Cliquer ici afin de d&#233;sactiver une sauvegarde hebdomadaire. <br><b>Attention</b> Si vous utilisez backuppc (sauvegarde int&#233;gr&#233;e &#224; Se3) cette option est d&#233;conseill&#233;e.<br> Utiliser cela si vous ne souhaitez pas utiliser de syst&#232;me de sauvegarde. Voir la documentation pour plus d\'explication.')")."\">";
 	echo "<a href=conf_params.php?action=change&amp;varb=svgsyst_cnsv_hebdo&amp;valeur=0><IMG style=\"border: 0px solid;\" SRC=\"elements/images/enabled.png\" alt=\"Enabled\"></a>";
 } else {
@@ -517,7 +520,7 @@ echo "</td></TR>\n";
 
 echo "<tr><td>".gettext("Sauvegarde Samba")."</td><td align=\"center\">";
 
-if ($svgsyst_varlibsamba=="1") {
+if (isset($config['svgsyst_varlibsamba'])) {
 	echo "<u onmouseover=\"return escape".gettext("('<b>Etat : Activ&#233;</b><br><br>Cliquer ici afin de d&#233;sactiver une sauvegarde journali&#232;re. <br><b>Attention</b> Si vous utilisez backuppc (sauvegarde int&#233;gr&#233;e &#224; Se3) cette option est d&#233;conseill&#233;e.<br> Utiliser cela si vous ne souhaitez pas utiliser de syst&#232;me de sauvegarde. Voir la documentation pour plus d\'explication.')")."\">";
 	echo "<a href=conf_params.php?action=change&amp;varb=svgsyst_varlibsamba&amp;valeur=0><IMG style=\"border: 0px solid;\" SRC=\"elements/images/enabled.png\" alt=\"Enabled\"></a>";
 } else {
@@ -529,7 +532,7 @@ echo "</td></TR>\n";
 
 echo "<tr><td>".gettext("Sauvegarde ACL de /var/se3")."</td><td align=\"center\">";
 
-if ($svgsyst_aclvarsambaedu=="1") {
+if (isset($config['svgsyst_aclvarsambaedu'])) {
 	echo "<u onmouseover=\"return escape".gettext("('<b>Etat : Activ&#233;</b><br><br>Cliquer ici afin d&#233;sactiver la  sauvegarde des ACL de /var/se3. <br>Cela permet de remettre les ACL en cas de probl&#232;me.')")."\">";
 	echo "<a href=conf_params.php?action=change&amp;varb=svgsyst_aclvarsambaedu&amp;valeur=0><IMG style=\"border: 0px solid;\" SRC=\"elements/images/enabled.png\" alt=\"Enabled\"></a>";
 } else {
@@ -553,12 +556,12 @@ if ($action=="add_slis") {
 	echo "<form method=\"get\" action=\"conf_params.php\">";
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
 	echo "<input type=\"hidden\" name=\"varb\" value=\"slisip\">";
-	echo "<input type=\"text\" name=\"valeur\" size=\"25\" value=\"$slisip\"><input type=\"submit\" value=\"Ok\"> ";
+	echo "<input type=\"text\" name=\"valeur\" size=\"25\" value=\"".$config['slisip']."\"><input type=\"submit\" value=\"Ok\"> ";
 	echo "<u onmouseover=\"return escape".gettext("('Indiquer l\'adresse IP de votre serveur Slis  ou ne rien mettre pour le d&#233;sactiver.')")."\"> <img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"Help\"></u>";
 	echo "</form>";
-} elseif ($slisip!="") {
+} elseif (isset($config['slisip'])) {
 	echo "<u onmouseover=\"return escape".gettext("('Cliquer sur l\'adresse pour modifer. <br><br>Cette adresse correspond &#224; l\'adresse de votre serveur Slis.')")."\">";
-	echo "<a href=conf_params.php?action=add_slis>$slisip</a>";
+	echo "<a href=conf_params.php?action=add_slis>".$config['slisip']."</a>";
 	echo "</u>";
 } else {
 	echo "<u onmouseover=\"return escape".gettext("('Cliquer  ici afin de pouvoir indiquer l\'adresse de votre serveur de communication SLIS.')")."\">";
@@ -572,12 +575,12 @@ if ($action=="add_lcs") {
 	echo "<form method=\"get\" action=\"conf_params.php\">";
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
 	echo "<input type=\"hidden\" name=\"varb\" value=\"lcsIp\">";
-	echo "<input type=\"text\" name=\"valeur\" size=\"25\" value=\"$lcsIp\"><input type=\"submit\" value=\"Ok\"> ";
+	echo "<input type=\"text\" name=\"valeur\" size=\"25\" value=\"".$config['lcsIp']."\"><input type=\"submit\" value=\"Ok\"> ";
 	echo "<u onmouseover=\"return escape".gettext("('Indiquer l\'adresse IP de votre serveur Lcs ou ne rien mettre pour le d&#233;sactiver.')")."\"><img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"Help\"> </u>";
 	echo "</form>";
-} elseif ($lcsIp!="") {
+} elseif (isset($config['lcsIp'])) {
 	echo "<u onmouseover=\"return escape".gettext("('Cliquer sur l\'adresse pour modifer. <br><br>Cette adresse correspond &#224; l\'adresse de votre serveur LCS.')")."\">";
-	echo "<a href=conf_params.php?action=add_lcs>$lcsIp</a>";
+	echo "<a href=conf_params.php?action=add_lcs>".$config['lcsIp']."</a>";
 	echo "</u>";
 } else {
 	echo "<u onmouseover=\"return escape".gettext("('Cliquer  ici afin de pouvoir indiquer l\'adresse de votre serveur de communication LCS.')")."\">";
@@ -593,12 +596,12 @@ if ($action=="add_com") {
 	echo "<form method=\"get\" action=\"conf_params.php\">";
 	echo "<input type=\"hidden\" name=\"action\" value=\"change\">";
 	echo "<input type=\"hidden\" name=\"varb\" value=\"slis_url\">";
-	echo "<input type=\"text\" name=\"valeur\" size=\"25\" value=\"$slis_url\"><input type=\"submit\" value=\"Ok\"> ";
+	echo "<input type=\"text\" name=\"valeur\" size=\"25\" value=\"".$config['slis_url']."\"><input type=\"submit\" value=\"Ok\"> ";
 	echo "<u onmouseover=\"return escape".gettext("('Indiquer l\'adresse de votre serveur de communication (Lcs - Slis).')")."\"><img name=\"action_image2\"  src=\"../elements/images/system-help.png\" alt=\"Help\"> </u>";
 	echo "</form>";
-} elseif ($slis_url!="") {
+} elseif (isset($config['slis_url'])) {
 	echo "<u onmouseover=\"return escape".gettext("('Cliquer sur l\'adresse pour modifer. <br><br>Cette adresse correspond &#224; l\'adresse de votre serveur de communication.')")."\">";
-	echo "<a href=conf_params.php?action=add_com>$slis_url</a>";
+	echo "<a href=conf_params.php?action=add_com>".$config['slis_url']."</a>";
 	echo "</u>";
 } else {
 	echo "<u onmouseover=\"return escape".gettext("('Cliquer  ici afin de pouvoir indiquer l\'adresse de votre serveur de communication LCS - Slis.')")."\">";
@@ -617,7 +620,7 @@ echo "</TD></TR>
 
 echo "<tr><td>".gettext("Purge journali&#232;re de la ressource public ")."</td><td align=\"center\">";
 
-if ($purge_public=="1") {
+if (isset($config['purge_public'])) {
         echo "<u onmouseover=\"return escape".gettext("('<b>Etat : Activ&#233;</b><br><br>Cliquer ici afin de d&#233;sactiver la purge automatique du partage public. <br>Cela permet de supprimer automatiquement toutes les nuits les fichiers dans la ressource public.')")."\">";
         echo "<a href=conf_params.php?action=change&amp;varb=purge_public&amp;valeur=0&amp;cat=1><IMG style=\"border: 0px solid;\" SRC=\"elements/images/enabled.png\" alt=\"Enabled\"></a>";
 } else {
@@ -628,8 +631,8 @@ if ($purge_public=="1") {
 echo "</td></tr>\n";
 
 echo "<tr><td>".gettext("Autoriser l'acc&#232;s &#224; la ressource public ")."</td><td align=\"center\">";
-
-if ($autoriser_part_pub=="y") {
+if (!isset($config['autoriser_part_pub'])) $config['autoriser_part_pub'] = "n";
+if ($config['autoriser_part_pub']=="y") {
         echo "<u onmouseover=\"return escape".gettext("('<b>Etat : Activ&#233;</b><br><br>Cliquer ici afin de d\'interdire l\'acc&#232;s au dossier /var/se3/Docs/public')")."\">";
         echo "<a href=conf_params.php?action=change&amp;varb=autoriser_part_pub&amp;valeur=n&amp;cat=1><IMG style=\"border: 0px solid;\" SRC=\"elements/images/enabled.png\" alt=\"Enabled\"></a>";
 } else {

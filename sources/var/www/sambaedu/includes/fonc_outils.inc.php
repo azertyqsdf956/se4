@@ -30,7 +30,7 @@
 * Fonctions qui retourne vrai si l'inventaire (ocs) est actif
 
 * @Parametres
-* @Return 1 ou 0
+* @Return  0
 
 */
 
@@ -763,23 +763,6 @@ return $liste;
 }
 
 
-/**
-* Fonctions: Test la presence d'une entree dans la table params et en retourne la valeur
-
-* @Parametres $dhcp_vlan_valeur : Contenu de dhcp_vlan
-* @Return -
-* Ex : entree_table_param_exist("savbandactiv","0","5","sauvegarde sur bande");
-*/
-
-function entree_table_param_exist($nom,$valeur,$cat,$comment) {
-	// require_once "config.php";
-	// si la variable $nom n'est pas definie on cree l'entree dans la base sql
-	if ( !isset($$nom)) {
-	        //$resultat=mysql_query("INSERT into params set id='NULL', name='$nom', value='$valeur', srv_id='0',descr='$comment',cat='$cat'");
-            set_config($nom, $valeur);
-		return 0;
-	}
-}
 
 /**
 * a partir d'un uid d'élève fournit le nom inversé de son répertoire classe

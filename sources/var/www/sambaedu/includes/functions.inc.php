@@ -234,7 +234,7 @@ function ldap_get_right($config,$type, $login)
         }
     	ldap_close ($ds);
     }
-//  hack
+//  hack temporaire
     if ("$login" == "administrator") {
         $ret = "Y";
     }
@@ -356,16 +356,6 @@ function setintlevel($new_level)
     $_SESSION['level']=$new_level;
 }
 
-/**
-* Met a jour un parametre dans sambaedu.conf
-
-* @Parametres
-* @Return
-*/
-
-function setparam($name,$value){
-    set_config($name, $value);
-}
 
 function mktable ($title, $content)
 {

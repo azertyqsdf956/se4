@@ -109,9 +109,9 @@ function auth_popup() {
 <?php
     require_once ("config.inc.php");
     require ("functions.inc.php");
-    if ($lcsIp != "") echo "<td width=\"120\"><a href=\"http://$lcsIp\" TARGET=\"_new\" onClick=\"MM_nbGroup('down','group1','lcs','elements/images/bt4_clique2.gif',1)\" onMouseOver=\"MM_nbGroup('over','lcs','elements/images/bt4_dessus2.gif','elements/images/bt4_abaisse2.gif',1)\" onMouseOut=\"MM_nbGroup('out')\"><img name=\"lcs\" src=\"elements/images/bt4_normal.gif\" border=\"0\" onLoad=\"\"></a></td>";
+    if (isset($config['lcs_ip'])) echo "<td width=\"120\"><a href=\"http://".$config['lcsIp']."\" TARGET=\"_new\" onClick=\"MM_nbGroup('down','group1','lcs','elements/images/bt4_clique2.gif',1)\" onMouseOver=\"MM_nbGroup('over','lcs','elements/images/bt4_dessus2.gif','elements/images/bt4_abaisse2.gif',1)\" onMouseOut=\"MM_nbGroup('out')\"><img name=\"lcs\" src=\"elements/images/bt4_normal.gif\" border=\"0\" onLoad=\"\"></a></td>";
 
-if ($slisip != "" && $slis_url != "") echo "<td width=\"120\"><a href=\"$slis_url\" TARGET=\"_new\" onClick=\"MM_nbGroup('down','group1','slis','elements/images/slis_clique.gif',1)\" onMouseOver=\"MM_nbGroup('over','slis','elements/images/slis_dessus.gif','elements/images/slis_abaisse.gif',1)\" onMouseOut=\"MM_nbGroup('out')\"><img name=\"slis\" src=\"elements/images/slis_normal.gif\" border=\"0\" onLoad=\"\"></a></td>";
+if (isset($config['slisip']) && isset($config['slis_url'])) echo "<td width=\"120\"><a href=\"".$config['slis_url']."\" TARGET=\"_new\" onClick=\"MM_nbGroup('down','group1','slis','elements/images/slis_clique.gif',1)\" onMouseOver=\"MM_nbGroup('over','slis','elements/images/slis_dessus.gif','elements/images/slis_abaisse.gif',1)\" onMouseOut=\"MM_nbGroup('out')\"><img name=\"slis\" src=\"elements/images/slis_normal.gif\" border=\"0\" onLoad=\"\"></a></td>";
 ?>
           </tr>
         </table>

@@ -23,7 +23,6 @@
    */
 
 	var can_connect_internet=false;
-	var ntpserver;
 
 	function trim (myString) 	{
 		return myString.replace(/^\s+/g,'').replace(/\s+$/g,'')
@@ -32,7 +31,6 @@
 	function init() {
 		//alert('Ajax works fine');
 		//lancer a partir d'ici les divers process de test
-		ntpserver=$('ntp_server').innerHTML;
 
 		init_default_msg();
 
@@ -67,54 +65,6 @@
 				$('check_gateway').src = '../elements/images/critical.png';
 		}});
 
-		//test cles
-		$('check_keys').src = '../elements/images/spinner.gif';
-		var url9 = './tests/test_keys.php';
-		var params9 = '';
-		var method9 = 'post';
-		var ajax39 = new Ajax.Request(url9,{ method: method9, parameters: params9, onSuccess: function(requester){
-			var reponse9 = requester.responseText;
-			if(reponse9 == '1') {
-				$('check_keys').src = '../elements/images/recovery.png';
-				$('check_keys').onmouseover= function(){ return false; };
-
-			} else {
-				$('check_keys').src = '../elements/images/critical.png';
-				$('check_keys').onmouseover= function() {
-				UnTip();
-				Tip(msg_keys_ko,WIDTH,250,SHADOW,true,DURATION,duration);
-				this.onmouseout=function() { UnTip(); }
-				}
-				$('link_keys').href = link_keys_ko;
-			}
-
-
-		}});
-
-		//test VBS
-		$('check_vbs').src = '../elements/images/spinner.gif';
-		var url10 = './tests/test_vbs.php';
-		var params10 = '';
-		var method10 = 'post';
-		var ajax310 = new Ajax.Request(url10,{ method: method10, parameters: params10, onSuccess: function(requester){
-		var reponse10 = requester.responseText;
-		if(reponse10 == '1') {
-			$('check_vbs').src = '../elements/images/recovery.png';
-			$('check_vbs').onmouseover= function(){ return false; };
-
-		}
-		else {
-			$('check_vbs').src = '../elements/images/critical.png';
-			$('check_vbs').onmouseover= function() {
-				UnTip();
-				Tip(msg_vbs_ko,WIDTH,250,SHADOW,true,DURATION,duration);
-				this.onmouseout=function() { UnTip(); }
-				}
-
-			$('link_vbs').href = link_vbs_ko;
-
-			}
-		}});
 //test clonage
 		$('check_clonage').src = '../elements/images/spinner.gif';
 		var url13 = './tests/test_clonage.php';
@@ -462,56 +412,6 @@
 						$('check_web').src = '../elements/images/critical.png';
 					}});
 
-					//NTP
-					$('check_ntp').src = '../elements/images/spinner.gif';
-					var url7 = './tests/test_ntp.php';
-					var params7 = '';
-					var method7 = 'post';
-					var ajax35 = new Ajax.Request(url7,{ method: method7, parameters: params7, onSuccess: function(requester){
-						var reponse7 = requester.responseText;
-
-						if(reponse7 == '1') {
-							$('check_ntp').src = '../elements/images/recovery.png';
-							$('check_ntp').onmouseover= function(){
-								UnTip();
-								this.onmouseout=function() { UnTip(); }
-
-							}
-
-							Element.show('ligne_date');
-							$('check_time').src = '../elements/images/spinner.gif';
-
-							var ajax35 = new Ajax.Request('tests/test_time.php',{ onSuccess: function(requester){
-								var reponse735 = requester.responseText;
-
-								if(reponse735 == '1')
-									$('check_time').src = '../elements/images/recovery.png';
-								else {
-
-									$('check_time').src = '../elements/images/critical.png';
-									$('check_time').onmouseover= function(){
-										UnTip();
-										Tip(msg_time_ko);
-										this.onmouseout=function() { UnTip(); }
-									}
-
-									$('link_time').href = link_time_ko;
-								}
-
-							}});
-
-						} else {
-							$('check_ntp').src = '../elements/images/critical.png';
-							Element.hide('ligne_date');
-							$('check_ntp').onmouseover= function(){
-
-								if (can_connect_internet)
-									Tip(msg_ntp_ko,WIDTH,250,SHADOW,true,DURATION,duration);
-								else
-									Tip(msg_ntp_nocx,WIDTH,250,SHADOW,true,DURATION,duration);
-							}
-						}
-					}});
 
 
 
