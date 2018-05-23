@@ -33,6 +33,8 @@ case "$1" in
         set_config sambaedu samba_domain "$RET"
         db_get sambaedu/domain
         set_config sambaedu domain "$RET"
+#        if [ -z "$my_domain" ]; then
+#        echo "$my_ip $my_hostname ${my_hostname}.${RET}">> /etc/hosts
         set_config sambaedu se4fs_ip $my_address
         # conf dhcpd
         get_config

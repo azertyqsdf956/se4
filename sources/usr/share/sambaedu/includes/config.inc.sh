@@ -4,7 +4,7 @@
 #
 # assignation des variables de conf
 function get_config() {
-for conf in $(find /etc/sambaedu -type f); do
+for conf in $(find /etc/sambaedu -name *.conf -type f); do
 # version de transition avec param=value (se3) et config_param= value (se4)
 #    for ligne in $(sed -E "/^#.*$/d;s|^(\S+)\s*=\s*(\".*\")$|config_\1=\2 \1=\2|g" $conf); do
 # version finale

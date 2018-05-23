@@ -42,7 +42,8 @@ case "$1" in
         su www-admin -c "kinit -k -t /var/www-admin/www-sambaedu.keytab www-sambaedu"
 
         # enregistrement dns
-        su www-admin -c "samba-tool dns add $config_se4ad_name $config_domain admin A $config_se4fs_ip -k yes" || true
+	    su www-admin -c "samba-tool dns add se4ad $config_domain se4fs A $config_se4fs_ip -k yes" || true
+        su www-admin -c "samba-tool dns add se4ad $config_domain se4fs CNAME admin -k yes" || true
         
         # virtualhost admin.domaine
         chown -R www-admin /var/www/sambaedu
@@ -64,23 +65,23 @@ case "$1" in
         
 
         # Initialisation de la Base de Données
-        if ! mysql --batch --user=sambaedu --password=$config_sql_passwd sambaedu -e exit ; then
+        if ! mysql --batch --user=sambaedu --password=$config_sql_passwd sambaedu -e exit 2>/dev/null ; then
             config_sql_passwd=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c10)
             set_config sambaedu sql_passwd "$config_sql_passwd"
             mysql --batch -e "CREATE DATABASE IF NOT EXISTS \`sambaedu\` character set = 'utf8';"
-            mysql --batch -e "CREATE USER 'sambaedu'@'localhost' IDENTIFIED BY '${config_sql_passwd}';"
+            mysql --batch -e "CREATE OR REPLACE USER 'sambaedu'@'localhost' IDENTIFIED BY '${config_sql_passwd}';"
             mysql --batch -e "GRANT ALL PRIVILEGES ON  \`sambaedu\` . * TO  'sambaedu'@'localhost';"
-            zcat /usr/share/doc/sambaedu/sambaedu.sql | mysql --batch
+            zcat /usr/share/doc/sambaedu/sambaedu.sql.gz | mysql sambaedu --batch
         fi
         
         # import des tables se3 si elles existent
         if [ -f /tmp/se3_connexions.sql ]; then
-            mysql --batch sambaedu -e "DROP DATABASE IF EXISTS connexions;"
+            mysql --batch sambaedu -e "DROP TABLE IF EXISTS connexions;"
             mysql --batch sambaedu < /tmp/se3_connexions.sql
             rm -f /tmp/se3_connexions.sql
         fi
         if [ -f /tmp/se3_quotas.sql ]; then
-            mysql --batch sambaedu -e "DROP DATABASE IF EXISTS quotas;"
+            mysql --batch sambaedu -e "DROP TABLE IF EXISTS quotas;"
             mysql --batch sambaedu < /tmp/se3_quotas.sql
             rm -f /tmp/se3_quotas.sql
         fi  

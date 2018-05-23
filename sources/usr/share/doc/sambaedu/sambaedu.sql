@@ -1,19 +1,3 @@
-# phpMyAdmin MySQL-Dump
-# version 2.2.3
-# http://phpwizard.net/phpMyAdmin/
-# http://phpmyadmin.sourceforge.net/ (download page)
-#
-# Serveur: localhost
-# Genere le : Lundi 22 Juillet 2002 a 15:10
-# Version du serveur: 3.23.49
-# Version de PHP: 4.1.2
-# Base de donnees: `se3db`
-# --------------------------------------------------------
-
-#
-## $Id$ ## 
-#
-
 #
 # Structure de la table `connexions`
 #
@@ -103,11 +87,10 @@ CREATE TABLE IF NOT EXISTS `alertes` (
 -- 
 
 INSERT INTO `alertes` (`ID`, `NAME`, `MAIL`, `Q_ALERT`, `VALUE`, `CHOIX`, `TEXT`, `AFFICHAGE`, `VARIABLE`, `PREDEF`, `MENU`, `ACTIVE`, `SCRIPT`, `PARC`, `FREQUENCE`, `PERIODE_SCRIPT`) VALUES (51, 'Surveille apachese (909)', 'se3_is_admin', '', '', '', 'Test si l''interface d''administration marche', 1, '1', 1, '', 0, 'check_http -H localhost -p 909', '', '900', '2007-01-12 17:35:02');
-INSERT INTO `alertes` (`ID`, `NAME`, `MAIL`, `Q_ALERT`, `VALUE`, `CHOIX`, `TEXT`, `AFFICHAGE`, `VARIABLE`, `PREDEF`, `MENU`, `ACTIVE`, `SCRIPT`, `PARC`, `FREQUENCE`, `PERIODE_SCRIPT`) VALUES (52, 'Test swap', 'se3_is_admin', '', '', '', 'Test si le serveur swap � plus de 80%', 1, '', 1, '', 0, 'check_swap -w 80%', '', '3600', '2007-01-12 15:27:03');
-INSERT INTO `alertes` (`ID`, `NAME`, `MAIL`, `Q_ALERT`, `VALUE`, `CHOIX`, `TEXT`, `AFFICHAGE`, `VARIABLE`, `PREDEF`, `MENU`, `ACTIVE`, `SCRIPT`, `PARC`, `FREQUENCE`, `PERIODE_SCRIPT`) VALUES (53, 'Mises � jour', 'se3_is_admin', '', '', '', 'Test les mises � jour de s�curit� disponibles', 1, '0', 1, '', 0, 'check_debian_packages --timeout=60', '', '302400', '2007-01-12 17:11:12');
+INSERT INTO `alertes` (`ID`, `NAME`, `MAIL`, `Q_ALERT`, `VALUE`, `CHOIX`, `TEXT`, `AFFICHAGE`, `VARIABLE`, `PREDEF`, `MENU`, `ACTIVE`, `SCRIPT`, `PARC`, `FREQUENCE`, `PERIODE_SCRIPT`) VALUES (52, 'Test swap', 'se3_is_admin', '', '', '', 'Test si le serveur swap à plus de 80%', 1, '', 1, '', 0, 'check_swap -w 80%', '', '3600', '2007-01-12 15:27:03');
+INSERT INTO `alertes` (`ID`, `NAME`, `MAIL`, `Q_ALERT`, `VALUE`, `CHOIX`, `TEXT`, `AFFICHAGE`, `VARIABLE`, `PREDEF`, `MENU`, `ACTIVE`, `SCRIPT`, `PARC`, `FREQUENCE`, `PERIODE_SCRIPT`) VALUES (53, 'Mises à jour', 'se3_is_admin', '', '', '', 'Test les mises à jour de sécurité disponibles', 1, '0', 1, '', 0, 'check_debian_packages --timeout=60', '', '302400', '2007-01-12 17:11:12');
 INSERT INTO `alertes` (`ID`, `NAME`, `MAIL`, `Q_ALERT`, `VALUE`, `CHOIX`, `TEXT`, `AFFICHAGE`, `VARIABLE`, `PREDEF`, `MENU`, `ACTIVE`, `SCRIPT`, `PARC`, `FREQUENCE`, `PERIODE_SCRIPT`) VALUES (50, 'Etat des disques', 'se3_is_admin', '', '', '', 'Espace libre sur les disques', 1, '0', 1, '', 0, 'check_disk -w 5% -c 3% -x /dev/shm -t 10 -e', '', '900', '2007-01-12 17:30:01');
-INSERT INTO `alertes` (`ID`, `NAME`, `MAIL`, `Q_ALERT`, `VALUE`, `CHOIX`, `TEXT`, `AFFICHAGE`, `VARIABLE`, `PREDEF`, `MENU`, `ACTIVE`, `SCRIPT`, `PARC`, `FREQUENCE`, `PERIODE_SCRIPT`) VALUES ('NULL', 'UPS', 'se3_is_admin', '', '', '', 'Recevoir les alertes de l\'onduleur', 0, '', 1, '', 0, '', '', '900', 'NULL');
-
+INSERT INTO `alertes` (`ID`, `NAME`, `MAIL`, `Q_ALERT`, `VALUE`, `CHOIX`, `TEXT`, `AFFICHAGE`, `VARIABLE`, `PREDEF`, `MENU`, `ACTIVE`, `SCRIPT`, `PARC`, `FREQUENCE`, `PERIODE_SCRIPT`) VALUES ('NULL', 'UPS', 'se3_is_admin', '', '', '', 'Recevoir les alertes de l\\''onduleur', 0, '', 1, '', 0, '', '', '900', 'NULL');
 INSERT IGNORE INTO `alertes` (`ID`, `NAME`, `MAIL`, `Q_ALERT`, `VALUE`, `CHOIX`, `TEXT`, `AFFICHAGE`, `VARIABLE`, `PREDEF`, `MENU`, `ACTIVE`, `SCRIPT`, `PARC`, `FREQUENCE`, `PERIODE_SCRIPT`) VALUES ('NULL', 'close maintenance', 'se3_is_admin', '', '', '', 'Fermeture d\\''une demande de maintenance', 0, 'close_maintenance', 1, '', 0, '', '', '900', '2007-04-26 18:57:12');
 INSERT IGNORE INTO `alertes` (`ID`, `NAME`, `MAIL`, `Q_ALERT`, `VALUE`, `CHOIX`, `TEXT`, `AFFICHAGE`, `VARIABLE`, `PREDEF`, `MENU`, `ACTIVE`, `SCRIPT`, `PARC`, `FREQUENCE`, `PERIODE_SCRIPT`) VALUES ('NULL', 'new maintenance', 'se3_is_admin', '', '', '', 'Ouverture d''une demande de maintenance', 0, 'new_maintenance', 1, '', 0, '', '', '900', '0000-00-00 00:00:00');
 INSERT IGNORE INTO `alertes` (`ID`, `NAME`, `MAIL`, `Q_ALERT`, `VALUE`, `CHOIX`, `TEXT`, `AFFICHAGE`, `VARIABLE`, `PREDEF`, `MENU`, `ACTIVE`, `SCRIPT`, `PARC`, `FREQUENCE`, `PERIODE_SCRIPT`) VALUES ('NULL', 'change maintenance', 'se3_is_admin', '', '', '', 'Changement d''une demande de maintenance', 0, 'change_maintenance', 1, '', 0, '', '', '900', '0000-00-00 00:00:00');
@@ -157,7 +140,7 @@ CREATE TABLE IF NOT EXISTS action_sauvegardes (
 id INT( 11 ) NOT NULL ,
 name VARCHAR( 255 ) NOT NULL ,
 mac VARCHAR( 255 ) NOT NULL ,
-partition VARCHAR( 255 ) NOT NULL ,
+`partition` VARCHAR( 255 ) NOT NULL ,
 image VARCHAR( 255 ) NOT NULL ,
 date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
 descriptif TEXT NOT NULL,

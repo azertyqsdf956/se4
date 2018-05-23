@@ -15,6 +15,7 @@ function cdr2mask()
 
 # Fonction permettant de récuperer la configuration réseau complète
 # 
+# 
 
 function my_network() {
 
@@ -24,10 +25,10 @@ read my_address my_cdr my_broadcast<<<$(ip -o -f inet addr show dev "$my_interfa
 my_mask=$(cdr2mask $my_cdr)
 my_network=$(ip -o -f inet route show dev $my_interface  src $my_address | cut -d/ -f1)
 my_hostname=$(hostname -s)
-my_domain=$(hostname -d)
-my_fqdn=$(hostname -f)
+my_domain=$(hostname -d) || true
+my_fqdn=$(hostname -f) || true
 # attention ne donne pas le dns externe si ad est configuré
-my_dnsserver=$(grep -m 1 "^nameserver" /etc/resolv.conf | cut -d" " -f2)
+my_dnsserver=$(grep -m 1 "^nameserver" /etc/resolv.conf | cut -d" " -f2) || true
 my_proxy="$http_proxy"
 if [ -e "etc/sambaedu/sambaedu.conf.d/dhcp.conf" ]; then
     my_vlan=$(grep $my_network /etc/sambaedu/sambaedu.conf.d/dhcp.conf | cut -d= -f1 | sed "s/^.*_//")
