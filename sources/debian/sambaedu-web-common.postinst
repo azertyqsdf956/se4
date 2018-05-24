@@ -42,8 +42,8 @@ case "$1" in
         su www-admin -c "kinit -k -t /var/www-admin/www-sambaedu.keytab www-sambaedu"
 
         # enregistrement dns
-	    su www-admin -c "samba-tool dns add se4ad $config_domain se4fs A $config_se4fs_ip -k yes" || true
-        su www-admin -c "samba-tool dns add se4ad $config_domain se4fs CNAME admin -k yes" || true
+		su www-admin -c "samba-tool dns add $config_se4ad_name $config_domain se4fs A $config_se4fs_ip -k yes" || true
+		su www-admin -c "samba-tool dns add $config_se4ad_name $config_domain admin CNAME se4fs.$config_domain -k yes" || true
         
         # virtualhost admin.domaine
         chown -R www-admin /var/www/sambaedu

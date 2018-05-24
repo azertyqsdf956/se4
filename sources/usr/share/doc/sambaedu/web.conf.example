@@ -1,5 +1,6 @@
 <VirtualHost admin.###_DOMAIN_###:80>
         ServerAdmin www-sambaedu@localhost
+        ServerName admin
         DocumentRoot /var/www/sambaedu/
         <FilesMatch "\.php$">
             SetHandler "proxy:fcgi://127.0.0.1:9000/"

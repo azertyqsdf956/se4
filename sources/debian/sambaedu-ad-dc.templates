@@ -1,7 +1,7 @@
 Template: sambaedu/action_ad
 Type: select
-Choices: Test, LXC, VM, Quit
-Default: Quit
+Choices: Configurer et réessayer, LXC, VM, Quitter
+Default: Configurer et réessayer 
 Description: Type d'installation pour le serveur Active Directory
  LXC : serveur virtualisé léger en conteneur LXC. Le meilleur choix pour les serveurs avec des ressources limitées
  .
@@ -31,3 +31,9 @@ Type: password
 Description: mot de passe admin ldap de l'AD
  mot de passe utilisé pour le bind ldap sur le ad
 
+Template: sambaedu/se4ad_name
+Type: string
+Default: se4ad
+Description: Nom du serveur AD
+ Si le nom par défaut (se4ad) ne convient pas, ou que vous avez déjà un serveur Ad en service, vous pouvez le choisir ici. Attention, il est quasiment impossible de le changer par la suite.
+ 

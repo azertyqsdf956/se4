@@ -8,7 +8,7 @@ for conf in $(find /etc/sambaedu -name *.conf -type f); do
 # version de transition avec param=value (se3) et config_param= value (se4)
 #    for ligne in $(sed -E "/^#.*$/d;s|^(\S+)\s*=\s*(\".*\")$|config_\1=\2 \1=\2|g" $conf); do
 # version finale
-    for ligne in $(sed -E "/^#.*$/d;s|^(\S+)\s*=\s*(\".*\")$|config_\1=\2|g" $conf); do
+    for ligne in $(sed -E "/^#.*$/d;s|^(\S+)\s*=\s*\"(.*)\"$|config_\1='\2'|g" $conf); do
         eval $ligne
     done
 done
@@ -37,8 +37,7 @@ function set_config() {
                 echo "$2 = \"$3\"">>$conf
             fi
         fi
-#        eval $2="$3" 
-        eval config_$2="$3"
+        eval config_$2=\'$3\'
     fi
 }
 
