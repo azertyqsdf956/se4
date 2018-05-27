@@ -27,24 +27,32 @@ case "$1" in
         my_network
 
         # creation de l'utilisateur www-admin
-        if ! id www-admin > /dev/null ; then
+        if ! id www-admin > /dev/null 2>&1 ; then
             useradd -u 599 www-admin -s /bin/bash -d /var/www-admin
         fi
+        chown -R www-admin /etc/sambaedu
+        chmod -R 700 /etc/sambaedu
 #	    adduser www-admin lpadmin
         # copie du keytab de www-sambaedu
-        if [ ! -f /var/www-admin/www-sambaedu.keytab ]; then
-            mkdir -p /var/www-admin
-            scp root@$config_se4ad_ip:/root/www-sambaedu.keytab /var/www-admin/www-sambaedu.keytab
-            chown -R www-admin /var/www-admin/
-            chmod 700 /var/www-admin/www-sambaedu.keytab
+        if [ ! -f /etc/sambaedu/www-sambaedu.keytab ]; then
+            scp -i /etc/sambaedu/id_rsa root@$config_se4ad_ip:/etc/sambaedu/www-sambaedu.keytab /etc/sambaedu/www-sambaedu.keytab
+            chown -R www-admin /etc/sambaedu/
+            chmod 600 /etc/sambaedu/www-sambaedu.keytab
         fi
         # activation kerberos
-        su www-admin -c "kinit -k -t /var/www-admin/www-sambaedu.keytab www-sambaedu"
+        su www-admin -c "kinit -k -t /etc/sambaedu/www-sambaedu.keytab www-sambaedu"
 
-        # enregistrement dns
+        # enregistrement dns des deux machines
+        # TODO tester l'existence plutôt que de cacher les erreurs !
 		su www-admin -c "samba-tool dns add $config_se4ad_name $config_domain se4fs A $config_se4fs_ip -k yes" || true
 		su www-admin -c "samba-tool dns add $config_se4ad_name $config_domain admin CNAME se4fs.$config_domain -k yes" || true
-        
+		# creation de la zone inverse si besoin, cela peut servir.
+		read a b c d<<<${my_address//./ }
+        su www-admin -c "samba-tool dns zonecreate $config_se4ad_name $c.$b.$a.in-addr.arpa -k yes >/dev/null 2>&1" || true
+        su www-admin -c "samba-tool dns add ${config_se4ad_name} $c.$b.$a.in-addr.arpa $d PTR se4fs.${config_domain} -k yes >/dev/null 2>&1" || true
+    	read a b c d<<<${config_se4ad_ip//./ }
+        su www-admin -c "samba-tool dns add ${config_se4ad_name} $c.$b.$a.in-addr.arpa $d PTR ${config_se4ad_name}.${config_domain} -k yes >/dev/null 2>&1" || true
+		
         # virtualhost admin.domaine
         chown -R www-admin /var/www/sambaedu
         cp -a /usr/share/doc/sambaedu/web.conf.example /etc/apache2/sites-available/sambaedu.conf

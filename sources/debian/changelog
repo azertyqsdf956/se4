@@ -1,8 +1,10 @@
-sambaedu (3.9.3~) UNRELEASED; urgency=medium
+sambaedu (3.9.3) se4XP; urgency=medium
 
-  * refactoring
+  * paquet sambaedu-web-common
+  * interface de base fonctionnelle
+  * paquet sambaedu-ad-client  : mise au domaine
 
- -- Denis Bonnenfant <denis.bonnenfant@sambaedu.org>  Tue, 15 May 2018 14:37:15 +0200
+ -- Denis Bonnenfant <denis.bonnenfant@sambaedu.org>  Sun, 27 May 2018 22:47:33 +0200
 
 sambaedu (3.9.2) unstable; urgency=medium
 

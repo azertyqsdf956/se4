@@ -1,3 +1,8 @@
+Template: sambaedu/ssh_error
+Type: error
+Description: Problème de connexion ssh
+ La connexion ssh au serveur AD ne fonctionne pas. Vous devrez probablement entrer le mot de passe root du serveur AD par la suite. En cas de problème lancez la commande "ssh-copy-id -i /etc/sambaedu/id_rsa.pub root@se4ad" puis relancez l'installation.
+
 Template: sambaedu/action_ad
 Type: select
 Choices: Configurer et réessayer, LXC, VM, Quitter
@@ -36,4 +41,3 @@ Type: string
 Default: se4ad
 Description: Nom du serveur AD
  Si le nom par défaut (se4ad) ne convient pas, ou que vous avez déjà un serveur Ad en service, vous pouvez le choisir ici. Attention, il est quasiment impossible de le changer par la suite.
- 
