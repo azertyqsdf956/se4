@@ -38,7 +38,8 @@ case "$1" in
         write_param /etc/samba/smb.conf config_DOMAIN
         
         # mise au domaine
-    net ads join -U "${config_ldap_admin_name}%${config_ldap_admin_passwd}"
+        
+    	net ads join -U "${config_ldap_admin_name}%${config_ldap_admin_passwd}"
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

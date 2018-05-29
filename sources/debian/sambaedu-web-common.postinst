@@ -64,6 +64,8 @@ case "$1" in
 
         a2enconf php7.0-fpm
         apachectl restart
+        systemctl enable php7.0-fpm
+        systemctl restart php7.0-fpm
         
         mkdir -p /var/log/sambaedu
         chown www-admin /var/log/sambaedu
