@@ -50,3 +50,8 @@ Architecture: all
 Depends:  ${misc:Depends}, php-fpm, php7.0-opcache, php-apcu, apache2-suexec-pristine, sambaedu-ad-client, default-mysql-server, php-ldap, sambaedu-php-libs
 Description: Interface d'administration web
  
+Package: sambaedu
+Architecture: all
+Depends:  ${misc:Depends}, sambaedu-web-common, sambaedu-winbind
+Description: serveur sambaedu
+ 

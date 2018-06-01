@@ -1,5 +1,5 @@
 #!/bin/bash
-# postinst script for sambaedu-boot-server
+# postinst script for sambaedu-php-libs
 #
 # see: dh_installdeb(1)
 
@@ -20,18 +20,7 @@ set -e
 
 case "$1" in
     configure)
-        . /usr/share/sambaedu/includes/config.inc.sh        
-        . /usr/share/sambaedu/includes/utils.inc.sh
-        . /usr/share/debconf/confmodule
-        get_config
-        # nsswitch
-        update_conf /etc/nsswitch.conf 'passwd.*compat' winbind
-        update_conf /etc/nsswitch.conf 'group.*compat' winbind
-        update_conf /etc/nsswitch.conf 'shadow.*compat'      
-
-        # service winbind
-        systemctl enable winbind.service
-        systemctl start winbind.service         
+		chmod -R 777  /var/lib/php-htmlpurifier/Serializer	
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

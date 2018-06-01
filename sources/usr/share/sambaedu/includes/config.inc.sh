@@ -73,8 +73,9 @@ function update_conf() {
     field=$2
     param=$3
     if [ -n "$field" ]; then
-        if $(grep -q "^\s*${field}[= ]" $conf); then
-            sed -i "s|^\(\s*${field}\s*=*\s*\).*$|\1 $param|" $conf
+    	re=".*$field[= ]*"
+        if grep -q "$re" $conf; then
+            sed -i "s|^\(\s*${field}[\s=]*\).*$|\1 $param|" $conf
         else
             echo "$field = $param">>$conf
         fi

@@ -5,6 +5,6 @@ groups_rdn="ou=Groups"
 rights_rdn="ou=Rights"
 parcs_rdn="ou=Parcs"
 computers_rdn="CN=computers"
-#printersRdn="ou=Printers"
+printers_rdn="ou=Printers"
 trash_rdn="ou=Trash"
 

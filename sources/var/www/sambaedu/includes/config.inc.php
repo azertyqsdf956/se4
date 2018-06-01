@@ -170,7 +170,7 @@ function set_config($param, $value = "", $module = "sambaedu")
     $content = "";
     foreach ($config as $key => $value) {
         if (! ("$key" == "dn")) {
-            $content .= $key . "=\"" . $value . "\"\n";
+            $content .= $key . " = \"" . $value . "\"\n";
         }
     }
     // write it into file
