@@ -30,13 +30,15 @@ case "$1" in
         set_config sambaedu ldap_base_dn "$RET"
         db_get sambaedu/ldap_admin_name
         set_config sambaedu ldap_admin_name "$RET"
+        db_get sambaedu/admin_rdn
+        set_config sambaedu admin_rdn "$RET"
         db_get sambaedu/ldap_admin_passwd
         set_config sambaedu ldap_admin_passwd "$RET"
         db_get sambaedu/se4ad_name
         set_config sambaedu se4ad_name "$RET"
 
         # on teste la connexion au addc et on sort en erreur tant que ce n'est pas ok.
-        if res=$(ldapsearch  -xLLL -D "cn=$config_ldap_admin_name,$config_people_rdn,$config_ldap_base_dn" \
+        if res=$(ldapsearch  -xLLL -D "cn=$config_ldap_admin_name,$config_admin_rdn,$config_ldap_base_dn" \
         -b $config_ldap_base_dn -w "$config_ldap_admin_passwd" \
         "(&(objectClass=person)(samaccountname=$config_ldap_admin_name))"\
         -H  ldaps://$config_se4ad_ip) ; then
@@ -44,7 +46,7 @@ case "$1" in
             echo "domain $config_domain
 nameserver $config_se4ad_ip">/etc/resolv.conf
             set_config sambaedu ldap_url "ldaps://$config_domain"
-            if res=$(ldapsearch  -xLLL -D "cn=$config_ldap_admin_name,$config_people_rdn,$config_ldap_base_dn" \
+            if res=$(ldapsearch  -xLLL -D "cn=$config_ldap_admin_name,$config_admin_rdn,$config_ldap_base_dn" \
             -b $config_ldap_base_dn -w "$config_ldap_admin_passwd" \
             "(&(objectClass=person)(samaccountname=$config_ldap_admin_name))"\
          -H $config_ldap_url); then

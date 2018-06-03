@@ -34,11 +34,11 @@ if($langue != "fr") {
 	putenv("LANGUAGE=$langue");
 	@setlocale('LC_ALL', $langue);
 	*/
-if($lang != "fr") {
-   if($lang !="auto") {
-	putenv("LANG=$lang");
-	putenv("LANGUAGE=$lang");
-	@setlocale('LC_ALL', $lang);
+if($config['lang'] != "fr") {
+   if($config['lang'] !="auto") {
+	putenv("LANG=$config[lang]");
+	putenv("LANGUAGE=$config[lang]");
+	@setlocale('LC_ALL', $config['lang']);
    } else {
 
 	// put here the langage for wich the interface is translated. fr_FR, or fr ...
@@ -54,11 +54,11 @@ if($lang != "fr") {
    	foreach ($Server_Lang as $part) {
 		$part=trim($part);
 		if(preg_match("/;/", $part)) {
-			$lang=@preg_split("/;/",$part);
-			$score=@preg_split("/=/",$lang[1]);
-			$lang_scores[$lang[0]]=$score[1];
-			if (preg_match("/-/",$lang[0])) {
-				$noct=@preg_split("/-/",$lang[0]);
+			$config['lang']=@preg_split("/;/",$part);
+			$score=@preg_split("/=/",$config['lang'][1]);
+			$lang_scores[$config['lang'][0]]=$score[1];
+			if (preg_match("/-/",$config['lang'][0])) {
+				$noct=@preg_split("/-/",$config['lang'][0]);
 				$lang_scores[$noct[0]]=$score[1]-$sorting_param;
 			}
 		} else {

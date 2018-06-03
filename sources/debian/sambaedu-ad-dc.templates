@@ -31,6 +31,11 @@ Type: string
 Description: admin ldap de l'AD
  nom d'utilisateur utilisé pour le bind ldap sur le ad
 
+Template: sambaedu/admin_rdn
+Type: string
+Description: relative dn de l'admin
+ branche contenant le compte administraeur
+
 Template: sambaedu/ldap_admin_passwd
 Type: password
 Description: mot de passe admin ldap de l'AD

@@ -46,7 +46,7 @@ function get_config_se4($module = "sambaedu")
     } elseif ($module == "sambaedu") {
         $conf_file = "/etc/sambaedu/sambaedu.conf";
         $config = parse_ini_file($conf_file);
-        $config['dn']['admin'] = $config['ldap_admin_name'] . "," . $config['ldap_base_dn'];
+        $config['dn']['admin'] = $config['ldap_admin_name'] . "," . $config['admin_rdn'] .",". $config['ldap_base_dn'];
         $config['dn']['people'] = $config['people_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['groups'] = $config['groups_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['rights'] = $config['rights_rdn'] . "," . $config['ldap_base_dn'];
@@ -223,12 +223,12 @@ textdomain("messages");
 
 // Paramètres LDAP
 $config = get_config();
-// if ($config["version"] == "se3") {
-// compatibilité avec se3
+/*if ($config["version"] == "se3") {
+compatibilité avec se3
 foreach ($config as $key => $value) {
     $$key = $value;
 }
-$adminDn = "$ldap_admin_name,$ldap_base_dn";
+$adminDn = "$ldap_admin_name,$admin_rdn,$ldap_base_dn";
 
 // Declaration des «branches» de l'annuaire LCS/SE3 dans un tableau
 $dn = array();
@@ -241,5 +241,5 @@ $dn["computers"] = "$computers_rdn,$ldap_base_dn";
 $dn["printers"] = "$printers_rdn,$ldap_base_dn";
 $dn["trash"] = "$trash_rdn,$ldap_base_dn";
 // }
-
+*/
 ?>
