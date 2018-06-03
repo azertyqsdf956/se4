@@ -110,8 +110,8 @@ fi
 if [ -e /var/www/sambaedu/dhcp/make_reservations.php ]; then 
     php /var/www/sambaedu/dhcp/make_reservations.php
 fi
-if [ -e /etc/dhcp/reservations.conf ] ; then
-    echo "include \"/etc/dhcp/reservations.conf\";" >> $conf
+if [ -e /etc/sambaedu/reservations.inc ] ; then
+    echo "include \"/etc/sambaedu/reservations.inc\";" >> $conf
 fi
 
 systemctl restart isc-dhcp-server.service
