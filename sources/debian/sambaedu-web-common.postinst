@@ -29,6 +29,8 @@ case "$1" in
         # creation de l'utilisateur www-admin
         if ! id www-admin > /dev/null 2>&1 ; then
             useradd -u 599 www-admin -s /bin/bash -d /var/www-admin
+	    mkdir -p /var/www-admin
+            chown -R www-admin /var/www-admin
         fi
         chown -R www-admin /etc/sambaedu
         chmod -R 700 /etc/sambaedu
