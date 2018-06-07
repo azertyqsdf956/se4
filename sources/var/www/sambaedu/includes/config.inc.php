@@ -46,7 +46,7 @@ function get_config_se4($module = "sambaedu")
     } elseif ($module == "sambaedu") {
         $conf_file = "/etc/sambaedu/sambaedu.conf";
         $config = parse_ini_file($conf_file);
-        $config['dn']['admin'] = $config['ldap_admin_name'] . "," . $config['admin_rdn'] .",". $config['ldap_base_dn'];
+        $config['dn']['admin'] = "cn=" . $config['ldap_admin_name'] . "," . $config['admin_rdn'] .",". $config['ldap_base_dn'];
         $config['dn']['people'] = $config['people_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['groups'] = $config['groups_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['rights'] = $config['rights_rdn'] . "," . $config['ldap_base_dn'];

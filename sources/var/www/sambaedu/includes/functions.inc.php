@@ -52,16 +52,20 @@ function bind_ad_gssapi($config) {
 function user_valid_passwd ($config, $login, $password ) {
   $url = "ldaps://".$config['domain'];
   $ret = false;
-
+  if ($login==$config['ldap_admin_name']) {
+	$login_dn = $config['dn']['admin'];
+  } else {
+        $login_dn = "cn=" . $login . "," . $config['dn']['people'];
+  } 
   $ds = @ldap_connect ( $url, $config['ldap_port'] );
   if ( $ds ) {
-    $r = @ldap_bind ( $ds,"cn=".$login.",".$config['dn']["people"] , $password );
+    $r = @ldap_bind ( $ds, $login_dn, $password );
     if ( $r ) {
                 $ret = true;
-    } else $error = gettext("Echec de l'Authentification.");
+    } else $ret = gettext("Echec de l'Authentification de $login_dn.");
     @ldap_unbind ($ds);
     @ldap_close ($ds);
-  } else $error = gettext("Erreur de connection au serveur AD");
+  } else $ret = gettext("Erreur de connection au serveur AD");
   return $ret;
 }
 
