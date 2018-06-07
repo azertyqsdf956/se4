@@ -61,7 +61,7 @@ nameserver $config_se4ad_ip">/etc/resolv.conf
 					ssh-copy-id -i /etc/sambaedu/id_rsa.pub root@$config_se4ad_ip 
 				fi
                 sed -i "s/^#NTP=.*/NTP=${config_se4ad_name}.${config_domain}/" /etc/systemd/timesyncd.conf 
-                systemctl reload systemd-timesyncd.service || true
+                systemctl restart systemd-timesyncd.service || true
 		exit 0
             else
                 echo "problème de configuration dns, vérifiez votre configuration">2
