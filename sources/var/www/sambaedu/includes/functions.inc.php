@@ -212,17 +212,21 @@ function ldap_get_right_search ($config, $login, $type, $search_filter, $ldap)
 function ldap_get_right($config,$type, $login)
 {
 
-    $nom="cn=" . $login . "," . $config['dn']["people"];
+    $cn="cn=" . $login . "," . $config['dn']["people"];
+    $cnprofs="CN=" . $login . ",ou=Profs,".$config['dn']["people"];
+    $cneleves="CN=" . $login . ",ou=Eleves,".$config['dn']["people"];
+    $cnadminstratifs="CN=" . $login . ",ou=Eleves,".$config['dn']["people"];
+
 
     $ret="N";
 
    // Connect and sasl bind
     list($ds,$r,$error) = bind_ad_gssapi($config);
     if ( $r ) {
-             // Recherche du nom exact
-       $search_filter = "(member=$nom)";
+       // Recherche du nom exact
+       $search_filter = "(|(member=$cn)(member=$cnprofs)(member=$cneleves)(member=$cnadministratifs))";
        $ret=ldap_get_right_search ($config, $login, $type, $search_filter,$ds);
-            // Recherche sur les GroupsOfNames d'appartenance
+       // Recherche sur les GroupsOfNames d'appartenance
        $result1 = @ldap_list ( $ds, $config['dn']["groups"], "member=cn=$login,".$config['dn']["people"], array ("cn") );
        if ($result1) {
                 	$info = @ldap_get_entries ( $ds, $result1 );
