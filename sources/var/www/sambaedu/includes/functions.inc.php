@@ -213,9 +213,9 @@ function ldap_get_right($config,$type, $login)
 {
 
     $cn="cn=" . $login . "," . $config['dn']["people"];
-    $cnprofs="CN=" . $login . ",ou=Profs,".$config['dn']["people"];
-    $cneleves="CN=" . $login . ",ou=Eleves,".$config['dn']["people"];
-    $cnadminstratifs="CN=" . $login . ",ou=Eleves,".$config['dn']["people"];
+    $cn_profs="CN=" . $login . ",ou=Profs,".$config['dn']["people"];
+    $cn_eleves="CN=" . $login . ",ou=Eleves,".$config['dn']["people"];
+    $cn_administratifs="CN=" . $login . ",ou=Administratifs,".$config['dn']["people"];
 
 
     $ret="N";
@@ -224,7 +224,7 @@ function ldap_get_right($config,$type, $login)
     list($ds,$r,$error) = bind_ad_gssapi($config);
     if ( $r ) {
        // Recherche du nom exact
-       $search_filter = "(|(member=$cn)(member=$cnprofs)(member=$cneleves)(member=$cnadministratifs))";
+       $search_filter = "(|(member=$cn)(member=$cn_profs)(member=$cn_eleves)(member=$cn_administratifs))";
        $ret=ldap_get_right_search ($config, $login, $type, $search_filter,$ds);
        // Recherche sur les GroupsOfNames d'appartenance
        $result1 = @ldap_list ( $ds, $config['dn']["groups"], "member=cn=$login,".$config['dn']["people"], array ("cn") );

@@ -27,17 +27,10 @@
 
 require_once("config.inc.php");
 
-	/*
-if($langue != "fr") {
-   if($langue !="auto") {
-	putenv("LANG=$langue");
-	putenv("LANGUAGE=$langue");
-	@setlocale('LC_ALL', $langue);
-	*/
-if($config['lang'] != "fr") {
+if (isset($config['lang'])) {
    if($config['lang'] !="auto") {
-	putenv("LANG=$config[lang]");
-	putenv("LANGUAGE=$config[lang]");
+	putenv('LANG=$config["lang"]');
+	putenv('LANGUAGE=$config["lang"]');
 	@setlocale('LC_ALL', $config['lang']);
    } else {
 
