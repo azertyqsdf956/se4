@@ -83,7 +83,7 @@ if((ldap_get_right($config, "Annu_is_admin",$login)=="Y")&&(isset($_GET['create_
 }
 
 echo "<table width=\"80%\"><tr><td>";  
-	if ($user["description"]) echo "<p>".$user["description"]."</p>";
+	if (isset($user["description"])) echo "<p>".$user["description"]."</p>";
   	if ( count($groups) ) {
     		echo "<U>Membre des groupes</U> :<BR><UL>\n";
     		for ($loop=0; $loop < count ($groups) ; $loop++) {

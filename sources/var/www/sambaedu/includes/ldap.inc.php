@@ -253,7 +253,7 @@ function search_people($config, $filter)
                     $ret[$loop] = array(
                         "cn" => $info[$loop]["cn"][0],
                         "displayname" => utf8_decode($info[$loop]["displayname"][0]),
-                        "sn" => utf8_decode($info[$loop]["sn"][0])
+                        "sn" => utf8_decode(isset($info[$loop]["sn"][0]) ? $info[$loop]["sn"][0] : "" )
                     );
                 }
             }

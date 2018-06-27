@@ -1,2 +1,2 @@
-0 * * * *	www-admin	"kinit -k -t /etc/sambaedu/www-sambaedu.keytab www-sambaedu"
-@reboot	www-admin	"kinit -k -t /etc/sambaedu/www-sambaedu.keytab www-sambaedu"
+50 * * * * www-admin "/usr/share/sambaedu/sbin/renew_ticket.sh"
+@reboot www-admin "/usr/share/sambaedu/sbin/renew_ticket.sh"
