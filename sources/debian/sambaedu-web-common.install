@@ -3,3 +3,4 @@ usr/share/doc/sambaedu/sambaedu.sql
 usr/share/doc/sambaedu/fpm.conf
 var/www/sambaedu/*
 usr/share/sambaedu/scripts/*
+usr/share/sambaedu/sbin/renew_ticket.sh
