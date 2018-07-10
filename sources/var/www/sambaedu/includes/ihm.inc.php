@@ -219,7 +219,7 @@ $motif = "^[0-9]{8}$";
 
  if ( preg_match("/$motif/", $date) ) {
    // Verification de l'annee
-   if ( (date(Y) - substr ($date,0,4) < 75) && (date(Y) - substr ($date,0,4) > 4) ) {
+   if ( (date('Y') - substr ($date,0,4) < 75) && (date('Y') - substr ($date,0,4) > 4) ) {
      // Verification du mois
      if ( (substr ($date,4,2) > 0) && (substr ($date,4,2) <= 12 ) ) {
        if ( (substr ($date,6,2) > 0) && (substr ($date,6,2) <= 31) ) {

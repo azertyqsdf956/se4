@@ -16,6 +16,7 @@
    * @Licence Distribue selon les termes de la licence GPL
    
    * @note Modifie par Adrien CRESPIN -- Lycee Suzanne Valadon
+   * @note SE4
    */
 
    /**
@@ -28,9 +29,10 @@
 
 require "config.inc.php";
 require "functions.inc.php";
+require ("samba-tool.inc.php");
 
 // HTMLPurifier
-require_once ("traitement_data.inc.php");
+#require_once ("traitement_data.inc.php");
 
 $login=isauth();
 if ($login == "") header("Location:$urlauth");
@@ -43,7 +45,9 @@ require_once ("lang.inc.php");
 bindtextdomain('se3-annu',"/var/www/se3/locale");
 textdomain ('se3-annu');
 
-require "crob_ldap_functions.php";
+#require "crob_ldap_functions.php";
+
+$path_to_wwwse3=$config['path_to_wwwse3'];
 
 header_crypto_html("Creation utilisateur","../");
 echo "<h1>".gettext("Annuaire")."</h1>\n";
@@ -68,15 +72,14 @@ $string_auth=isset($_POST['string_auth']) ? $_POST['string_auth'] : "";
 $string_auth1=isset($_POST['string_auth1']) ? $_POST['string_auth1'] : "";
 $dummy=isset($_POST['dummy']) ? $_POST['dummy'] : "";
 $dummy1=isset($_POST['dummy1']) ? $_POST['dummy1'] : "";
-
-
+        
 if (is_admin($config, "Annu_is_admin",$login)=="Y") {
        if ( $add_user && ($string_auth || $string_auth1) ) {
-			exec ("/usr/bin/python ".$path_to_wwwse3."/includes/decode.py '$string_auth'",$Res);
-        	$naissance = $Res[0];
-			exec ("/usr/bin/python ".$path_to_wwwse3."/includes/decode.py '$string_auth1'",$Res1);
-        	if(isset($Res1[0])) {$userpwd = $Res1[0];} else {$userpwd=false;}
-		}
+           exec ("/usr/bin/python ".$path_to_wwwse3."/includes/decode.py '$string_auth'",$Res);
+           $naissance = $Res[0];
+            exec ("/usr/bin/python ".$path_to_wwwse3."/includes/decode.py '$string_auth1'",$Res1);
+            if(isset($Res1[0])) {$userpwd = $Res1[0];} else {$userpwd=false;}
+	}
     // Ajout d'un utilisateur
     if (    (!isset($_POST['add_user']))
 	|| ( !$nom || !$prenom )    // absence de nom ou de prenom
@@ -129,7 +132,7 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
 		<?php
 			echo '<blockquote><font color="#FF9900">';	
 			echo gettext('Si le champ mot de passe est laiss&#233; vide, un mot de passe sera cr&#233;&#233; selon la politique de mot de passe par d&#233;faut qui est d&#233;finie &#224; : ');
-			switch ($pwdPolicy) {
+			switch ($config['pwdPolicy']) {
 				case 0:		// date de naissance
 					echo gettext("date de naissance (YYYYMMDD)");
 					echo gettext("<br />Si ni la date de naissance ni le mot de passe ne sont renseign&#233;es, un mot de passe semi-al&#233;atoire sera g&#233;n&#233;r&#233;");
@@ -237,7 +240,7 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
 		// Du coup, l'utf8_encode qui suit est inutile...
 
 		$cn =utf8_encode($prenom." ".$nom);
-		$people_exist=search_people("(cn=$cn)");
+		$people_exist=search_people($config, "(cn=$cn)");
 
       	if (count($people_exist)) {
         	echo "<div class='error_msg'>";
@@ -247,7 +250,7 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
                 }
               	echo "</div><BR>\n";
       	} else {
-		switch ($pwdPolicy) {
+		switch ($config['pwdPolicy']) {
 			case 0:		// date de naissance
 			       	if ((!$naissance) && (!$userpwd) ) {
 					exec("/usr/share/se3/sbin/gen_pwd.sh -s", $out);
@@ -274,16 +277,17 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
 			}
 			
 			// Creation du nouvel utilisateur
-			//echo "<pre>/usr/share/se3/sbin/userAdd.pl \"$prenom\" \"$nom\" \"$userpwd\" \"$naissance\" \"$sexe\" \"$categorie\"</pre>";
-			exec ("/usr/share/se3/sbin/userAdd.pl \"$prenom\" \"$nom\" \"$userpwd\" \"$naissance\" \"$sexe\" \"$categorie\"",$AllOutPut,$ReturnValue);
+			#echo "<pre> \"$prenom\" \"$nom\" \"$userpwd\" \"$naissance\" \"$sexe\" \"$categorie\"</pre>";
+			#exec ("/usr/share/se3/sbin/userAdd.pl \"$prenom\" \"$nom\" \"$userpwd\" \"$naissance\" \"$sexe\" \"$categorie\"",$AllOutPut,$ReturnValue);
+                        $RET = useradd ($config, $prenom, $nom, $userpwd, $naissance, $sexe, $categorie,"");
 			// Compte rendu de creation
-			if ($ReturnValue == "0") {
+			if ( isset ($RET) ) {
 				if($sexe=="M"){
 					echo gettext("L'utilisateur ")." $prenom $nom ".gettext(" a &#233;t&#233; cr&#233;&#233; avec succ&#232;s.")."<BR>";
 				} else {
 					echo gettext("L'utilisateur ")." $prenom $nom ".gettext(" a &#233;t&#233; cr&#233;&#233;e avec succ&#232;s.")."<BR>";
 				}
-				$users = search_people ("(cn=$cn)");
+				$users = search_people ($config, "(cn=$cn)");
 				if ( count ($users) ) {
 					echo gettext("Son identifiant est ")."<STRONG><a href='people.php?cn=".$users[0]["cn"]."' title=\"Modifier le compte.\">".$users[0]["cn"]."</a></STRONG><BR>\n";
 					echo gettext("Son mot de passe est ")."<STRONG>".$userpwd."</STRONG><BR>\n";
@@ -306,14 +310,14 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
 				echo "<div class='error_msg'>".gettext("Erreur lors de la cr&#233;ation du nouvel utilisateur")." $prenom $nom
 				<font color='black'>(".gettext("type d'erreur :")." $ReturnValue)
 				</font>,".gettext(" veuillez contacter")."
-				<a href='mailto:$MelAdminLCS?subject=PB creation nouvel utilisateur Se3'>".gettext("l'administrateur du syst&#232;me")."</a></div><br />\n";
+				<a href='mailto:admin@".$config['domain']."?subject=PB creation nouvel utilisateur Se3'>".gettext("l'administrateur du syst&#232;me")."</a></div><br />\n";
 				echo "<p><br /></p>\n";
 				echo "<p><em>NOTES&nbsp;:</em> A propos des erreurs, une erreur 255 peut appara&icirc;tre quand on tente d'ajouter un utilisateur toto (<em>qui n'existait pas dans la branche People</em>), alors qu'un toto existait dans un groupe (<em>Eleves, Profs ou Administratifs</em>).</p>\n";
 			}
 		}
 	}
 
-	include("listing.inc.php");
+	#include("listing.inc.php");
 
 } else {
 	echo "<div class=error_msg>".gettext("Cette application, n&#233;cessite les droits d'administrateur du serveur SambaEdu !")."</div>";
