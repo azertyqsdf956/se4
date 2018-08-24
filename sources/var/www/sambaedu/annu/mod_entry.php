@@ -39,11 +39,11 @@ $login=isauth();
 if ($login == "") header("Location:$urlauth");
 
 // Recuperation des entrees de l'utilisateur a modifier
-$people_attr=people_get_variables ($login, false);
+$people_attr=search_user ($login, false);
 //$people_attr[0]["prenom"]=getprenom($people_attr[0]["fullname"],$people_attr[0]["nom"]);
 
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 	// Redirection vers mod_user_entry.php
     	header("Location:mod_user_entry.php?cn=$login");
 } else {

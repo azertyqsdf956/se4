@@ -45,7 +45,7 @@ $members=$_POST['members'];
 echo "<h1>".gettext("Annuaire")."</h1>";
 
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 
 
 	$filter="8_".$cn;

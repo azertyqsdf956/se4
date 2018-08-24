@@ -33,7 +33,7 @@ require_once ("lang.inc.php");
 bindtextdomain('se3-registre',"/var/www/se3/locale");
 textdomain ('se3-registre');
 
-if ((is_admin($config, "computers_is_admin",$login)!="Y") or (is_admin($config, "parc_can_manage",$login)!="Y"))
+if ((have_right($config, "computers_is_admin",$login)!="Y") or (have_right($config, "parc_can_manage",$login)!="Y"))
         die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 	$_SESSION["pageaide"]="Annuaire#Administration_LDAP";
 

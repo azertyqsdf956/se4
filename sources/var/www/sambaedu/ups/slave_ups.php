@@ -45,7 +45,7 @@ textdomain ('se3-ups');
 $_SESSION["pageaide"]="Gestion_de_l\'onduleur#Onduleur_pour_plusieurs_serveurs";
 
 //Si on a le droit de se connecter
-if ($is_admin = is_admin($config, "Lcs_is_admin",$login)=="Y") {
+if ($is_admin = have_right($config, "Lcs_is_admin")) {
 
  echo "<H1>".gettext("Gestion des onduleurs")."</H1>";
 

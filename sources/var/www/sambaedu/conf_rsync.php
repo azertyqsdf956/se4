@@ -61,7 +61,7 @@ $_SESSION["pageaide"]="Sauvegarde_client_Linux#Cas_particulier_:_Sauvegarder_un_
 
 echo "<H1>".gettext("Configure client sauvegarde ")."</H1>\n";
 
-if (is_admin($config,"system_is_admin",$login)=="Y") {
+if (have_right($config,"system_is_admin")) {
 	
 	// Stop ou start rsync
    	if ($_GET['action']=="stop") {

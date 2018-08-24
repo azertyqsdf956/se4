@@ -62,7 +62,7 @@ require_once ("traitement_data.inc.php");
 	if ( isset($username) ) {
 		echo "  username = '$username';\r\n";
 		$filtre = "(|(memberUid=".$username.")(member=uid=".$username.",".$dn['people']."))";
-		$userGroups = search_groups ( $filtre );
+		$userGroups = filter_group ( $filtre );
 		$nGroups = count( $userGroups);
 		echo "  userGroups = ',";
 		for ($i=0; $i<$nGroups; $i++) {

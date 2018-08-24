@@ -55,7 +55,7 @@ if(isset($user)) {
 	// fin correctif
 }
 
-list($user, $groups)=people_get_variables($config, $cn, true);
+list($user, $groups)=search_user($config, $cn, true);
 
 #$TimeStamp_1=microtime();
 #############
@@ -67,7 +67,7 @@ list($user, $groups)=people_get_variables($config, $cn, true);
 #############
 echo "<a href='people.php?cn=".$user["cn"]."' title=\"Rafraichir la page\"><H3>".$user["fullname"]."</H3></a>\n";
 
-if((ldap_get_right($config, "Annu_is_admin",$login)=="Y")&&(isset($_GET['create_home']))&&($_GET['create_home']=='y')) {
+if((have_right($config, "Annu_is_admin"))&&(isset($_GET['create_home']))&&($_GET['create_home']=='y')) {
     echo "<p><b>Cr&#233;ation du dossier personnel de ".$user["cn"]."&nbsp;: </b>";
     exec("sudo /usr/share/se3/shares/shares.avail/mkhome.sh ".$user["cn"],$ReturnValue2);
     if(count($ReturnValue2)==0) {
@@ -90,13 +90,13 @@ echo "<table width=\"80%\"><tr><td>";
 
 			// Si les bons droits on place un lien sur les groupes
 			echo "<LI>";
-			if ((ldap_get_right($config, "annu_can_read",$login)=="Y") or (ldap_get_right($config, "Annu_is_admin",$login)=="Y") or (ldap_get_right($config, "sovajon_is_admin",$login)=="Y")) {
+			if ((have_right($config, "annu_can_read")) or (have_right($config, "Annu_is_admin")) or (have_right($config, "sovajon_is_admin"))) {
       				echo "<A href=\"group.php?filter=".$groups[$loop]["cn"]."\">";
       			}
       			if ($groups[$loop]["type"]=="posixGroup") echo "<STRONG>".$groups[$loop]["cn"]."</STRONG>";
       			else
         			echo $groups[$loop]["cn"];
-			if ((ldap_get_right($config, "annu_can_read",$login)=="Y") or (ldap_get_right($config, "Annu_is_admin",$login)=="Y") or (ldap_get_right($config, "sovajon_is_admin",$login)=="Y")) {
+			if ((have_right($config, "annu_can_read")) or (have_right($config, "Annu_is_admin")) or (have_right($config, "sovajon_is_admin"))) {
       				echo "</A>";
 			}	
 			echo "<font size=\"-2\"> ".$groups[$loop]["description"];
@@ -107,7 +107,7 @@ echo "<table width=\"80%\"><tr><td>";
        			echo "</font></li>";
       
       			// modif propos&#233;e par MC Marques
-      			if (is_admin($config, "Annu_is_admin",$login) == "Y" ) {
+      			if (have_right($config, "Annu_is_admin",$login) == "Y" ) {
         		?>
         			&nbsp;&nbsp;&nbsp;&nbsp;<a href="del_user_group_direct.php?cn=<?php echo $user["cn"]?>&cn=<?php echo $groups[$loop]["cn"] ?>" onclick= "return getconfirm();"><font size="2"><?php echo gettext("retirer du groupe"); ?></a></font><br>
         			<?php
@@ -127,7 +127,7 @@ echo "<table width=\"80%\"><tr><td>";
   	//echo "<br>Pages perso : <a href=\"../~".$user["cn"]."/\"><tt>".$baseurl."~".$user["cn"]."</tt></a><br>\n";
   	// echo "Adresse m&#232;l : <a href=\"mailto:".$user["email"]."\"><tt>mailto:".$user["email"]."</a></tt><br>\n";
    	// modif propos&#233;e par MC Marques
-   	if (is_admin($config, "Annu_is_admin",$login) == "Y" ) {
+   	if (have_right($config, "Annu_is_admin",$login) == "Y" ) {
       	?>
 	      <ul style="color: red;">
 	      <li><a href="add_user_group.php?cn=<?php echo $user["cn"] ?>"><?php echo gettext("Ajouter &agrave; des groupes"); ?></a><br>
@@ -141,7 +141,7 @@ echo "<table width=\"80%\"><tr><td>";
 	echo gettext("Adresse m&#233;l")." : <a href=\"mailto:".$user["email"]."\"><tt>".$user["email"]."</a></tt><br>\n";
 
 	// Affichage Menu people_admin
-	if (is_admin($config, "Annu_is_admin",$login) == "Y" ) {
+	if (have_right($config, "Annu_is_admin",$login) == "Y" ) {
 		echo "
 	<br>
 	<u>".gettext("Autres actions possibles")."</u>&nbsp;: <br />
@@ -149,9 +149,10 @@ echo "<table width=\"80%\"><tr><td>";
 		<li><a href=\"mod_user_entry.php?cn=".$user["cn"].">".gettext("Modifier le compte")."</a><br />
 		<li><a href=\"pass_user_init.php?cn=".$user["cn"].">".gettext("R&#233;initialiser le mot de passe")."</a><br />";
 
-	    $test_desac=search_people($config, "(&(cn=".$user["cn"].") (acctFlags=[U ]))");
+	    $test_desac = search_ad($config, $cn, "user");
+	    //todo (&(cn=".$user["cn"].") (acctFlags=[U ]))");
 
-		if (count($test_desac)==1) {
+		if ($test_desac[0]['usuraccountcontrol'] == 512) {
 			echo "
 		<li><a href=\"desac_user_entry.php?cn=".$user["cn"]."\" onclick= return getconfirm()>".gettext("D&#233;sactiver ce compte")." </a><br />";
 			if(file_exists('/home/'.$user["cn"])) {
@@ -193,7 +194,7 @@ echo "<table width=\"80%\"><tr><td>";
 		<?php       
 	} // Fin affichage menu people_admin
   
-  	if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
+  	if (have_right($config, "se3_is_admin")) {
     		echo "<li><a href=\"add_user_right.php?cn=" . $user["cn"] ."\">".gettext("G&#233;rer les droits")."</a><br>"; 
     		echo "<li><a href=\"../parcs/show_histo.php?selectionne=3&amp;user=$cn\">".gettext("Voir les connexions")."</a><br>"; // Ajout leb
   	}
@@ -208,8 +209,8 @@ echo "<table width=\"80%\"><tr><td>";
 	// si les droits étendus du groupe profs sont activés, le test sur la classe n'est pas nécessaire
 	$acl_group_profs_classes = exec("cd /var/se3/Classes; /usr/bin/getfacl . | grep group:Profs >/dev/null && echo 1");
 	
-	if (is_admin($config, "Annu_is_admin",$login) != "Y") {
-  		if ((tstclass($login,$user["cn"])==1) or ($acl_group_profs_classes == 1) and (ldap_get_right($config, "sovajon_is_admin",$login)=="Y") and ($login != $user["cn"])) {
+	if (!have_right($config, "Annu_is_admin")) {
+  		if ((tstclass($login,$user["cn"])==1) or ($acl_group_profs_classes == 1) and (have_right($config, "sovajon_is_admin")) and ($login != $user["cn"])) {
   		   // On teste si $user[cn] n'est pas un prof
             if (are_you_in_group($user["cn"],"Eleves")=="true") {
 			echo "<br>\n";
@@ -217,8 +218,8 @@ echo "<table width=\"80%\"><tr><td>";
 
     			echo "<li><a href=\"pass_user_init.php?cn=".$user["cn"]."\">".gettext("R&#233;initialiser le mot de passe")."</a><br>";
   			echo "<li><a href=\"mod_user_entry.php?cn=".$user["cn"]."\">".gettext("Modifier le compte de mon &#233;l&#232;ve ...")."</a><br>\n";
- 			$test_desac=search_people("(cn=".$user["cn"].")&(acctFlags=[U           ])");
-  			if (count($test_desac)==1) {
+  			$test_desac = search_ad($config, $user["cn"], "user");	
+  			if ($test_desac[0]['useraccountcontrol']==512) {
  				//si compte active
  	 			echo "<li><a href=\"desac_user_entry.php?cn=".$user["cn"]."\" onclick= return getconfirm()>".gettext("D&#233;sactiver ce compte")." </a><br>\n";
   			} else  {
@@ -254,7 +255,7 @@ echo "<table width=\"80%\"><tr><td>";
          		echo "<li><a href=\"del_nt_profile.php?cn=".$user["cn"]."&action=lock\">".gettext("Verrouiller mon profil Windows...")."</a><br>\n";
   		}
 
-		if(ldap_get_right($config, "fond_can_change",$login)) {
+		if(have_right($config, "fond_can_change")) {
 			echo "<li><a href=\"../fond_ecran/fond_perso.php\">".gettext("Personnaliser mon fond d'&#233;cran")."</a><br>\n";
 		}
 

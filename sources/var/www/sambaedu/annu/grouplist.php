@@ -40,8 +40,8 @@ $_SESSION["pageaide"]="Annuaire";
 
 $filter=$_GET['filter'];
 
-if ((is_admin($config, "Annu_is_admin",$login)=="Y") || (is_admin($config, "sovajon_is_admin",$login)=="Y")) {
-	$group=search_groups ("(cn=".$filter.")");
+if ((have_right($config, "Annu_is_admin")) || (have_right($config, "sovajon_is_admin"))) {
+	$group=filter_group ("(cn=".$filter.")");
 	$cns = search_cns ("(cn=".$filter.")");
 	$people = search_people_groups ($cns,"(sn=*)","cat");
   	#$TimeStamp_1=microtime();

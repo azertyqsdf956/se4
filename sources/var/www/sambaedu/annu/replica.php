@@ -33,7 +33,7 @@ require_once ("lang.inc.php");
 bindtextdomain('se3-annu',"/var/www/se3/locale");
 textdomain ('se3-annu');
       
-if (is_admin($config, "system_is_admin",$login)!="Y")
+if (have_right($config, "system_is_admin",$login)!="Y")
 	die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 
 $texte_alert=gettext("Attention vous risquez de perdre le contr�le de votre serveur. Voir la documentation avant de mettre cela en oeuvre. Etes vous sure de vouloir continuer ?");

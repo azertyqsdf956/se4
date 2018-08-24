@@ -34,9 +34,9 @@ require_once ("lang.inc.php");
 bindtextdomain('se3-annu',"/var/www/se3/locale");
 textdomain ('se3-annu');
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y")
+if (have_right($config, "Annu_is_admin"))
         $_SESSION["pageaide"]="Annuaire";
-else if (ldap_get_right($config, "sovajon_is_admin",$login)=="Y")
+elseif (have_right($config, "sovajon_is_admin"))
         $_SESSION["pageaide"]="L%27interface_prof#Annuaire";
 else $_SESSION["pageaide"]="L%27interface_%C3%A9l%C3%A8ve#Acc.C3.A9der_.C3.A0_l.27annuaire";
 
@@ -44,8 +44,8 @@ echo "<h1>".gettext("Annuaire")."</h1>\n";
 
 aff_trailer ("1");
 
-aff_mnu_search(is_admin($config, "Annu_is_admin",$login));
-if (ldap_get_right($config, "Annu_is_admin",$login)=="Y") {
+aff_mnu_search(have_right($config, "Annu_is_admin"));
+if (have_right($config, "Annu_is_admin")) {
 	//echo "<ul><li><b>".gettext("Administration :")."</b></li>";
 	echo "<ul><li><b>".gettext("Administration :")."</b>\n";
   	echo "<ul>\n";

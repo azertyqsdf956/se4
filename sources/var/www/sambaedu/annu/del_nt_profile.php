@@ -41,7 +41,7 @@ $action=$_GET['action'];
 echo "<h1>".gettext("Annuaire")."</h1>\n";
  
 aff_trailer ("3");
-if ((is_admin($config, "Annu_is_admin",$login)=="Y") || (is_admin($config, "Sovajon_is_admin",$login)=="Y")||($cn==$login)) {
+if ((have_right($config, "Annu_is_admin")) || (have_right($config, "Sovajon_is_admin"))||($cn==$login)) {
     // suppression d'un  profil nt d'utilisateur en cas de pb
 //    if ($cn == "admin" )  {
 //      	echo "<div class=error_msg>".gettext("Vous ne pouvez pas effacer le profil administrateur !")."</div>";

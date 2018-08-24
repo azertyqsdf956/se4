@@ -20,25 +20,6 @@
 
 //=================================================
 
-function bind_ad_gssapi($config) {
-   /*
-    * établit une connexion avec l'AD en GSSAPI
-    */
-    $error = 0;    
-	$url = "ldap://".$config['se4ad_name'].".".$config['domain'];
-    $ds = ldap_connect($url, '389');
-    if ($ds) {
-        ldap_set_option ($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
-        ldap_set_option ($ds, LDAP_OPT_REFERRALS, 0);
-        $r = ldap_sasl_bind ($ds, null, null, 'GSSAPI');
-        if ( ! $r ) {
-       		 $error = gettext("Echec de l'Authentification.");
-        }
-    }  else {
-    	$error = gettext("Erreur de connection kerberos au serveur AD");
-    }
-    return array ($ds,$r,$error);
-}
 
 
 /**
@@ -70,25 +51,10 @@ function user_valid_passwd ($config, $login, $password ) {
 }
 
 
-function isauth()
-{
-    /* Teste si une authentification est faite
-                - Si non, renvoie ""
-                - Si oui, renvoie l'uid de la personne
-    */
-
-    $login="";
-    session_name("Sambaedu");
-    @session_start();
-    $login= (isset($_SESSION['login'])?$_SESSION['login']:"");
-    return $login;
-}
 
 function open_session($config, $login, $passwd,$al)
 {
-    global $urlauth, $authlink, $secook;
-    global  $dbhost, $dbuser, $dbpass, $autologon, $REMOTE_ADDR;
-    global $MsgError,$logpath,$defaultintlevel,$smbversion;
+   global $MsgError,$logpath;
 
     $res=0;
     $loginauto="";
@@ -96,7 +62,7 @@ function open_session($config, $login, $passwd,$al)
     // Initialisation
     $auth_ldap=0;
 
-    if (($al!=1)&&("$autologon"=="1")){
+    if (($al!=1)&&($config['autologon']=="1")){
 		$logintstsecu=exec("sudo smbstatus -p | grep \"".$_SERVER['REMOTE_ADDR']."\" | grep -v root | grep -v nobody | grep -v adminse3  | grep -v unattend | wc -l");
 		if ("$logintstsecu" == "1") {
 			$loginauto=exec("sudo smbstatus -p |gawk '{if ($5==\"(".$_SERVER['REMOTE_ADDR'].")\") if ( ! index(\" root nobody unattend adminse3 \", \" \" $2 \" \")) {print $2;exit}}'");
@@ -162,92 +128,6 @@ function close_session()
 }
 
 
-/**
-* Recherche si $nom est present dans le droit $type
-
-* @Parametres
-* @Return
-*/
-
-
-
-function ldap_get_right_search ($config, $login, $type, $search_filter, $ldap)
-{
-    $ret="N";
-    $typearr=explode("|","$type");
-    $i=0;
-    while (($ret=="N") and ($i < count($typearr))) {
-      $base_search="cn=".$typearr[$i]."," . $config['dn']["rights"];
-      $search_attributes=array("cn");
-      $result = @ldap_read($ldap, $base_search, $search_filter, $search_attributes);
-      if ($result) {
-        if (ldap_count_entries ($ldap,$result) == 1) $ret="Y";
-        ldap_free_result($result);
-      } else {
-    	// Analyse pour les membres d'un groupe
-    	// jLCF 18 > A quoi sert cette section ?
-        $base_search="cn=".$typearr[$i]."," . $config['dn']["groups"];
-        $result = @ldap_read($ldap, $base_search, "cn=$login", $search_attributes);
-        if ($result) {
-          if (ldap_count_entries ($ldap,$result) == 1) $ret="Y";
-          ldap_free_result($result);
-        }
-      }
-      $i++;
-  }
-    return $ret;
-}
-
-
-
-
-/**
-* Determine si $login a le droit $type
-
-* @Parametres
-* @Return
-*/
-
-
-function ldap_get_right($config,$type, $login)
-{
-
-    $cn="cn=" . $login . "," . $config['dn']["people"];
-    $cn_profs="CN=" . $login . ",ou=Profs,".$config['dn']["people"];
-    $cn_eleves="CN=" . $login . ",ou=Eleves,".$config['dn']["people"];
-    $cn_administratifs="CN=" . $login . ",ou=Administratifs,".$config['dn']["people"];
-
-
-    $ret="N";
-
-   // Connect and sasl bind
-    list($ds,$r,$error) = bind_ad_gssapi($config);
-    if ( $r ) {
-       // Recherche du nom exact
-       $search_filter = "(|(member=$cn)(member=$cn_profs)(member=$cn_eleves)(member=$cn_administratifs))";
-       $ret=ldap_get_right_search ($config, $login, $type, $search_filter,$ds);
-       // Recherche sur les GroupsOfNames d'appartenance
-       $result1 = @ldap_list ( $ds, $config['dn']["groups"], "member=cn=$login,".$config['dn']["people"], array ("cn") );
-       if ($result1) {
-                	$info = @ldap_get_entries ( $ds, $result1 );
-              		if ( $info["count"]) {
-                            $loop=0;
-                            while (($loop < $info["count"]) && ($ret=="N")){
-                        		$search_filter = "(member=cn=".$info[$loop]["cn"][0].",".$config['dn']["groups"].")";
-                        		$ret=ldap_get_right_search ($config, $type, $search_filter, $ds);
-                        		$loop++;
-                            }
-                	}
-                	@ldap_free_result ( $result1 );
-        }
-    	ldap_close ($ds);
-    }
-//  hack temporaire
-    if ("$login" == "administrator") {
-        $ret = "Y";
-    }
-    return $ret;
-}
 
 
 function menuprint($config, $login) {
@@ -262,7 +142,7 @@ function menuprint($config, $login) {
 
         echo "
         <table width=\"200\" border=\"0\" cellspacing=\"3\" cellpadding=\"6\">\n";
-        $ldapright["se3_is_admin"]=ldap_get_right($config, "se3_is_admin", $login);
+        $ldapright["se3_is_admin"] = have_right($config, "se3_is_admin");
         $getintlevel = getintlevel();
         for ($menunbr=1; $menunbr<count($liens); $menunbr++)
         {
@@ -270,14 +150,14 @@ function menuprint($config, $login) {
             #if ($menunbr==1) $menutarget="_top";
             #else $menutarget="main";
             $menutarget="main";
-            $afftest=$ldapright["se3_is_admin"]=="Y";
+            $afftest=$ldapright["se3_is_admin"];
             $rightname=$liens[$menunbr][1];
             $level=$liens[$menunbr][2];
             if (($rightname=="") or ($afftest)) $afftest=1==1;
             else {
                 //if ($ldapright["$rightname"]=="") $ldapright["$rightname"]=ldap_get_right($config, $rightname,$login);
-                if ((!isset($ldapright["$rightname"]))||($ldapright["$rightname"]=="")) { $ldapright["$rightname"]=ldap_get_right($config, $rightname, $login);}
-                $afftest=($ldapright["$rightname"]=="Y");
+                if ((!isset($ldapright["$rightname"]))||($ldapright["$rightname"])) { $ldapright["$rightname"] = have_right($config, $rightname);}
+                $afftest=$ldapright["$rightname"];
             }
             if ($level > $getintlevel) $afftest=0;
             if ($afftest)
@@ -293,13 +173,13 @@ function menuprint($config, $login) {
                     <td class=\"menucell\">";
                 for ($i=3; $i<count($liens[$menunbr]); $i+=4) {
                     // Test des droits pour affichage
-                    $afftest=$ldapright["se3_is_admin"]=="Y";
+                    $afftest=$ldapright["se3_is_admin"];
                     $rightname=$liens[$menunbr][$i+2];
                     $level=$liens[$menunbr][$i+3];
                     if (($rightname=="") or ($afftest)) $afftest=1==1;
                     else {
-                        if ((!isset($ldapright["$rightname"]))||($ldapright["$rightname"]=="")) {$ldapright["$rightname"]=ldap_get_right($config, $rightname, $login);}
-                        $afftest=($ldapright[$rightname]=="Y");
+                        if ((!isset($ldapright["$rightname"]))||($ldapright["$rightname"])) {$ldapright["$rightname"]=have_right($config, $rightname);}
+                        $afftest=$ldapright[$rightname];
                     }
                     if ($level > $getintlevel ) $afftest=0;
                     if ($afftest) {

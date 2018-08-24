@@ -38,7 +38,7 @@ textdomain ('se3-infos');
 $_SESSION["pageaide"]="Annuaire";
 
 
-if (is_admin($config, "annu_is_admin",$login)!="Y") {
+if (have_right($config, "annu_is_admin",$login)!="Y") {
 	die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 }
 

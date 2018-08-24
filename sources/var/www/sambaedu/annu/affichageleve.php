@@ -41,7 +41,7 @@ echo "<h1>".gettext("Annuaire")."</h1>";
 
 //debug_var();
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 	$cn=$_POST["cn"];
 	//$cn=isset($_POST["cn"]) ? $_POST["cn"] : (isset($_GET["cn"]) ? $_GET["cn"] : "");
 	$description=$_POST["description"];
@@ -86,7 +86,7 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
 		}
 	
 		// Verification de l'existence du groupe    
-		$groups=search_groups("(cn=$cn)");
+		$groups=filter_group("(cn=$cn)");
 		if (count($groups)) {
 			echo "<div class='error_msg'>".gettext("Attention le groupe <font color='#0080ff'><a href='group.php?filter=$cn' style='color:#0080ff' target='_blank'>$cn</a></font> est d&#233;ja pr&#233;sent dans la base, veuillez choisir un autre nom !")."</div><BR>\n";
 			exit();

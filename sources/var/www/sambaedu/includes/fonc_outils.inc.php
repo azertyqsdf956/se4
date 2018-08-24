@@ -69,7 +69,7 @@ function fping($ip) { // Ping une machine Return 1 si Ok 0 pas de ping
 
 function avoir_ip($mpenc) { // Retourne l'adresse IP d'une machine en fonction de son nom ou 0 si pas d'IP
 
-	$mp_curr=search_machines("(&(cn=$mpenc)(objectClass=ipHost))","computers");
+	$mp_curr=search_ad("(&(cn=$mpenc)(objectClass=ipHost))","computers");
         if (isset($mp_curr[0]["ipHostNumber"])) {
                 $iphost=$mp_curr[0]["ipHostNumber"];
 		return $iphost;
@@ -92,7 +92,7 @@ function avoir_ip($mpenc) { // Retourne l'adresse IP d'une machine en fonction d
 
 function avoir_nom($ipHost) { // Retourne le nom d'une machine a partir de l'adresse IP ou 0 si pas
 
-	$mp_curr=search_machines("(&(ipHostNumber=$ipHost)(objectClass=ipHost))","computers");
+	$mp_curr=search_ad("(&(ipHostNumber=$ipHost)(objectClass=ipHost))","computers");
         if (isset($mp_curr[0]["cn"])) {
                 $mpenc=$mp_curr[0]['cn'];
 		return $mpenc;
@@ -115,7 +115,7 @@ function avoir_mac($mpenc) {
 
     require_once("ldap.inc.php");
 
-    $mp_curr=search_machines("(&(cn=$mpenc)(objectClass=ipHost))","computers");
+    $mp_curr=search_ad("(&(cn=$mpenc)(objectClass=ipHost))","computers");
 //    echo "mac:".$mp_curr[0]['macAddress']."<br>";
     if (isset($mp_curr[0]['macAddress'])) {
 	        $ret=$mp_curr[0]['macAddress'];
@@ -615,7 +615,7 @@ return $tab;
 */
 
 function classe_eleve($login) {
-list($user, $groups)=people_get_variables($login, true);
+list($user, $groups)=search_user($login, true);
 $nb_groupes= count($groups);
 for ($g=0; $g< $nb_groupes; $g++) {
   if  (preg_match("/^Classe/", $groups[$g]["cn"] ) ) {
@@ -655,7 +655,7 @@ return $tab_eleves_classe;
 
 */
 function params_eleve($login) {
-list($user, $groups)=people_get_variables($login, true);
+list($user, $groups)=search_user($login, true);
 $nb_groupes= count($groups);
 // oblige de faire une boucle parmi tous les groupes !!
 for ($g=0; $g< $nb_groupes; $g++) {
@@ -707,7 +707,7 @@ function choix_date($date,$param) {
 */
 
 function est_prof($uid) {
-$groupes=search_groups("memberUid=$uid");
+$groupes=filter_group("memberUid=$uid");
 $prof=0;
 $n=count ($groupes);
 if ($n >0)
@@ -729,7 +729,7 @@ if ($n >0)
 */
 function classes_prof($login) {
 $classes = array();
-list($user, $groups)=people_get_variables($login, true);
+list($user, $groups)=search_user($login, true);
 $nb_groupes= count($groups);
 for ($g=0; $g< $nb_groupes; $g++) {
     if  (preg_match("/^Equipe/", $groups[$g]["cn"] ) )

@@ -42,7 +42,7 @@ foreach ($_POST as $cle=>$val) {
   $_SESSION["pageaide"]="Annuaire";
   aff_trailer ("6");
   
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
   	// Ajout d'un groupe d'utilisateurs
 	if ( (!$add_group) ||( ($add_group) && ( (!$description || !verifDescription($description) ) ||(!$intitule || !verifIntituleGrp ($intitule)) ) ) ) {
       ?>
@@ -104,7 +104,7 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
       		$cn= $categorie.$prefix.$intitule;
       		
 		// Verification de l'existance du groupe
-      		$groups=search_groups("(cn=$cn)");
+      		$groups=filter_group("(cn=$cn)");
       		
 		if (count($groups)) {
 		        echo "<div class='error_msg'>".gettext("Attention le groupe")." <font color='#0080ff'> <a href='group.php?filter=$cn' style='color:#0080ff' target='_blank'>$cn</a></font>".gettext(" est d&#233;ja pr&#233;sent dans la base, veuillez choisir un autre nom !")."</div><BR>\n";

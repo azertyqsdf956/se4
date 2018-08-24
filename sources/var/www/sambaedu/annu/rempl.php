@@ -43,7 +43,7 @@ textdomain ('se3-annu');
  echo "<h1>".gettext("Annuaire")."</h1>";
 
 aff_trailer ("8");
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 	$rpl=$_POST['remplacant'];
   	echo" <B>$rpl</B>".gettext(" r&#233;cup&#232;re les appartenances suivantes :")." <BR><BR>";
   

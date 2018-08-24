@@ -41,7 +41,7 @@
   echo "<h1>".gettext("Annuaire")."</h1>";
 
   aff_trailer ("6");
-  if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+  if (have_right($config, "Annu_is_admin")) {
         	exec ("/usr/bin/sudo /usr/share/se3/scripts/creer_grpclass.sh $nom_grp");
 		echo "<P><B>".gettext("Cr&#233;ation ou rafraichissement d'une ressources Groupe Classe(s) ordonnanc&#233;e :")."</B> <BR><P>";
 		echo gettext("Le r&#233;pertoire")." <B>Classe_grp_$nom_grp</B>".gettext(" sera cr&#233;&#233; ou modifi&#233; d'ici quelques instants...")."</B> ";

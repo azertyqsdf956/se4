@@ -77,7 +77,7 @@ textdomain ('se3-annu');
 //Aide
 $_SESSION["pageaide"]="Annuaire";
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 	echo "<h1>".gettext("Annuaire")."</h1>\n";
   
   	// Convertion en utf_8

@@ -2,16 +2,13 @@
 
 /**
  * Fonctions LDAP
- 
- * @Version $Id$
- 
+
  * @Projet LCS / SambaEdu
- 
- * @Auteurs Equipe Tice academie de Caen
- * @Auteurs jLCF jean-luc.chretien@tice.ac-caen.fr
- 
+
+ * @Auteurs Equipe Sambaedu
+
  * @Note: Ce fichier de fonction doit etre appele par un include
- 
+
  * @Licence Distribue sous la licence GPL
  */
 /**
@@ -31,198 +28,472 @@ include_once "functions.inc.php";
 $corriger_givenname_si_diff = "n";
 
 // fonctions validées se4
-function cmp_fullname($a, $b) {
-    
+function cmp_fullname($a, $b)
+{
+
     /**
-    
-    * Fonctions de comparaison utilisees dans la fonction usort, pour trier le fullname
-    
-    * @Parametres $a - La premiere entree 	$b - La deuxieme entree a comparer
-    
-    * @Return < 0 - Si $a est plus petit a $b  > 0 - Si $a est plus grand que $b
-    */
+     *
+     * Fonctions de comparaison utilisees dans la fonction usort, pour trier le fullname
+     *
+     * @Parametres $a - La premiere entree 	$b - La deuxieme entree a comparer
+     *
+     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+     */
     return strcmp($a["fullname"], $b["fullname"]);
 }
 
-function cmp_nom($a, $b) {
-    
-    
+function cmp_nom($a, $b)
+{
+
     /**
-    
-    * Fonctions de comparaison utilisees dans la fonction usort, pour trier le name
-    
-    * @Parametres $a - La premiere entree 	$b - La deuxieme entree a comparer
-    
-    * @Return < 0 - Si $a est plus petit a $b  > 0 - Si $a est plus grand que $b
-    
-    */
+     *
+     * Fonctions de comparaison utilisees dans la fonction usort, pour trier le name
+     *
+     * @Parametres $a - La premiere entree 	$b - La deuxieme entree a comparer
+     *
+     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+     *        
+     */
     return strcmp($a["nom"], $b["nom"]);
 }
 
-function cmp_cn($a, $b) {
-    
+function cmp_cn($a, $b)
+{
+
     /**
-    
-    * Fonctions de comparaison utilisees dans la fonction usort, pour trier le cn (common name)
-    
-    * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
-    
-    * @Return  < 0 - Si $a est plus petit a $b   > 0 - Si $a est plus grand que $b
-    
-    */
+     *
+     * Fonctions de comparaison utilisees dans la fonction usort, pour trier le cn (common name)
+     *
+     * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
+     *
+     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+     *        
+     */
     return strcmp($a["cn"], $b["cn"]);
 }
 
-function cmp_group($a, $b) {
-    
+function cmp_group($a, $b)
+{
+
     /**
-    
-    * Fonctions de comparaison utilisees dans la fonction usort, pour trier les groupes
-    
-    * @Parametres  $a - La premiere entree 	$b - La deuxieme entree a comparer
-    * @Return 	< 0 - Si $a est plus petit a $b  > 0 - Si $a est plus grand que $b
-    
-    */
+     *
+     * Fonctions de comparaison utilisees dans la fonction usort, pour trier les groupes
+     *
+     * @Parametres  $a - La premiere entree 	$b - La deuxieme entree a comparer
+     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+     *        
+     */
     return strcmp($a["group"], $b["group"]);
 }
 
-function cmp_cat($a, $b) {
-    
-    
+function cmp_cat($a, $b)
+{
+
     /**
-    
-    * Fonctions de comparaison utilisees dans la fonction usort, pour trier les categories
-    
-    * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
-    * @Return 	< 0 - Si $a est plus petit a $b  > 0 - Si $a est plus grand que $b
-    
-    */
+     *
+     * Fonctions de comparaison utilisees dans la fonction usort, pour trier les categories
+     *
+     * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
+     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+     *        
+     */
     return strcmp($a["cat"], $b["cat"]);
 }
 
-function cmp_printer($a, $b) {
-    
+function cmp_printer($a, $b)
+{
+
     /**
      * Fonctions de comparaison utilisees dans la fonction usort, pour trier le printer-name, insensible a la case
+     *
      * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
-     * @Return  < 0 - Si $a est plus petit a $b   > 0 - Si $a est plus grand que $b
+     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
      */
     return strcasecmp($a["printer-name"], $b["printer-name"]);
 }
 
-function cmp_location($a, $b) {
-    
+function cmp_location($a, $b)
+{
+
     /**
      * Fonctions de comparaison utilisees dans la fonction usort, pour trier le printer-location, insensible a la case
+     *
      * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
-     * @Return  < 0 - Si $a est plus petit a $b   > 0 - Si $a est plus grand que $b
+     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
      */
     return strcasecmp($a["printer-location"], $b["printer-location"]);
 }
 
-function people_get_variables($config, $cn, $mode = false)
+function remove_count($arr)
 {
-    
-    /**
-     * Retourne un tableau avec les variables d'un utilisateur (a partir de l'annuaire LDAP)
-     *
-     * @Parametres $uid - L'uid de l'utilisateur
-     * @Parametres $mode : - true => recherche  - de l'ensemble des parametres utilisateur - des groupes d'appartenance - false => recherche  - de quelques parametres utilisateur
-     *
-     *
-     * @return Un tableau contenant les informations sur l'utilisateur (uid)
-     *        
-     */
-    $error = "";
-    
-    $ret_group = array();
-    $ret_people = array();
-    
-    // LDAP attribute
-    $ldap_people_attr = array(
-        "cn", // login
-        "displayname", // Prenom Nom
-        "sn", // Nom
-        "givenname", // Pseudo -> Prenom
-        "mailaddress", // Mail
-        "telephonenumber", // Num telephone
-        "description",
-        "physicaldeliveryoffice", // Date de naissance,Sexe (F/M)
-        "jobtitle", // numero unique siecle
-        "initials", // pseudo
-    );
-    $ldap_group_attr = array(
-        "cn",
-        "description"
-    );
-    
-    list ($ds, $r, $error) = bind_ad_gssapi($config);
-    if ($r) {
-        $result = @ldap_read($ds, "cn=" . $cn . "," . $config['dn']["people"], "(objectclass=person)", $ldap_people_attr);
-        if ($result) {
-            $info = @ldap_get_entries($ds, $result);
-            if ($info["count"]) {
-                
-                // Traitement du champ pdo pour extraction de date de naissance, sexe
-                if (isset($info[0]["physicaldeliveryoffice"][0])) {
-                    $gecos = $info[0]["physicaldeliveryoffice"][0];
-                    $tmp = preg_split("/,/", $info[0]["physicaldeliveryoffice"][0], 4);
-                }
-                $ret_people = array(
-                    "cn" => $info[0]["cn"][0],
-                    "nom" => stripslashes(utf8_decode($info[0]["sn"][0])),
-                    "fullname" => stripslashes(utf8_decode($info[0]["displayname"][0])),
-                    "prenom" => (isset($info[0]["givenname"][0])) ? utf8_decode($info[0]["givenname"][0]) : "",
-                    "pseudo" => (isset($info[0]["initials"][0]) ? utf8_decode($info[0]["initials"][0]) : ""),
-                    "email" => $info[0]["mail"][0],
-                    "tel" => (isset($info[0]["telephonenumber"][0]) ? $info[0]["telephonenumber"][0] : ""),
-                    "description" => (isset($info[0]["description"][0]) ? utf8_decode($info[0]["description"][0]) : ""),
-                    "sexe" => (isset($tmp[1]) ? $tmp[1] : ""),
-                    "date" => (isset($tmp[0]) ? $tmp[0] : ""),
-                    "employeeNumber" => (isset($info[0]["jobtitle"][0]) ? $info[0]["jobtitle"][0] : "")
-                );
-                @ldap_free_result($result);
-                if ($mode) {
-                    // Recherche des groupes d'appartenance dans la branche Groups
-                    // Recherche des groupes d'appartenance dans la branche Groups
-                    $filter = "(&(objectclass=group)(member=cn=$cn," . $config['dn']["people"] . "))";
-                    $result = @ldap_list($ds, $config['dn']["groups"], $filter, $ldap_group_attr);
-                    if ($result) {
-                        $info = @ldap_get_entries($ds, $result);
-                        if ($info["count"]) {
-                            for ($loop = 0; $loop < $info["count"]; $loop++) {
-                                 $ret_group[$loop] = array(
-                                    "cn" => $info[$loop]["cn"][0],
-                                    "description" => utf8_decode($info[$loop]["description"][0]),
-                                );
-                            }
-                            
-                            usort($ret_group, "cmp_cn");
-                        }
-                        
-                        @ldap_free_result($result);
-                    }
-                 }
-                 
-            }
-        } else {
-            $error = gettext("Echec du bind anonyme");
-        }
-        
-        @ldap_close($ds);
-    } else {
-        $error = gettext("Erreur de connection au serveur LDAP");
+    foreach ($arr as $key => $val) {
+        if ($key === "count")
+            unset($arr[$key]);
+        elseif (is_array($val))
+            $arr[$key] = remove_count($arr[$key]);
     }
-    
+    return $arr;
+}
+
+function bind_ad_gssapi($config)
+{
+    /*
+     * établit une connexion avec l'AD en GSSAPI
+     */
+    $error = 0;
+    $url = "ldap://" . $config['se4ad_name'] . "." . $config['domain'];
+    $url = "ldap://se4ad.diderot.org";
+    $ds = ldap_connect($url, '389');
+    if ($ds) {
+        ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+        ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
+        $r = ldap_sasl_bind($ds, null, null, 'GSSAPI');
+        if (! $r) {
+            $error = gettext("Echec de l'Authentification.");
+        }
+    } else {
+        $error = gettext("Erreur de connection kerberos au serveur AD");
+    }
     return array(
-        $ret_people,
-        $ret_group
+        $ds,
+        $r,
+        $error
     );
 }
 
-function search_people($config, $filter)
+function search_ad($config, $name, $type = "dn", $branch = "all")
 {
-    
+
+    /**
+     * Recherche des objets dans l'AD
+     *
+     * @Parametres $name - le nom de l'objet (cn|ou|dn) "*" pour tout
+     * @Parametres $type - le type d'objets à chercher : dn, user, computer, group, classe, equipe, projet, parc, rights
+     * @Parametre $brnch - la branche de recherche "all" pour tout (sans effet pour dn)
+     * @return Retourne un tableau avec les objets et leurs attributs utiles
+     */
+
+    // Initialisation
+    $info = array();
+
+    // LDAP attributs
+    switch ($type) {
+        case "user":
+            $filter = "(&(objectclass=user)(cn=" . $name . "))";
+            $ldap_attrs = array(
+                "cn", // login
+                "displayname", // Prenom Nom
+                "sn", // Nom
+                "givenname", // Pseudo -> Prenom
+                "mailaddress", // Mail
+                "telephonenumber", // Num telephone
+                "description",
+                "physicaldeliveryoffice", // Date de naissance,Sexe (F/M)
+                "jobtitle", // numero unique siecle
+                "initials", // pseudo
+                "useraccountcontrol", // état du compte actif : 512, desactivé 514
+                "memberof" // groupes
+            );
+            $map = array(
+                "sn" => "nom",
+                "displayname" => "fullname",
+                "givenname" => "prenom",
+                "initials" => "pseudo",
+                "mailaddress" => "email",
+                "telephonenumber" => "tel",
+                "jobtitle" => "employeeNumber"
+            );
+
+            if ($branch == "all") {
+                $branch = $config['ldap_base_dn'];
+            }
+            break;
+
+        case "filter": // user ou group
+            $filter = $name;
+            $ldap_attrs = array(
+                "cn", // login
+                "displayName", // Nom complet
+                "sn", // Nom
+                "description"
+            );
+
+            $branch = $config['ldap_base_dn'];
+            break;
+        case "member": // cherche si user ou group est dans le groupe $branch
+            $filter = "(&(cn=" . $branch . ")(|(member=cn=" . $name . "*)(manager=cn=" . $name . "*)))";
+            $ldap_attrs = array(
+                "cn" // login
+            );
+            $branch = $config['dn']['groups'];
+            break;
+        case "pp": // cherche si user ou group est pp de la classe $branch
+            $filter = "(&(cn=Equipe_" . $branch . ")(member=cn=" . $name . "*)(manager=cn=" . $name . "*))";
+            $ldap_attrs = array(
+                "cn" // login
+            );
+            $branch = $config['dn']['groups'];
+            break;
+
+        case "dn":
+            $ldap_attrs = array();
+            $filter = "(dn=" . $name . ")";
+            $branch = $config['ldap_base_dn'];
+            break;
+        case "machine":
+            $ldap_attrs = array(
+                "cn", // nom d'origine
+                "displayname", // Nom netbios avec $
+                "dnshostname", // FDQN
+                "location", // Emplacement
+                "description", // Description de la machine
+                "iphostnumber", // adresse ip reservée
+                "networkaddress", // adresse mac
+                "memberof" // appartenance aux groupes
+            );
+            $filter = "(&(objectclass=computer)(|(cn=" . $name . ")(iphostnumber=" . $name . ")(networkaddress=" . $name . ")(dn=" . $name . ")))";
+            if ($branch == "all") {
+                $branch = $config['ldap_base_dn'];
+            }
+            break;
+        case "salle":
+            $filter = "(&(objectclass=organizationalunit)(ou=" . $name . "))";
+            $branch = $config['dn']['computers'];
+            $ldap_attrs = array(
+                "ou",
+                "description"
+            );
+            break;
+        case "parc":
+            $filter = "(&(objectclass=group)(cn=" . $name . "))";
+            $branch = $config['dn']['parcs'];
+            $ldap_attrs = array(
+                "cn",
+                "description",
+                "member"
+            );
+            break;
+        case "group":
+            $filter = "(&(objectclass=group)(|(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
+            $ldap_attrs = array(
+                "cn",
+                "description",
+                "member"
+            );
+            if ($branch == "all") {
+                $branch = $config['ldap_base_dn'];
+            }
+            break;
+        case "classe":
+            $filter = "(&(objectclass=group)(|(cn=Classe_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
+            $ldap_attrs = array(
+                "cn",
+                "description",
+                "member"
+            );
+            $branch = $config['dn']['groups'];
+            break;
+        case "equipe":
+            $filter = "(&(objectclass=group)(|(cn=Equipe_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
+            $ldap_attrs = array(
+                "cn",
+                "description",
+                "member",
+                "manager"
+            );
+            $branch = $config['dn']['groups'];
+            break;
+        case "imprimante":
+            break;
+        case "delegation":
+            $filter = "(&(objectclass=group)(|(member=" . $name . ")(member=cn=" . $name . "*)))";
+            $ldap_attrs = array(
+                "cn"
+            );
+            $branch = $config['dn']['delegations'];
+            break;
+        case "right":
+            $filter = "(&(objectclass=group)(|(cn=" . $name . ")(member=cn=" . $name . "*)))";
+            $branch = $config['dn']['rights'];
+            $ldap_attrs = array(
+                "cn",
+                "description",
+                "member"
+            );
+            break;
+        case "type":
+            $filter = "(|(objectclass=group)(objectclass=person)(objectclass=organizationalunit))";
+            $ldap_attrs = array(
+                "objectclass"
+            );
+            if ($branch == "all") {
+                $branch = $config['ldap_base_dn'];
+            }
+            break;
+        default:
+            $filter = "(cn=" . $name . ")";
+            $ldap_attrs = array(
+                "cn"
+            );
+            if ($branch == "all") {
+                $branch = $config['ldap_base_dn'];
+            }
+    }
+    $ret = array();
+    list ($ds, $r, $error) = bind_ad_gssapi($config);
+    if ($r) {
+        // var_dump($branch);
+        // var_dump($filter);
+        // var_dump($ldap_attrs);
+        $result = ldap_search($ds, $branch, $filter, $ldap_attrs);
+        // $res = var_dump(ldap_get_entries($ds, $result));
+        // ldap_sort($ds, $result, "cn");
+        if ($result) {
+            $info = ldap_get_entries($ds, $result);
+            // var_dump($info);
+            foreach ($info as $key1 => $entry) {
+                if (is_array($entry)) {
+                    foreach ($entry as $key2 => $attr) {
+                        if ("$key2" == "dn") {
+                            $ret[$key1][$key2] = $attr;
+                        }
+
+                        if (is_array($attr)) {
+                            if (isset($map[$key2])) {
+                                $key = $map[$key2];
+                            } else {
+                                $key = $key2;
+                            }
+                            if ("$key" == "physicaldeliveryoffice") {
+                                if (isset($attr[0])) {
+                                    $tmp = preg_split('/,/', $attr[0], 4);
+                                    $ret[$key1]['sexe'] = (isset($tmp[1]) ? $tmp[1] : "");
+                                    $ret[$key1]['date'] = (isset($tmp[0]) ? $tmp[0] : "");
+                                }
+                            } elseif ((is_array($attr)) && (("$key" == "member") || ($key == 'memberof'))) {
+                                foreach ($attr as $key3 => $gdn) {
+                                    if ("$key3" != 'count') {
+                                        $ret[$key1][$key][] = $gdn;
+                                    }
+                                }
+                            } elseif ("$key" == "objectclass") {
+                                foreach ($attr as $obj) {
+                                    if (("$obj" == "user") || ("$obj" == "computer") || ("$obj" == "organizationalunit")) {
+                                        $ret[$key] = $obj;
+                                    }
+                                }
+                            } elseif (isset($attr[0])) {
+                                $ret[$key1][$key] = utf8_decode($attr[0]);
+                            }
+                        }
+                    }
+                }
+            }
+            @ldap_free_result($result);
+        } else {
+            $ret = false;
+        }
+    }
+    @ldap_close($ds);
+    // print "search_ad(" . $name . ", $type):";
+    // var_dump($ret);
+    return $ret;
+}
+
+function modify_ad($config, $name, $type, $attrs)
+{
+
+    /**
+     * modifie un objet dans l'AD
+     *
+     * @Parametres $name - le nom de l'objet (cn)
+     * @Parametres $type - le type d'objet à chercher : user, computer, group, classe, equipe, projet, parc, rights
+     * @Parametre $attrs - tableau associatif des attributs à changer (format ldapmodify)ore
+     * @return true ou false
+     */
+    $res = search_ad($config, $name, $type);
+    var_dump($attrs);
+    if ($res) {
+        $dn = $res[0]['dn'];
+        var_dump($dn);
+        list ($ds, $r, $ret) = bind_ad_gssapi($config);
+        if ($r) {
+            $ret = ldap_mod_replace($ds, $dn, $attrs);
+            @ldap_close($ds);
+            return $ret;
+        }
+    }
+    return false;
+}
+
+function delete_ad($config, $name, $type)
+{
+
+    /**
+     * supprime un objet dans l'AD
+     *
+     * @Parametres $name - le nom de l'objet (cn ou ou)
+     * @parametres $type - type d'objet recherché
+     * @return true ou false
+     */
+    $res = search_ad($config, $name, $type);
+    if ($res) {
+        $dn = $res[0][dn];
+
+        list ($ds, $r, $ret) = bind_ad_gssapi($config);
+        if ($r) {
+            $ret = ldap_delete($ds, $dn);
+            @ldap_close($ds);
+            return $ret;
+        }
+    }
+    return false;
+}
+
+function move_ad($config, $name, $new_dn, $type)
+{
+    /**
+     * deplace ou renomme un objet dans l'AD
+     *
+     * @Parametres $name - le nom de l'objet (cn ou ou)
+     * @parametres $new_dn - nouveau dn complet
+     * @return true ou false
+     */
+    $res = search_ad($config, $name, $type);
+    if ($res) {
+        $dn = $res[0][dn];
+        $new_dn_elements = preg_split('/,/', $new_dn, 1);
+        list ($ds, $r, $ret) = bind_ad_gssapi($config);
+        if ($r) {
+            $ret = ldap_rename($ds, $dn, $new_dn_elements[0], $new_dn_elements[1], 1);
+            @ldap_close($ds);
+            return $ret;
+        }
+    }
+    return false;
+}
+
+/*
+ * retourne le type d'un objet ad
+ *
+ */
+function type_ad($config, $name)
+{
+    $res = search_ad($config, $name, "type");
+    if ($res) {
+        if (in_array("person", $res[0]))
+            return "user";
+        elseif (in_array("group", $res[0]))
+            return "group";
+        elseif (in_array("organizationalunit", $res[0]))
+            return "ou";
+    }
+    return false;
+}
+
+function filter_user($config, $filter)
+{
+
     /**
      * Recherche d'utilisateurs dans la branche people
      *
@@ -230,44 +501,8 @@ function search_people($config, $filter)
      * @return Un tableau contenant les utilisateurs repondant au filtre de recherche ($filter)
      *        
      */
-    $error = "";
-    
-    // Initialisation:
-    $ret = array();
-    
-    // LDAP attributes
-    $ldap_search_people_attr = array(
-        "cn", // login
-        "displayName", // Nom complet
-        "sn" // Nom
-    );
-    
-    list ($ds, $r, $error) = bind_ad_gssapi($config);
-    if ($r) {
-        // Recherche dans la branche people
-        $result = @ldap_search($ds, $config['dn']["people"], $filter, $ldap_search_people_attr);
-        if ($result) {
-            $info = @ldap_get_entries($ds, $result);
-            if ($info["count"]) {
-                for ($loop = 0; $loop < $info["count"]; $loop ++) {
-                    $ret[$loop] = array(
-                        "cn" => $info[$loop]["cn"][0],
-                        "displayname" => utf8_decode($info[$loop]["displayname"][0]),
-                        "sn" => utf8_decode(isset($info[$loop]["sn"][0]) ? $info[$loop]["sn"][0] : "" )
-                    );
-                }
-            }
-            
-            @ldap_free_result($result);
-        } else {
-            $error = gettext("Erreur de lecture dans l'annuaire LDAP");
-        }
-    } else {
-        $error = gettext("Echec du bind anonyme");
-    }
-    
-    @ldap_close($ds);
-    
+    $ret = search_ad($config, $filter, "filter");
+
     // Tri du tableau par ordre alphabetique
     if (count($ret)) {
         usort($ret, "cmp_nom");
@@ -275,72 +510,9 @@ function search_people($config, $filter)
     return $ret;
 }
 
-function search_machines($config, $filter, $branch)
+function filter_group($config, $filter)
 {
-    
-    /**
-     * Recherche de machines dans l'ou $branch
-     *
-     * @Parametres $filter - Un filtre de recherche permettant l'extraction de l'annuaire des machines
-     * @Parametres $branch - L'ou correspondant a l'ou contenant les machines
-     *
-     * @return Retourne un tableau avec les machines
-     */
-    
-    // Initialisation
-    $computers = array();
-    
-    // LDAP attributs
-    if ("$branch" == "computers")
-        $ldap_computer_attr = array(
-            "cn", // nom d'origine
-            "displayname", // Nom netbios avec $
-            "dnshostname", // FDQN
-            "location", // Emplacement
-            "description", // Description de la machine
-            "iphostnumber"
-        );
-    else
-        $ldap_computer_attr = array(
-            "cn"
-        );
-    
-    list ($ds, $r, $error) = bind_ad_gssapi($config);
-    if ($r) {
-        $result = ldap_list($ds, $config['dn'][$branch], $filter, $ldap_computer_attr);
-        ldap_sort($ds, $result, "cn");
-        if ($result) {
-            $info = ldap_get_entries($ds, $result);
-            if ($info["count"]) {
-                for ($loop = 0; $loop < $info["count"]; $loop ++) {
-                    $computers[$loop]["cn"] = $info[$loop]["cn"][0];
-                    if ("$branch" == "computers") {
-                        $computers[$loop]["displayname"] = (isset($info[$loop]["displayname"][0]) ? $info[$loop]["displayname"][0] : "");
-                        if (isset($info[$loop]["dnshostname"][0])) {
-                            $computers[$loop]["dnshostname"] = $info[$loop]["dnshostname"][0];
-                        }
-                        if (isset($info[$loop]["location"][0])) {
-                            $computers[$loop]["location"] = $info[$loop]["location"][0];
-                        }
-                        if (isset($info[$loop]["description"][0])) {
-                            $computers[$loop]["description"] = utf8_decode($info[$loop]["description"][0]);
-                        }
-                        if (isset($info[$loop]["iphostnumber"][0])) {
-                            $computers[$loop]["ipHostNumber"] = utf8_decode($info[$loop]["iphostnumber"][0]);
-                        }
-                    }
-                }
-            }
-            @ldap_free_result($result);
-        }
-    }
-    @ldap_close($ds);
-    return $computers;
-}
 
-function search_groups($config, $filter)
-{
-    
     /**
      * Recherche une liste de groupes repondants aux criteres fixes par la variable $filter.
      * Les filtres sont les memes que pour ldapsearch.
@@ -351,49 +523,793 @@ function search_groups($config, $filter)
      *
      * @return Retourne un tableau $groups avec le cn et la description de chaque groupe
      */
-    $groups = array();
-    
-    // LDAP attributs
-    $ldap_group_attr = array(
-        "objectclass",
-        "cn",
-        "member",
-        "gidnumber",
-        "description" // Description du groupe
-    );
-    
-    list ($ds, $r, $dn) = bind_ad_gssapi($config); // $ds = @ldap_connect($ldap_server, $ldap_port);
-    
-    if ($r) {
-        $result = ldap_search($ds, $config['dn']["groups"], $filter, $ldap_group_attr);
-        if ($result) {
-            $info = ldap_get_entries($ds, $result);
-            if ($info["count"]) {
-                for ($loop = 0; $loop < $info["count"]; $loop ++) {
-                    $groups[$loop]["cn"] = $info[$loop]["cn"][0];
-                    $groups[$loop]["gidnumber"] = (isset($info[$loop]["gidnumber"][0]) ? $info[$loop]["gidnumber"][0] : "");
-                    if (isset($info[$loop]["description"][0])) {
-                        $groups[$loop]["description"] = utf8_decode($info[$loop]["description"][0]);
-                    }
-                    // Recherche de posixGroup ou group
-                    for ($i = 0; $i < $info[$loop]["objectclass"]["count"]; $i ++) {
-                        if ($info[$loop]["objectclass"][$i] != "top")
-                            $type = $info[$loop]["objectclass"][$i];
-                    }
-                    $groups[$loop]["type"] = $type;
-                }
-            }
-            
-            @ldap_free_result($result);
-        }
-    }
-    
-    @ldap_close($ds);
-    
+    $groups = search_ad($config, $filter, "filter");
     if (count($groups))
         usort($groups, "cmp_cn");
-    
+
     return $groups;
 }
 
+function search_user($config, $cn)
+{
+
+    /**
+     * Retourne un tableau avec les attributs d'un utilisateur (a partir de l'annuaire LDAP)
+     *
+     * @Parametres $cn de l'utilisateur
+     *
+     * @return Un tableau contenant les informations sur l'utilisateur (cn)
+     *         les groupes sont dans le tableau $res['memberof']
+     *        
+     */
+    $ret = search_ad($config, $cn, "user");
+    if (count($ret) > 0) {
+        return $ret[0];
+    }
+    return $ret;
+}
+
+function search_machine($config, $cn, $ip = false)
+{
+
+    /**
+     * Retourne un tableau avec les attributs d'un ordinateur (a partir de l'annuaire LDAP)
+     *
+     * @Parametres cn,dn ou displayname, recherche de l'ip depuis le dns ou le dhcp en option
+     *
+     * @return Un tableau contenant les informations sur la machine (cn ou dn ou dsiplayname)
+     *         les dn groupes sont dans le tableau $res['memberof']
+     *        
+     */
+    $ret = search_ad($config, $cn, "machine");
+    if (count($ret) > 0) {
+        $ret = $ret[0];
+        if ($ip && ! isset($ret['iphostnumber']) && isset($ret['dnshostname'])) {
+            $ret['iphostnumber'] = gethostbyname($ret['dnshostname']);
+            if ($ret['iphostnumber'] == $ret['dnshostname']) {
+                // pas de dns, on tente le dhcp
+                $lease = get_dhcp_lease($config, $cn);
+                if (isset($lease)) {
+                    $ret['iphostnumber'] = $lease['ip'];
+                    $ret['networkaddress'] = $lease['mac'];
+                }
+            }
+        }
+    }
+    return $ret;
+}
+
+/**
+ * Recherche si l'utilisateur courant a au moins un des droits type1|type2..
+ * vrai dans tous les cas si l'utilisateur a le droit se3_is_admin
+ *
+ * @Parametres right
+ * @return true ou false
+ */
+function have_right($config, $type, $user = "login")
+{
+    if ($user == "login")
+        $user = $config['login'];
+    $ret = false;
+    $typearr = explode("|", "$type");
+    $typearr[] = "se3_is_admin";
+    foreach ($typearr as $right) {
+        if (in_array($right, list_rights($config, $user))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * retourne tous les droits dont dispose $name (user ou groupe)
+ * recherche recursive pour les groupes d'appartenance
+ *
+ * @Parametres : name - utilisateur ou groupe
+ * @Parametres : inverse - retourne les drois que l'utisateur n'a pas
+ * @return tableau des droits ou false
+ */
+function list_rights($config, $name, $inverse = false)
+{
+    $rights = array();
+    if ("$name" == "all") {
+        $res = search_ad($config, "*", "right");
+        foreach ($res as $right) {
+            $rights[] = $right['cn'];
+        }
+        return $rights;
+    }
+    $user = search_user($config, $name);
+    $ret = search_ad($config, $name, "right");
+    foreach ($user['memberof'] as $groupdn) {
+        $ret1 = search_ad($config, $groupdn, "right");
+        $ret = array_merge($ret1, $ret);
+        if ($ret) {
+            foreach ($ret as $group) {
+                $right = $group['cn'];
+                if (! in_array($right, $rights)) {
+                    $rights[] = $right;
+                }
+            }
+        }
+        if (count($rights) == 0)
+            return false;
+        if ($inverse) {
+            $not_rights = array();
+            foreach (list_rights($config, "all") as $r) {
+                if (! in_array($r, $rights))
+                    $not_rights[] = $r;
+            }
+            return $not_rights;
+        }
+        return $rights;
+    }
+}
+
+function list_members_rights($config, $right)
+{
+    $res = grouplistmembers($config, $right);
+    return $res;
+}
+
+/*
+ * donne le droit à l'utilisateur ou a au groupe
+ * si il l'a dejà par héritage d'un groupe on ne fait rien
+ */
+function add_right($config, $name, $right)
+{
+    if (! in_array($right, list_rights($config, $name))) {
+        return groupaddmember($config, $name, $right);
+    }
+    return true;
+}
+
+/*
+ * retire le droit à l'utilisateur
+ * non récursif : si le droit est hérité il ne sera pas retiré.
+ */
+function remove_right($config, $name, $right)
+{
+    if (in_array(search_ad($right, $config, $name, "right"))) {
+        return groupdelmember($config, $name, $right);
+    }
+    return false;
+}
+
+// Parcs
+/*
+ * type d'un parc
+ *
+ */
+function type_parc($config, $parc)
+{
+    if (search_ad($config, $parc, "salle")) {
+        return "salle";
+    } elseif (search_ad($config, $parc, "parc")) {
+        return "parc";
+    } else {
+        return false;
+    }
+}
+
+/*
+ * ajoute le type de parc dans les attributs des parcs
+ * @ parametres : array (parcs)
+ * @ parametres : type - auto, salle, parc
+ * @ return = : array ( parcs)
+ */
+function set_type_parc($config, $parcs)
+{
+    if (is_array($parcs)) {
+        $ret = array();
+        foreach ($parcs as $key => $parc) {
+            // if (isset($parc['ou'])) {
+            if (type_parc($config, $parc) == "salle") {
+                $val = "salle";
+                $name = $parc['ou'];
+            } else {
+                $val = "parc";
+                $name = $parc['cn'];
+            }
+            $ret[$key]['name'] = $name;
+            $ret[$key]['type'] = $val;
+            $ret[$key]['dn'] = $parc['dn'];
+            $ret[$key]['description'] = $parc['description'];
+        }
+    } else {
+        $ret = false;
+    }
+    return $ret;
+}
+
+/*
+ * liste des parcs d'appartenance
+ * @ parametres : member - machine à tester, null ou * si tous les parcs"
+ * @ parametres : type - "salle", "parc", "all(defaut)"
+ * @ return : array[]{dn, cn, description, type}
+ */
+function list_parc($config, $member, $type = "all")
+{
+    if ($type == "salle") {
+        $ret = set_type_parc($config, search_ad($config, $member, "salle"));
+        return $ret;
+    } elseif (($type == "parc") || ($type == "all")) {
+        $ret = set_type_parc($config, search_ad($config, $member, "parc"));
+        return $ret;
+    }
+}
+
+/*
+ * creation de parc
+ *
+ */
+function create_parc($config, $parc, $description = "", $type = "salle")
+{
+    if ($type == "salle") {
+        $res = ouadd($config, $parc, $config['dn']['computers']);
+    }
+    $res = groupadd($config, $parc, $config['dn']['parcs'], $description);
+    return $res;
+}
+
+/*
+ * suppression de parc
+ * Si il s'agit d'une salle il faut commencer par deplacer les machines vers l'ou parent
+ */
+function delete_parc($config, $parc)
+{
+    $type = type_parc($config, $parc);
+    if ($type == "salle") {
+        $machines = list_members_parc($config, $parc, true);
+        foreach ($machines as $machine) {
+            move_ad($machine['cn'], $machine['cn'] . "," . $config['dn']['computers'], "machine");
+        }
+    }
+    $ret = delete_ad($config, $parc, $type);
+    if ($ret) {
+        $res = search_delegations($config, $parc);
+        if ($res) {
+            foreach ($res as $delegation) {
+                groupdel($config, $delegation['cn']);
+            }
+        }
+    }
+    return $ret;
+}
+
+/*
+ * liste le contenu d'un parc
+ * @ parametres : parc à lister
+ * @ parametre : attrs - booleen enregistrements complets ou liste
+ * @ return : liste des machines, enregistrements complets des machines, false
+ */
+function list_members_parc($config, $parc, $attrs = false)
+{
+    $type = type_parc($config, $parc);
+    $ret = array();
+    if ("$type" == "salle") {
+        $res = search_ad($config, "*", "machine", "ou=" . $parc . "," . $config['dn']['computers']);
+        if ($attrs) {
+            $ret = $res;
+        } else {
+            foreach ($res as $machine) {
+                $ret[] = $machine['cn'];
+            }
+        }
+    } elseif ($type = "parc") {
+        $res = search_ad($config, $parc, "group");
+        foreach ($res[0]['member'] as $machine) {
+            $dn_elements = preg_split('/,/', 1);
+            $cn = preg_split('/=/', $dn_elements);
+            if ($attrs) {
+                $ret[] = search_ad($config, $cn[1], "machine");
+            } else {
+                $ret[] = $cn[1];
+            }
+        }
+    }
+    return $ret;
+}
+
+/*
+ * ajoute un membre au parc
+ * pour les salles il faut déplacer les machines
+ */
+function add_member_parc($config, $parc, $member)
+{
+    if (type_parc($config, $parc) == "salle") {
+        return move_ad($member, $member . ",ou=" . $parc . "," . $config['dn']['computers'], "machine");
+    } else {
+        return groupaddmember($config, $member, $parc);
+    }
+}
+
+/*
+ * enlève un membre du parc
+ * $res=
+ */
+function remove_member_parc($config, $parc, $member)
+{
+    if (type_parc($config, $parc) == "salle") {
+        return move_ad($member, $member . "," . $config['dn']['computers'], "machine");
+    } else {
+        return groupdelmember($config, $member, $parc);
+    }
+}
+
+/*
+ * teste l'appartenance au parc
+ *
+ */
+function is_member_parc($config, $parc, $member)
+{
+    $res = list_parc($config, $member, "all");
+    if ($res) {
+        foreach ($res as $value) {
+            if ($value['cn'] == $parc)
+                return true;
+        }
+        return false;
+    }
+}
+
+/*
+ * teste si l'utilisateur loggé a les droits sur le parc
+ *
+ */
+function have_delegation($config, $parc, $right)
+{
+    if (type_delegation($config, $parc) == $right)
+        return true;
+    return false;
+}
+
+/*
+ * recherche les parcs délégués à l'utilisateur ou groupe,
+ * recursive sur les groupes d'appartenance
+ * @ return array(user, parc, level) ou false
+ */
+function list_delegations($config, $name = "login", $recurse = true)
+{
+    if ($name == "login")
+        $name = $config['login]'];
+    $user = search_user($config, $name);
+    $cn = $user['cn'];
+
+    if ($recurse) {
+        $ret = list_delegations($config, $name, false);
+        $user = search_user($config, $name);
+        foreach ($user['memberof'] as $groupdn) {
+            $ret1 = list_delegations($config, $groupdn, false);
+            $ret = array_merge($ret1, $ret);
+            if (count($ret) == 0)
+                return false;
+            return $ret;
+        }
+    } else {
+
+        $res = search_ad($config, $name, "delegation");
+        if ($res) {
+            foreach ($res as $key => $group) {
+                $delegation = explode('_', $group['cn'], 2);
+                $parc[$key]['user'] = $cn;
+                $parc[$key]['cn'] = $delegation[1];
+                $parc[$key]['level'] = $delegation[0];
+            }
+            return $parc;
+        }
+        return false;
+    }
+}
+
+/*
+ * retourne le niveau de délégation de l'utlisateur courant pour une machine ou un parc
+ * @parametre : nom du parc ou de la machine
+ * @return : "manage", "view", false
+ */
+function type_delegation($config, $name, $user = "login")
+{
+    $parcs = list_delegations($config, $user);
+    $ret = false;
+    if ($parcs) {
+        foreach ($parcs as $parc) {
+            if ($parc['cn'] == $name)
+                return $parc['level'];
+            if (is_member_parc($config, $parc['cn'], $name)) {
+                if ($parc['level'] == "manage") {
+                    return "manage";
+                } else {
+                    $ret = "view";
+                }
+            }
+        }
+    }
+    return $ret;
+}
+
+/*
+ * cherche les delegations pour un parc
+ *
+ */
+function search_delegations($parc)
+{
+    $ou_delegation = "ou=delegations," . $config['dn']['rights'];
+    $res = search_ad($config, "*_" . $parc, "group", $ou_delegations);
+    return $res;
+}
+
+function create_delegation($config, $parc, $name, $level)
+{
+    $delegation = $level . "_" . $parc;
+    $ou_delegation = "ou=delegations," . $config['dn']['rights'];
+    $res = search_ad($config, $delegation, "group", $ou_delegations);
+    $ret = true;
+    if (! $res) {
+        $ret = groupadd($config, $delegation, $ou_delegation);
+    }
+    if ($ret)
+        $ret = groupaddmember($config, $delegation, $name);
+    return $ret;
+}
+
+/*
+ * supprime une delegation pour un utilisateur ou groupe
+ *
+ */
+function delete_delegation($config, $parc, $name, $level)
+{
+    $delegation = $level . "_" . $parc;
+    $ou_delegation = "ou=delegations," . $config['dn']['rights'];
+    $res = search_ad($config, $delegation, "group", $ou_delegations);
+    $ret = groupdelmember($config, $name, $delegation);
+    if (count($res[0]['member']) == 0) {
+        $ret = groupdel($config, $delegation);
+    }
+    return $ret;
+}
+
+// ----------------------------------------------------
+// dhcp
+function get_dhcp_reservation($config, $machine)
+{
+    $res = search_ad($config, $machine, "machine");
+    if (isset($res[0]['iphostnumber']) && isset($res[0]['networkaddress'])) {
+        return array(
+            'cn' => $res[0]['cn'],
+            'iphostnumber' => $res[0]['iphostnumber'],
+            'networkaddress' => $res[0]['networkaddress']
+        );
+    } else {
+        return false;
+    }
+}
+
+/*
+ * enregistre une reservation dhcp dans AD
+ * @parametres : $machine
+ * @parametres : $reservation - tableau {ip, mac}
+ * @return : true si ok
+ */
+function set_dhcp_reservation($config, $machine, $reservation)
+{
+    return modify_ad($config, $machine, "machine", $reservation);
+}
+
+/*
+ * Importe le fichier des reservations /etc/sambaedu/reservations.inc vers l'AD
+ * @return : array machine, ip, mac
+ */
+function import_dhcp_reservations($config)
+{
+    $contents = file_get_contents("/etc/sambaedu/reservations.inc");
+    $contents = explode("\n", $contents);
+    $index = 0;
+    $data = array();
+    $m = array();
+    $record = false;
+    foreach ($contents as $line) {
+        if (preg_match("/^\s*(|#.*)$/", $line, $m)) {
+            // on saute les commentaires
+        } elseif (preg_match("/^host (.*)$/", $line, $m) && (! $record)) {
+            $index ++;
+            $data[$index]['cn'] = strtolower($m[1]);
+        } elseif (preg_match("/^{/", $line)) {
+            $record = true;
+        } elseif (preg_match("/^\s*hardware ethernet\s*([0-9a-fA-F:]*)\s*;$/", $line, $m)) {
+            $data[$index]['networkaddress'] = strtolower($m[1]);
+        } elseif (preg_match("/^\s*fixed-address\s*([0-9\.]*)\s*;$/", $line, $m)) {
+            $data[$index]['iphostnumber'] = $m[1];
+        } elseif (preg_match("/}*/", $line, $m)) {
+            $record = false;
+        } else {
+            print "Erreur ligne '$line'\n";
+            break;
+        }
+    }
+    return $data;
+}
+
+function export_dhcp_reservations($config)
+{
+    $reservations = "/etc/sambaedu/reservations.inc";
+    $content = "# reservations exportees autmatiquement de l'annuaire AD\n";
+    $machines = search_ad($config, "*", "machine", "all");
+    foreach ($machines as $machine) {
+
+        $res = (isset($machine['networkaddress']) && isset($machine['iphostnumber']));
+        if ($res) {
+            $content .= "host " . $machine['cn'] . "\n";
+            $content .= "{\n";
+            $content .= "hardware ethernet " . $machine['networkaddress'] . ";\n";
+            $content .= "fixed-address " . $machine['iphostnumber'] . ";\n";
+            $content .= "}\n";
+        }
+    }
+    if (! $handle = fopen($reservations, "w")) {
+        die("Erreur d'ecriture des reservtions se4 : $reservations");
+    }
+    $res = fwrite($handle, $content);
+    fclose($handle);
+    return true;
+}
+
+/**
+ * importe les leases dhcp.
+ * Seul le dernier enregistrement actif d'une ip est conservé.
+ *
+ * @param unknown $config
+ * @return array(array(ip, name, mac))
+ */
+function import_dhcp_leases($config)
+{
+    $contents = file_get_contents("/var/lib/dhcp/dhcpd.leases");
+    $contents = explode("\n", $contents);
+    $current = 0;
+    $data = array();
+    foreach ($contents as $line) {
+        switch ($current) {
+            case 0:
+                if (preg_match("/^\s*(|#.*)$/", $line, $m)) {} else if (preg_match("/^lease (.*) {/", $line, $m)) {
+                    $current = $m[1];
+                } else if (preg_match("/^server-duid/", $line)) {
+                    // ignore
+                } else {
+                    print "Failed parsing '$line'\n";
+                }
+                break;
+            default:
+                if (preg_match("/^\s*([a-z\-]+) (.*);$/", $line, $m)) {
+                    $data[$current][$m[1]] = $m[2];
+                } elseif (preg_match("/}/", $line, $m)) {
+                    $current = 0;
+                } else {
+                    print "Failed parsing '$line'\n";
+                }
+        }
+    }
+    $ret = array();
+    foreach ($data as $ip => $d) {
+        if ($d['binding'] == "state active") {
+            $ret[] = array(
+                'name' => strtolower($d['name']),
+                'ip' => $ip,
+                'mac' => strtolower($d['mac'])
+            );
+        }
+    }
+    return $ret;
+}
+
+function get_dhcp_lease($config, $name)
+{
+    foreach (import_dhcp_leases($config) as $data) {
+        if (($name == $ip) || ($data['name'] == $name) || ($data['mac'] == $name))
+            return $data;
+    }
+}
+
+// ----------- gestion des classes------------------------------
+function is_eleve($config, $name)
+{
+    if (count(search_ad($config, $name, "member", "Eleves")) > 0)
+        return true;
+    else
+        return false;
+}
+
+function is_prof($config, $name)
+{
+    if (count(search_ad($config, $name, "member", "Profs")) > 0)
+        return true;
+    else
+        return false;
+}
+
+function is_pp($config, $name, $eleve = false)
+{}
+
+/**
+ * liste les classes pour une classe, un eleve, un prof, ou tous
+ *
+ * @param unknown $config
+ * @param unknown $name
+ *            : eleve, prof, "*"
+ * @return array $classe : le nom court des classes
+ */
+function list_classes($config, $name)
+{
+    $ret = array();
+    $classes = search_ad($config, $name, "classe");
+    if (! $classes) {
+        $classes = search_ad($config, $name, "equipe");
+    }
+    if (is_array($classes)) {
+        foreach ($classes as $val) {
+            list ($type, $classe) = explode("_", $val['cn'], 1);
+            $ret[] = $classe;
+        }
+    }
+    return $ret;
+}
+
+/**
+ * liste les profs pour une classe, un eleve ou tous
+ *
+ * @param unknown $config
+ * @param unknown $name
+ *            : classe ou eleve ou "*"
+ */
+function list_profs($config, $name)
+{
+    $classes = list_classes($config, $name);
+    $profs = array();
+    foreach ($classes as $classe) {
+        $equipe = search_ad($config, $classe, "equipe");
+        // une seule equipe ?
+        foreach ($equipe[0]['member'] as $prof) {
+            $profs[] = $prof;
+        }
+    }
+    return $profs;
+}
+
+/**
+ * rtourne la liste des eleves du prof, ou de la classe ou tous
+ *
+ * @param unknown $config
+ * @param unknown $name
+ *            : prof, classe, "*"
+ * @return [eleves]
+ */
+function list_eleves($config, $name)
+{
+    $classes = list_classes($config, $name);
+    $eleves = array();
+    foreach ($classes as $classe) {
+        $res = search_ad($config, $classe, "classe");
+        // une seul resultat ?
+        foreach ($res[0]['member'] as $eleve) {
+            $eleves[] = $eleve;
+        }
+    }
+    return $eleves;
+}
+
+/**
+ * retourne la liste des profs principaux de l'eleve, de la classe ou tous
+ *
+ * @param unknown $config
+ * @param unknown $name
+ *            : eleve, classe, "*"
+ * @return array(pp)
+ */
+function list_pp($config, $name)
+{
+    $classes = list_classes($config, $name);
+    $pps = array();
+    foreach ($classes as $classe) {
+        $equipe = search_ad($config, $classe, "equipe");
+        // une seule equipe ?
+        foreach ($equipe[0]['manager'] as $pp) {
+            $pps[] = $pp;
+        }
+    }
+    return $pps;
+}
+
+/**
+ * teste si $prof est prof pour $name (eleve ou classe)
+ *
+ * @param unknown $config
+ * @param string $name
+ *            eleve, classe
+ * @param string $prof
+ *            prof
+ * @return boolean
+ */
+function is_my_prof($config, $name, $prof)
+{
+    $profs = list_profs($config, $name);
+    return in_array($prof, $profs);
+}
+
+/**
+ * teste si $eleve est eleve pour $name (prof ou classe)
+ *
+ * @param unknown $config
+ * @param string $name
+ *            : prof, classe
+ * @param string $eleve
+ *            : eleve
+ * @return boolean
+ */
+function is_my_eleve($config, $name, $eleve)
+{
+    $eleves = list_eleves($config, $name);
+    return in_array($eleve, $eleves);
+}
+
+/**
+ * teste si $prof est prof principal pour $name (eleve ou classe)
+ *
+ * @param unknown $config
+ * @param string $name
+ *            eleve, classe
+ * @param string $prof
+ *            prof
+ * @return boolean
+ */
+function is_my_pp($config, $eleve, $prof)
+{
+    $pps = list_pp($config, $eleve);
+
+    return in_array($prof, $pps);
+}
+
+function create_classe($config, $name, $description)
+{
+    $classe = "Classe_" . $name;
+    if (! search_ad($config, $classe, "classe")) {
+        $res = groupadd($classe, "ou=classe," . $config['dn']['groups'], $description);
+    }
+    $equipe = "Equipe_" . $name;
+    if (! search_ad($config, $equipe, "equipe")) {
+        $res = groupadd($equipe, "ou=classe," . $config['dn']['groups'], $description);
+    }
+}
+
+function create_eleve($config, $classe, $eleve, $update = false)
+{
+    $oldclasses = list_classes($config, $eleve);
+    $res = groupaddmember($config, $eleve, "Classe_" . $classe);
+    if ($res)
+        foreach ($oldclasses as $oldclasse) {
+            groupdelmember($config, $eleve, $oldclasse);
+        }
+    if ($update) {
+        $res = update_classe($config, $eleve);
+    }
+    return $res;
+}
+
+function create_prof($config, $classe, $prof, $pp = false)
+{
+    $res = groupaddmember($config, $cn, "Equipe_" . $classe);
+        if ($res) {
+            $dn = search_user($config, $prof);
+            if (!is_my_pp($config, $classe, $prof) && $pp) {
+            modify_ad($config, "Equipe_".$classe, "group", array("manager" => $dn['dn']));
+        }
+    }
+}
+
+function modify_classe($config, &$info)
+{}
+
+function delete_classe($config, $name)
+{}
+
+// ----------Gestion des partages--------------------------
+function create_share($config, $name, $type = "file")
+{}
 ?>

@@ -31,7 +31,7 @@
         // HTMLPurifier
         require_once ("traitement_data.inc.php");
 
-	if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+	if (have_right($config, "Annu_is_admin")) {
                 require ( $pathlcsorse3."config.inc.php");
 		require ( $path_crob_ldap_functions."crob_ldap_functions.php");
 

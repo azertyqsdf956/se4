@@ -16,7 +16,7 @@ $login=isauth();
 
 
 // Prise en compte de la page demandee initialement - leb 25/6/2005
-if (isset($login) && (ldap_get_right($config,"se3_is_admin",$login)!="Y") )  {
+if (isset($login) && (!have_right($config,"se3_is_admin")) )  {
 	//	header("Location:$urlauth");
 	$request = $PHP_SELF;
 	if ( $_SERVER['QUERY_STRING'] != "") $request .= "?".$_SERVER['QUERY_STRING'];

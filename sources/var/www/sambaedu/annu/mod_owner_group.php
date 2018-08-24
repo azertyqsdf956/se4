@@ -40,7 +40,7 @@ $_SESSION["pageaide"]="Annuaire";
 echo "<h1>".gettext("Annuaire")."</h1>";
 
 aff_trailer ("3");
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
     $cns = search_cns ("(cn=".$cn.")");
     $people = search_people_groups ($cns,"(sn=*)","cat");
     if ( $owner ) {

@@ -38,7 +38,7 @@ textdomain ('se3-annu');
 
 
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") { 
+if (have_right($config, "Annu_is_admin")) { 
 	
 	$eleves=$_POST['eleves'];
 	$cn=$_POST['cn'];

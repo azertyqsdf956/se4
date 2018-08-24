@@ -42,7 +42,7 @@
   
   aff_trailer ("3");
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 	
 	$cn=isset($_GET['cn']) ? $_GET['cn'] : (isset($_POST['cn']) ? $_POST['cn'] : "");
 	$filtre=isset($_GET['filtre']) ? $_GET['filtre'] : (isset($_POST['filtre']) ? $_POST['filtre'] : "");
@@ -65,7 +65,7 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
 
 	if ( !$add_user_group ) {
       		// Ajout de groupes
-      		list($user, $groups)=people_get_variables($cn, true);
+      		$user = search_user($config, $cn);
       		// Affichage du nom et de la description de l'utilisateur
       		echo "<H2>".$user["fullname"]."</H2>\n";
       		if ($user["description"]) echo $user["description"]."<BR>";
@@ -146,7 +146,7 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
 
       		// Etablissement des listes des groupes disponibles
 			if(!isset($filter)) {$filter="";}
-      		$list_groups=search_groups("(&(cn=*) $filter )");
+      		$list_groups=filter_group("(&(cn=*) $filter )");
       		// Etablissement des sous listes de groupes :
       		$i = 0; $j =0; $k =0; $l = 0 ; $m = 0;
       		for ($loop=0; $loop < count ($list_groups) ; $loop++) {
@@ -412,8 +412,8 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
                           $mono_srv = false;
                           $multi_srv = false;
                           // Recherche de la nature mono ou multi serveur de la plateforme SE3
-                          $master=search_machines ("(l=maitre)", "computers");
-                          $slaves= search_machines ("(l=esclave)", "computers");
+                          $master=search_ad ("(l=maitre)", "computers");
+                          $slaves= search_ad ("(l=esclave)", "computers");
                           if ( count($master) == 0 ) {
                             echo "<P>".gettext("ERREUR : Il n'y a pas de serveur maitre d&#233clar&#233 dans l'annuaire ! <BR>Veuillez contacter le super utilisateur du serveur SE3.")."</P>";
                           } elseif (  count($master) == 1  && count($slaves) == 0 ) {

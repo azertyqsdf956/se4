@@ -1,22 +1,22 @@
 <?php
-
+ 
 
    /**
-
-   * affiche l'historique des connexions
-   * @Version $Id: show_histo.php 8559 2015-03-15 13:08:23Z plouf $
-
-   * @Projet LCS / SambaEdu
-
+   
+   * affiche l'historique des connexions 
+   * @Version $Id: show_histo.php 8559 2015-03-15 13:08:23Z plouf $ 
+   
+   * @Projet LCS / SambaEdu 
+   
    * @auteurs Equipe Tice academie de Caen
    * @auteurs jLCF >:> jean-luc.chretien@tice.ac-caen.fr
    * @auteurs oluve olivier.le_monnier@crdp.ac-caen.fr
    * @auteurs wawa  olivier.lecluse@crdp.ac-caen.fr
 
    * @Licence Distribue selon les termes de la licence GPL
-
-   * @note
-
+   
+   * @note 
+   
    */
 
    /**
@@ -36,8 +36,8 @@ include "ihm.inc.php";
 include "fonc_parc.inc.php";
 
 require_once ("lang.inc.php");
-bindtextdomain('sambaedu-parcs',"/var/www/sambaedu/locale");
-textdomain ('sambaedu-parcs');
+bindtextdomain('se3-parcs',"/var/www/se3/locale");
+textdomain ('se3-parcs');
 
 
 $selectionne=isset($_GET['selectionne']) ? $_GET['selectionne'] : NULL;
@@ -55,10 +55,10 @@ $_SESSION["pageaide"]="Informations_syst%C3%A8me#Historique";
 
 // Affichage du formulaire de saisie d'adresse IP
 echo "<H1>".gettext("Historique des connexions")."</H1>";
-
-if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, "parc_can_view",$login)=="Y") or (is_admin($config, "parc_can_manage",$login)=="Y")  or (is_admin($config, "Annu_is_admin",$login)=="Y") or $login == $user) {
-
-	if ((is_admin($config, "computers_is_admin",$login)=="N") and ((is_admin($config, "parc_can_view",$login)=="Y") or (is_admin($config, "parc_can_manage",$login)=="Y"))) {
+		
+if ((have_right($config, "computers_is_admin")) or (have_right($config, "parc_can_view")) or (have_right($config, "parc_can_manage"))  or (have_right($config, "Annu_is_admin")) or $login == $user) {
+	
+	if ((!have_right($config, "computers_is_admin")) and ((have_right($config, "parc_can_view")) or (have_right($config, "parc_can_manage")))) {
                 echo "<h3>".gettext("Votre d&#233;l&#233;gation a &#233;t&#233; prise en compte pour l'affichage de cette page.")."</h3>";
                 $acces_restreint=1;
                 $list_delegate=list_parc_delegate($login);
@@ -82,10 +82,10 @@ if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, 
 		if ($selectionne=="3") { echo " selected"; }
 		echo ">".gettext("Par utilisateur\n");
 		echo "</SELECT>\n";
-}
+}	
 
 	if ($selectionne=="1") {
-		if (($ipaddr==$_SERVER['REMOTE_ADDR']) || ($ipaddr=="")) { $IP=$_SERVER['REMOTE_ADDR']; } else { $IP=$ipaddr; }
+		if (($ipaddr==$REMOTE_ADDR) || ($ipaddr=="")) { $IP=$REMOTE_ADDR; } else { $IP=$ipaddr; }
 		echo " <INPUT TYPE=\"text\" NAME=\"ipaddr\"\n VALUE=\"$IP\" SIZE=\"12\">";
 	} elseif ($selectionne=="2") {
 		echo " <INPUT TYPE=\"text\" NAME=\"mpenc\" VALUE=\"$mpenc\" SIZE=\"12\">";
@@ -97,21 +97,18 @@ if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, 
 	echo "<BR>";
 	echo "<HR>";
 
-
+	
 	// Si recherche sur adresse IP
     	if (($selectionne=="1") && (isset($ipaddr))) {
 		// Affichage des renseignements sur la machine depuis la table connexions
 		echo "<BR>";
 		echo gettext("Table des connexions sur l'adresse IP")." <STRONG><FONT color='red'>$ipaddr</FONT></STRONG>\n";
 		$smb_sess=smbstatus();
-
-        if ($smb_sess){
                 foreach($smb_sess as $key=>$value){
                         $ips[$key]=$value['ip'];
                 }
-		$machine=array_search($ipaddr, $ips);
-        }
-		if (!isset($machine)) echo "<P>".gettext("Aucune connexion en cours sur cette machine")."</P>\n";
+		$machine=array_search($ip_adrr, $ips);
+		if (!$machine) echo "<P>".gettext("Aucune connexion en cours sur cette machine")."</P>\n";
 		else {
 			$login=$smb_sess[$machine]['login'];
 			echo "<P><STRONG><FONT color='red'>$login</FONT></STRONG> ".gettext("est actuellement connect&#233; sur cette machine")."</P>\n";
@@ -123,7 +120,7 @@ if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, 
 		$query .= $cnx_start;
 		$query .= ",10";
 
-		$result = mysqli_query($authlink,$query);
+		$result = mysqli_query($GLOBALS["___mysqli_ston"], $query);
 		if (($result)) {
 			// Affichage des liens de navigation
 			if ($cnx_start < 10) { $cnx_start1=0; $cnx_start2=$cnx_start+10; }
@@ -146,7 +143,7 @@ if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, 
 				echo "<TD>".$r["logouttime"]."</TD></TR>\n";
 			}
 			echo "</TABLE>\n";
-		} else echo gettext("erreur lors de la lecture de la base sambaedu");
+		} else echo gettext("erreur lors de la lecture de la base se3");
 
   	}
 
@@ -154,24 +151,21 @@ if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, 
 
 
 	// Affichage des renseignements sur l'utilisateur
-
+	
     	if (($selectionne=="3") && (isset($user))) {
-            $smb_sess=smbstatus();
-            $nbmach=0;
-            if ($smb_sess){
-                foreach($smb_sess as $key=>$value){
-                    $logins[$key]=$value['login'];
-                }
+                $smb_sess=smbstatus();
+		foreach($smb_sess as $key=>$value){
+			$logins[$key]=$value['login'];
+		}
                 $machines=array_keys($logins, $user);
-            $nbmach=count($machines);
-            }
+		$nbmach=count($machines);
 		if ($nbmach>0) {
 			echo "<P><STRONG><FONT color='red'>";
 			echo $nbmach;
 			// echo "</FONT></STRONG> connexion(s) en cours sous le login <STRONG><FONT color='red'>$user</FONT></STRONG> sur ";
 			echo "</FONT></STRONG>".gettext(" connexion(s) en cours sous le login")." <A HREF='../annu/people.php?uid=$user'><STRONG><FONT color='red'><U>$user</U></FONT></STRONG></A>".gettext(" sur ");
  			foreach($machines as $machine) {
-				if (is_admin($config, "computers_is_admin",$login)=="Y")  echo "<A HREF='show_histo.php?selectionne=2&mpenc=".urlencode($machine)."'><U>$machine</U></A> ";
+				if (have_right($config, "computers_is_admin"))  echo "<A HREF='show_histo.php?selectionne=2&mpenc=".urlencode($machine)."'><U>$machine</U></A> ";
 				else echo "<STRONG>$machine</STRONG> ";
 			}
 		} else {
@@ -188,7 +182,7 @@ if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, 
 		$query .= $cnx_start;
 		$query .= ",10";
 
-		$result = mysqli_query($authlink,$query);
+		$result = mysqli_query($GLOBALS["___mysqli_ston"], $query);
 		if (($result)) {
 			// Affichage des liens de navigation
 			if ($cnx_start < 10) { $cnx_start1=0; $cnx_start2=$cnx_start+10; }
@@ -206,15 +200,15 @@ if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, 
 			while ($r=mysqli_fetch_array($result)) {
 				// echo "<TR align='center'><TD>".$r["netbios_name"]."</TD>\n";
 				echo "<TR align='center'><TD>";
-				if (is_admin($config, "computers_is_admin",$login)=="Y") { echo "<A HREF='show_histo.php?selectionne=2&mpenc=".$r["netbios_name"]."'>"; }
+				if (have_right($config, "computers_is_admin")) { echo "<A HREF='show_histo.php?selectionne=2&mpenc=".$r["netbios_name"]."'>"; }
 				echo $r["netbios_name"];
-				if (is_admin($config, "computers_is_admin",$login)=="Y") echo "</A>";
+				if (have_right($config, "computers_is_admin")) echo "</A>";
 				echo "</TD>\n";
 				//echo "<TD>".$r["ip_address"]."</TD>\n";
 				echo "<TD>";
-				if (is_admin($config, "computers_is_admin",$login)=="Y") { echo "<A HREF='show_histo.php?selectionne=1&ipaddr=".$r["ip_address"]."'>"; }
+				if (have_right($config, "computers_is_admin")) { echo "<A HREF='show_histo.php?selectionne=1&ipaddr=".$r["ip_address"]."'>"; }
 				echo $r["ip_address"];
-				if (is_admin($config, "computers_is_admin",$login)=="Y") {"</A>"; }
+				if (have_right($config, "computers_is_admin")) {"</A>"; }
 				echo "</TD>\n";
 				echo "<TD>".$r["logintime"]."</TD>\n";
 				echo "<TD>".$r["logouttime"]."</TD></TR>\n";
@@ -225,13 +219,13 @@ if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, 
 
 
 	// Affichage par nom de la machine
-
+	
 	// Affichage des renseignements sur la machine depuis la table connexions
-
+	
     	if (($selectionne=="2") && (isset($mpenc))) {
         echo "<p><strong>$mpenc</strong> <a href='cherche_machine.php?mpenc=$mpenc' title='Voir les parcs de la machine.'><img src='../elements/images/computer.png' /></a></p>";
 		$mp=urldecode($mpenc);
-		$mp_curr=search_machines("(&(cn=$mp)(objectClass=computer))","computers");
+		$mp_curr=search_machines("(&(cn=$mp)(objectClass=ipHost))","computers");
 		echo "<P><STRONG>".gettext("Adresse IP inscrite dans l'annuaire:")." </STRONG><FONT color='red'>".$mp_curr[0]["ipHostNumber"]."</FONT></P>\n";
                 $smb_sess=smbstatus();
                 $login=$smb_sess[$mp]['login'];
@@ -246,8 +240,8 @@ if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, 
 		$query=" select * from connexions where netbios_name='$mp' order by id desc limit ";
 		$query .= $cnx_start;
 		$query .= ",10";
-
-		$result =  mysqli_query($authlink,$query);
+		
+		$result = mysqli_query($GLOBALS["___mysqli_ston"], $query);
 		if (($result)) {
 			// Affichage des liens de navigation
 			if ($cnx_start < 10) { $cnx_start1=0; $cnx_start2=$cnx_start+10; }
@@ -271,8 +265,8 @@ if ((is_admin($config, "computers_is_admin",$login)=="Y") or (is_admin($config, 
 			}
 			echo "</TABLE>\n";
 		} else echo gettext("erreur lors de la lecture de la base se3");
-
-  	}
+		
+  	} 
 
 
 

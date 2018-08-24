@@ -45,7 +45,7 @@ textdomain ('se3-ups');
 $_SESSION["pageaide"]="Gestion_de_l\'onduleur#Onduleur_unique_sur_le_serveur_SambaEdu";
 
 //Si on a le droit de se connecter
-if ($is_admin = is_admin($config, "se3_is_admin",$login)=="Y") {
+if ($is_admin = have_right($config, "se3_is_admin")) {
 
 echo "<H1>".gettext("Gestion de l'onduleur")."</H1>";
 

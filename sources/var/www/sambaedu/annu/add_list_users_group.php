@@ -43,7 +43,7 @@
   $new_cns=$_POST['new_cns'];
   $add_list_users_group=$_POST['add_list_users_group'];
 
-  if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+  if (have_right($config, "Annu_is_admin")) {
 
   	$filter="8_".$cn;	
 	aff_trailer ("$filter");

@@ -35,7 +35,7 @@ require_once ("lang.inc.php");
 bindtextdomain('se3-annu',"/var/www/se3/locale");
 textdomain ('se3-annu');
 
-if ((is_admin($config, "annu_can_read",$login)=="Y") || (is_admin($config, "Annu_is_admin",$login)=="Y"))  {
+if ((have_right($config, "annu_can_read")) || (have_right($config, "Annu_is_admin")))  {
 
 	//aide
 	$_SESSION["pageaide"]="Annuaire";

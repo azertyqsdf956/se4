@@ -36,7 +36,7 @@ textdomain ('se3-annu');
       
 $_SESSION["pageaide"]="Annuaire";
 
-if (is_admin($config, "se3_is_admin",$login)=="Y") {
+if (have_right($config, "se3_is_admin")) {
 	$_SESSION["pageaide"]="Annuaire#Export_LDAP";
 	echo "<h1>".gettext("Exportation de l'annuaire LDAP")."</h1>";
 

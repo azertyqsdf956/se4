@@ -33,7 +33,7 @@ textdomain ('sambaedu-infos');
 //aide
 $_SESSION["pageaide"]="Informations_syst&#232;me#Espace_disque";
 
-if (is_admin($config,"system_is_admin",$login)!="Y")
+if (have_right($config,"system_is_admin",$login)!="Y")
 	die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 
 system ("/usr/share/sambaedu/sbin/df.sh");

@@ -43,7 +43,7 @@ $cn=$_GET["cn"];
 $cn=$_GET["cn"];
 
 aff_trailer ("3");
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
         // suppression des utilisateurs selectionnes
           exec ("/usr/share/se3/sbin/groupDelUser.pl $cn $cn",$AllOutPut,$ReturnValue);
           $ReturnCode =  $ReturnCode + $ReturnValue;

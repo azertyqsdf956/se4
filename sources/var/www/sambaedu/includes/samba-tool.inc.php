@@ -40,7 +40,7 @@
  * 
  */
 
-require_once ("crob_ldap_functions.php");
+require_once ("siecle.inc.php");
 /*
 	Fonctions de crob_ldap_functions.php utilisées dans samba-tool.inc.php
 	useradd()   -> creer_cn($nom,$prenom) //modifiée 
@@ -253,6 +253,19 @@ function grouplist ($filter) {
      */
 }
 
+function grouplistmembers ($config, $cn) {
+    
+    /*
+     * Return array of member's cn 
+     */
+    
+    $command="group listmembers ";
+    $res = sambatool ( $config, $command );
+    
+    return $res;    
+}
+
+
 function groupexist ($config, $cn) {
     
     /*
@@ -307,7 +320,7 @@ function groupadd ($cn, $inou, $description) {
         }
         
     } else {
-        return fasle;
+        return false;
     }
 }	
 

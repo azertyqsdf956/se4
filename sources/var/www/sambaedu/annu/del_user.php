@@ -42,7 +42,7 @@ $_SESSION["pageaide"]="Annuaire";
 echo "<h1>".gettext("Annuaire")."</h1>\n";
 
 aff_trailer ("3");
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 	
 	$cn=$_GET['cn'];
 	// suppression d'un d'utilisateur

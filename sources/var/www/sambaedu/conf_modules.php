@@ -27,7 +27,7 @@ include ("fonc_outils.inc.php");
 $_SESSION["pageaide"]="Les modules";
 
 
-if (ldap_get_right($config,"se3_is_admin",$login)!="Y")
+if (!have_right($config,"se3_is_admin"))
         die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 
 

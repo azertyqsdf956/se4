@@ -19,8 +19,22 @@
  *
  * @Repertoire: includes/
  */
+function isauth()
+{
+    /* Teste si une authentification est faite
+     - Si non, renvoie ""
+     - Si oui, renvoie l'uid de la personne
+     */
+    
+    $login="";
+    session_name("Sambaedu");
+    @session_start();
+    $login= (isset($_SESSION['login'])?$_SESSION['login']:"");
+    return $login;
+}
 
-/*
+
+ /*
  * fonction pour récupérer la conf de se4 ou des modules de façon recursive dans /etc/sambaedu/
  * @Parametres : "nom du module", "sambaedu" ou "all"
  * @return array["parametre"]
@@ -52,10 +66,14 @@ function get_config_se4($module = "sambaedu")
         $config['dn']['rights'] = $config['rights_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['printers'] = $config['printers_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['trash'] = $config['trash_rdn'] . "," . $config['ldap_base_dn'];
+        $config['dn']['parcs'] = $config['parcs_rdn'] . "," . $config['ldap_base_dn'];
+        $config['dn']['computers'] = $config['computers_rdn'] . "," . $config['ldap_base_dn'];
+        
     } else {
         $conf_file = "/etc/sambaedu/sambaedu.conf.d/$module.conf";
         $config = parse_ini_file($conf_file);
     }
+    $config['login'] = isauth();
     return ($config);
 }
 
@@ -169,7 +187,7 @@ function set_config($param, $value = "", $module = "sambaedu")
     }
     $content = "";
     foreach ($config as $key => $value) {
-        if (! ("$key" == "dn")) {
+        if (! (("$key" == "dn") || ("$key" == "login"))) {
             $content .= $key . " = \"" . $value . "\"\n";
         }
     }
@@ -222,7 +240,7 @@ bindtextdomain("messages", "./locale");
 textdomain("messages");
 
 // Paramètres LDAP
-$config = get_config();
+$config = get_config(true);
 /*if ($config["version"] == "se3") {
 compatibilité avec se3
 foreach ($config as $key => $value) {

@@ -45,7 +45,7 @@ $texte_alert = "Vous allez supprimer tout le repertoire classe. Voulez vous vrai
 </script>
 
 <?php
-if ((is_admin($config, "se3_is_admin", $login) == "Y") or ( is_admin($config, "annu_is_admin", $login) == "Y")) {
+if ((have_right($config, "se3_is_admin", $login) == "Y") or ( have_right($config, "annu_is_admin", $login) == "Y")) {
 
     function my_echo_debug($chaine) {
         $debug = 1;
@@ -210,14 +210,8 @@ if ((is_admin($config, "se3_is_admin", $login) == "Y") or ( is_admin($config, "a
     }
 
     echo "<br />\n";
-    // configuration mono serveur  : determination des parametres du serveur
-//    $serveur = search_machines("(l=maitre)", "computers");
-//    $cn_srv = $serveur[0]["cn"];
-//    $stat_srv = $serveur[0]["l"];
-//    $ipHostNumber = $serveur[0]["ipHostNumber"];
-
     // Recherche de la liste des classes dans l'annuaire
-    $list_classes = search_groups("cn=Classe_*");
+    $list_classes = filter_group("cn=Classe_*");
     // Recherche des sous dossiers classes d&#233;ja existant sur le serveur selectionn&#233;
     // Constitution d'un tableau avec les ressources deja existantes
     $dirClasses = dir("/var/sambaedu/Classes");

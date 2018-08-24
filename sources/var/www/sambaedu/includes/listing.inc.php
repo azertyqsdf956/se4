@@ -37,7 +37,7 @@ if (!session_status()) {
         
 	$login=isauth();
 ]
-	if (!is_admin($config, "Annu_is_admin",$login)=="Y") {
+	if (!have_right($config, "Annu_is_admin")) {
 		// dégage crétin
 		echo "dégage...";
 	} else {

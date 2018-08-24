@@ -47,10 +47,10 @@ $members=$_POST[members];
 $group_del_group=$_POST['group_del_group'];
 
 
-list($user, $groups)=people_get_variables($cn, true);
+list($user, $groups)=search_user($cn, true);
 aff_trailer ("31");
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y")  {
+if (have_right($config, "Annu_is_admin"))  {
 	echo "<h4>".gettext("Suppression de")." $cn ".gettext(" de diff&#233;rents groupes")."</h4>\n";
       	if ( !$group_del_group || ( $group_del_group && !count($members) ) ) {
         	?>

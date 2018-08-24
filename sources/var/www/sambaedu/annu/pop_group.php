@@ -35,13 +35,13 @@ textdomain ('se3-annu');
 
 
 
-if ((is_admin($config, "annu_can_read",$login)=="Y") || (is_admin($config, "Annu_is_admin",$login)=="Y") || (is_admin($config, "savajon_is_admin",$login)=="Y"))  {
+if ((have_right($config, "annu_can_read")) || (have_right($config, "Annu_is_admin")) || (have_right($config, "savajon_is_admin")))  {
 	
 	$_SESSION["pageaide"]="Annuaire";
 
 	$filter=$_GET['filter'];
 
-	$group=search_groups ("(cn=".$filter.")");
+	$group=filter_group ("(cn=".$filter.")");
 	$cns = search_cns ("(cn=".$filter.")");
 	$people = search_people_groups ($cns,"(sn=*)","cat");
   	#$TimeStamp_1=microtime();

@@ -36,7 +36,7 @@ bindtextdomain('se3-annu',"/var/www/se3/locale");
 textdomain ('se3-annu');
 
 
-if (is_admin($config, "se3_is_admin",$login)=="Y") {
+if (have_right($config, "se3_is_admin")) {
 	$_SESSION["pageaide"]="Annuaire#Import_LDAP";
 	echo "<h1>".gettext("Importation de l'annuaire LDAP")."</h1>";
 

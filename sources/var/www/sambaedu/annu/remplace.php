@@ -39,12 +39,12 @@ $_SESSION["pageaide"]="Annuaire";
 echo "<h1>".gettext("Annuaire")."</h1>\n";
 
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 	$filter="profs";
 
 	aff_trailer ("1");
 	#$TimeStamp_0=microtime();
-	$group=search_groups ("(cn=".$filter.")");
+	$group=filter_group ("(cn=".$filter.")");
 	$cns = search_cns ("(cn=".$filter.")");
 	$people = search_people_groups ($cns,"(sn=*)","cat");
 

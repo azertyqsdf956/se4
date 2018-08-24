@@ -45,7 +45,7 @@ aff_trailer ("8_$filter");
 
 
 #$TimeStamp_0=microtime();
-$group=search_groups ("(cn=".$filter.")");
+$group=filter_group ("(cn=".$filter.")");
 
 $cns = search_cns ("(cn=".$filter.")");
 
@@ -79,14 +79,14 @@ if (count($people)) {
       			}
 
 			// Si on a pas les droits on n'a pas de lien
-			if ((ldap_get_right($config, "Annu_is_admin",$login) == "Y") || (ldap_get_right($config, "annu_can_read",$login) == "Y")) {
+			if (have_right($config, "Annu_is_admin") || have_right($config, "annu_can_read")) {
       				echo "<A href=\"people.php?cn=".$people[$loop]["cn"]."\">".$people[$loop]["prenom"]." ".$people[$loop]["name"]."</A>";
 			} else {
 				// si on a les droits sovajon_is_admin on v&#233;rifie si on a la classe ou si les droits étendus du groupe prof sont activés
 				$cn_eleve=$people[$loop]["cn"];
 				$acl_group_profs_classes = exec("cd /var/se3/Classes; /usr/bin/getfacl . | grep group:Profs >/dev/null && echo 1");
 
-				if ((tstclass($login,$cn_eleve)==1) and ((ldap_get_right($config, "sovajon_is_admin",$login)=="Y") or ($acl_group_profs_classes == 1)) and ($people[$loop]["prof"]!=1)) {
+				if ((tstclass($login,$cn_eleve)==1) and (have_right($config, "sovajon_is_admin") or ($acl_group_profs_classes == 1)) and ($people[$loop]["prof"]!=1)) {
 					 echo "<A href=\"people.php?cn=".$people[$loop]["cn"]."\">".$people[$loop]["prenom"]." ".$people[$loop]["name"]."</A>";
 				} else {
 					echo $people[$loop]["prenom"]." ".$people[$loop]["name"];
@@ -110,7 +110,7 @@ if (count($people)) {
 	// Pour les groupes sauf pour les groupes Eleves Profs Administratifs
 	//
 
-  	if ( (is_admin($config, "Annu_is_admin",$login) == "Y") && ($filter!="Eleves" && $filter!="Profs" && $filter!="Administration" && $group[0]["gidnumber"] != $defaultgid) ) {
+  	if ( (have_right($config, "Annu_is_admin")) && ($filter!="Eleves" && $filter!="Profs" && $filter!="Administration" && $group[0]["gidnumber"] != $defaultgid) ) {
     		echo "<br><ul style=\"color: red;\">\n";
 
      		// Affichage du menu "Ajouter des membres" si le groupe est de type Equipe_ ou Classe
@@ -155,7 +155,7 @@ if (count($people)) {
 
     		// Affichage menu gestion des droits
 		// si la personne est admin uniquement
-    		if (ldap_get_right($config, "se3_is_admin",$login) == "Y") {
+    		if (have_right($config, "se3_is_admin")) {
     			// Affichage du menu "Deleguer un droit a un groupe"
         		echo "<li><a href=\"add_group_right.php?cn=$filter\">".gettext("G&#233;rer les droits de ce groupe")."</a></li>\n";
 			// ajout par keyser : affichage supplementaire pour les groupes tpe / idd ...
@@ -165,7 +165,7 @@ if (count($people)) {
 
 		} // Fin Affichage menu droits
 		echo "</ul>\n";
-  } else if (ldap_get_right($config, "se3_is_admin",$login) == "Y") {
+  } else if (have_right($config, "se3_is_admin")) {
     	// Affichage du menu "Deleguer un droit a un groupe"
         echo "<br><ul style=\"color: red;\">\n";
         echo "<li><a href=\"pop_group.php?filter=$filter\">".gettext("Envoyer un Pop Up &#224; ce groupe")."</a></li>\n";
@@ -178,7 +178,7 @@ if (count($people)) {
  //echo "<br />";
 
 
-	if (ldap_get_right($config, "se3_is_admin",$login) == "Y") {
+	if (have_right($config, "se3_is_admin")) {
 		echo "<ul style=\"color: red;\">\n";
 		echo "<li><a href=\"create_template_group.php?filter=$filter\">".gettext("Cr&#233;er un dossier de template pour le groupe")."</a></li>\n";
 		echo "</ul>\n";
@@ -187,7 +187,7 @@ if (count($people)) {
   // ajout du lien trombinoscope
   // Si Annu_is_admin et le repertoire existe on peut  voir les trombinoscopes
   //
-  if ((ldap_get_right($config, "Annu_is_admin",$login) == "Y") && is_dir("/var/se3/Docs/trombine")) {
+  if (have_right($config, "Annu_is_admin") && is_dir("/var/se3/Docs/trombine")) {
   	      	echo "<ul style=\"color: red;\">\n";
       		echo "<li><a href=\"trombin.php?filter=$filter\" target='_new'>".gettext("Afficher un trombinoscope du groupe")."</a></li>\n";
         	echo "</ul>\n";
@@ -207,11 +207,11 @@ if (preg_match("/Cours_/i", "$filter")) {
 // echo "are_you_in_group($login,$classe)";
 // echo are_you_in_group($login,$classe);
 // pour pas avoir un double affichage
- if (ldap_get_right($config, "Annu_is_admin",$login) != "Y") {
+ if (!have_right($config, "Annu_is_admin")) {
         // Si sovajon_is_admin et prof de la classe ou droits étendus du groupe profs
         $acl_group_profs_classes = exec("cd /var/se3/Classes; /usr/bin/getfacl . | grep group:Profs >/dev/null && echo 1");
         
-        if ((ldap_get_right($config, "sovajon_is_admin",$login)=="Y") and ((are_you_in_group($login,$classe) or ($acl_group_profs_classes == 1)))) {
+        if ((have_right($config, "sovajon_is_admin")) and ((are_you_in_group($login,$classe) or ($acl_group_profs_classes == 1)))) {
 
                 // Affiche trombinoscope de la classe
                 echo "<ul style=\"color: red;\">\n";
@@ -225,7 +225,7 @@ if (preg_match("/Cours_/i", "$filter")) {
                                 echo "<li><a href=\"grouplist.php?filter=$filter\" target='_new'>".gettext("Afficher un listing du groupe")."</a></li>\n";
                 }
                 echo "</ul>\n";
-        } elseif (ldap_get_right($config, "annu_can_read",$login)=="Y") {
+        } elseif (have_right($config, "annu_can_read")) {
                 // Affiche trombinoscope de la classe
                 echo "<li><a href=\"trombin.php?filter=$filter\" target='_new'>".gettext("Afficher un trombinoscope du groupe")."</a></li>\n";
                 echo "</ul>\n";
@@ -236,7 +236,7 @@ if (preg_match("/Cours_/i", "$filter")) {
   // Modifie par Wawa
   // Affichage de l'equipe pedagogique associee a la classe
 
-  if (preg_match("/Classe/",$filter,$matche)) {
+  if (preg_match("/Classe/", $filter, $matche)) {
     	$filter2 = preg_replace("/Classe_/","Equipe_",$filter);
     	$cns2 = search_cns ("(cn=".$filter2.")");
     	$people2 = search_people_groups ($cns2,"(sn=*)","cat");
@@ -255,7 +255,7 @@ if (preg_match("/Cours_/i", "$filter")) {
       		}
 
 		// On a un lien sur les profs uniquement si on est annu_can_read ou Annu_is_admin
-		if ((ldap_get_right($config, "Annu_is_admin",$login) == "Y")|| (ldap_get_right($config, "annu_can_read",$login) == "Y")) {
+		if ((have_right($config, "Annu_is_admin"))|| (have_right($config, "annu_can_read"))) {
       			echo "<A href=\"people.php?cn=".$people2[$loop]["cn"]."\">".$people2[$loop]["fullname"]."</A>";
 		} else {
 			echo $people2[$loop]["fullname"];

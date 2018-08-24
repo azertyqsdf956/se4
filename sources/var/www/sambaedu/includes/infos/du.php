@@ -34,7 +34,7 @@ $erreur="";
 //aide
 $_SESSION["pageaide"]="Informations_syst&#232;me#Occupation_disque";
 
-if ( is_admin($config, "system_is_admin",$login)!="Y")
+if ( have_right($config, "system_is_admin",$login)!="Y")
   if ( ($uid != $login) || (($uid == $login)&&((!preg_match("//home/$login/", $wrep))&&($consul!=1))))
      die ("<h1>Occupation disque</h1><br>".gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 

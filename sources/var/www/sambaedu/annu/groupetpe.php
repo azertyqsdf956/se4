@@ -37,7 +37,7 @@ bindtextdomain('se3-annu',"/var/www/se3/locale");
 textdomain ('se3-annu');
 
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 		
 	$_SESSION["pageaide"]="Annuaire";	
 	echo "<h1>".gettext("Annuaire")."</h1>\n";
@@ -56,7 +56,7 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
 	echo "";
 	echo "<B>".gettext("S&#233;lectionner le(s) groupe(s) dans le(s)quel(s) se situent les personnes &#224; mettre dans le groupe ci-dessus :")."</B><BR><BR>";
 	// Etablissement des listes des groupes disponibles
-	$list_groups=search_groups("(&(cn=*) $filter )");
+	$list_groups=filter_group("(&(cn=*) $filter )");
 	// Etablissement des sous listes de groupes :
 	affiche_all_groups(left, none);
     	echo " <input type=\"submit\" value=\"".gettext("Valider")."\">

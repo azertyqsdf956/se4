@@ -73,7 +73,7 @@ $string_auth1=isset($_POST['string_auth1']) ? $_POST['string_auth1'] : "";
 $dummy=isset($_POST['dummy']) ? $_POST['dummy'] : "";
 $dummy1=isset($_POST['dummy1']) ? $_POST['dummy1'] : "";
         
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
        if ( $add_user && ($string_auth || $string_auth1) ) {
            exec ("/usr/bin/python ".$path_to_wwwse3."/includes/decode.py '$string_auth'",$Res);
            $naissance = $Res[0];
@@ -240,7 +240,7 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
 		// Du coup, l'utf8_encode qui suit est inutile...
 
 		$cn =utf8_encode($prenom." ".$nom);
-		$people_exist=search_people($config, "(cn=$cn)");
+		$people_exist=search_ad($config, $cn, "user");
 
       	if (count($people_exist)) {
         	echo "<div class='error_msg'>";
@@ -287,7 +287,7 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
 				} else {
 					echo gettext("L'utilisateur ")." $prenom $nom ".gettext(" a &#233;t&#233; cr&#233;&#233;e avec succ&#232;s.")."<BR>";
 				}
-				$users = search_people ($config, "(cn=$cn)");
+				$users = search_ad ($config, $cn, "user");
 				if ( count ($users) ) {
 					echo gettext("Son identifiant est ")."<STRONG><a href='people.php?cn=".$users[0]["cn"]."' title=\"Modifier le compte.\">".$users[0]["cn"]."</a></STRONG><BR>\n";
 					echo gettext("Son mot de passe est ")."<STRONG>".$userpwd."</STRONG><BR>\n";

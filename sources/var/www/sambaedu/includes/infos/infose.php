@@ -33,7 +33,7 @@ require_once ("lang.inc.php");
 bindtextdomain('sambaedu-infos',"/var/www/sambaedu/locale");
 textdomain ('sambaedu-infos');
 
-if (is_admin($config, "system_is_admin",$login)!="Y")
+if (have_right($config, "system_is_admin",$login)!="Y")
 	die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 
 

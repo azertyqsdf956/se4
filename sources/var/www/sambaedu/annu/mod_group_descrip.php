@@ -43,10 +43,10 @@ $cn=$_GET['cn'];
 if ($cn=="") { $cn=$_POST['cn']; }
 $mod_descrip=$_POST['mod_descrip'];
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 	$filter="8_".$cn;
 	aff_trailer ("$filter");
-	$group=search_groups("cn=".$cn);
+	$group=filter_group("cn=".$cn);
     	if ((!$mod_descrip) || ( $mod_descrip && (!$description || !verifDescription($description)))) {
       		echo gettext("Modification de la description du groupe :")." <b>".$group[0]["cn"]."</b>\n";
       		?>

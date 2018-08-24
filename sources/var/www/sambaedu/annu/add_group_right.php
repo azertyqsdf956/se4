@@ -49,7 +49,7 @@ echo "<h1>".gettext("Annuaire")."</h1>\n";
 $filtre = "8_".$cn;
 aff_trailer ("$filtre");
 
-if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
+if (have_right($config, "se3_is_admin")) {
 
 	// Ajoute un droit
 	if ($action == "AddRights") {
@@ -59,9 +59,7 @@ if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
       		for ($loop=0; $loop < count($newrights); $loop++) {
         		$right=$newrights[$loop];
         		echo gettext("D&#233;l&#233;gation du droit")." <U>$right</U> ".gettext("&#224; l'utilisateur")." $cn<BR>";
-        		$cDn = "cn=$cn,$groups_rdn,$ldap_base_dn";
-        		$pDn = "cn=$right,$rights_rdn,$ldap_base_dn";
-        		exec ("/usr/share/se3/sbin/groupAddEntry.pl \"$cDn\" \"$pDn\"");
+        		add_right($config, $cn, $right);
         		echo "<BR>";
       		}
     	}
@@ -74,22 +72,19 @@ if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
       		for ($loop=0; $loop < count($delrights); $loop++) {
         		$right=$delrights[$loop];
         		echo gettext("Suppression du droit")." <U>$right</U> ".gettext("pour le groupe")." $cn<BR>";
-        		$cDn = "cn=$cn,$groups_rdn,$ldap_base_dn";
-        		$pDn = "cn=$right,$rights_rdn,$ldap_base_dn";
-        		exec ("/usr/share/se3/sbin/groupDelEntry.pl \"$cDn\" \"$pDn\"");
+                remove_right($config, $cn, $right);
         		echo "<BR>";
       		}
     	}
 
-    	list($user, $groups)=people_get_variables($cn, true);
+    	$user = search_user($config, $cn);
     	// Affichage du nom et de la description de l'utilisateur
     	echo "<H3>".gettext("D&#233;l&#233;gation de droits &#224; ")."". $user["fullname"] ." (<U>$cn</U>)</H3>\n";
     	echo gettext("S&#233;lectionnez les droits &#224; supprimer (liste de gauche) ou &#224; ajouter (liste de droite)");
     	echo gettext("et validez &#224; l'aide du bouton correspondant.")."<BR><BR>\n";
     	// Lecture des droits disponibles
-    	$userDn="cn=$cn,$groups_rdn,$ldap_base_dn";
-    	$list_possible_rights=search_machines("(!(member=$userDn))","rights");
-    	$list_current_rights=search_machines("(member=$userDn)","rights");
+    	$list_possible_rights = list_rights($config, $cn, true);
+    	$list_current_rights = list_rights($config, $cn);
     	?>
 
 	<FORM method="post" action="../annu/add_group_right.php">
@@ -111,7 +106,7 @@ if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
     	if ( $size>0) {
     		echo "<SELECT NAME=\"delrights[]\" SIZE=\"$size\" multiple=\"multiple\">";
     	  	for ($loop=0; $loop < count($list_current_rights); $loop++) {
-    		      	echo "<option value=".$list_current_rights[$loop]["cn"].">".$list_current_rights[$loop]["cn"]."\n";
+    		      	echo "<option value=".$list_current_rights[$loop].">".$list_current_rights[$loop]."\n";
       		}
 		?>
 
@@ -128,7 +123,7 @@ if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
     	if ( $size>0) {
       		echo "<SELECT NAME=\"newrights[]\" SIZE=\"$size\" multiple=\"multiple\">";
       		for ($loop=0; $loop < count($list_possible_rights); $loop++) {
-          		echo "<option value=".$list_possible_rights[$loop]["cn"].">".$list_possible_rights[$loop]["cn"]."\n";
+          		echo "<option value=".$list_possible_rights[$loop].">".$list_possible_rights[$loop]."\n";
       		}
 		?>
   		</SELECT><BR><BR>

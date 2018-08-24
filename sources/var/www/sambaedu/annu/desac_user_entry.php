@@ -41,7 +41,7 @@
   $act=$_GET['action'];
   $cn=$_GET['cn'];
   
-  if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+  if (have_right($config, "Annu_is_admin")) {
 	if ($cn) {
 		echo $cn."&nbsp;";
 		userDesactive($cn,$act);

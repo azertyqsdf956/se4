@@ -28,7 +28,8 @@ session_name("Sambaedu");
 @session_start();
 
 require_once 'config.inc.php';
-require 'functions.inc.php';
+require_once 'ldap.inc.php';
+//require 'functions.inc.php';
 
 $login=isauth();
 if ($login =="" ) {
@@ -49,7 +50,7 @@ set_config("registred",2); ///A quoi ça sert ? mrfi
 <FRAMESET COLS="227,*">
 <FRAME SRC="menu.php" NAME="menu" frameborder="0" /><!--/FRAME-->
 
-<?php if (ldap_get_right($config, "se3_is_admin",$login)=="Y")  {
+<?php if (have_right($config, "se3_is_admin"))  {
 
     if (isset($config['affiche_etat'])) {
      if ($config['registred'] <= 1)  { ?>

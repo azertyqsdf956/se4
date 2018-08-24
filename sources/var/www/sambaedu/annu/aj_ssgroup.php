@@ -39,14 +39,14 @@ $_SESSION["pageaide"]="Annuaire";
 
 echo "<h1>".gettext("Annuaire")."</h1>";
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 	$cn=$_GET["cn"];
 	$description=$_GET["description"];
 	echo "<form action=\"affichageleve.php\" method=\"post\">";
 	echo "<B>".gettext("S&#233;lectionner le(s) groupe(s) dans le(s)quel(s) se situent les personnes &#224; mettre dans le groupe :")." </B><BR><BR>";
 
 	// Etablissement des listes des groupes disponibles
-	$list_groups=search_groups("(&(cn=*) $filter )");
+	$list_groups=filter_group("(&(cn=*) $filter )");
 	// Etablissement des sous listes de groupes :
 	$j =0; $k =0; $m = 0; $n = 0;
 	for ($loop=0; $loop < count ($list_groups) ; $loop++) {

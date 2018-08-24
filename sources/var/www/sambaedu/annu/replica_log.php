@@ -54,7 +54,7 @@ $_SESSION["pageaide"]="R%C3%A9plication_d%27annuaires";
 
 echo "<h1>".gettext("R&#233;plication de l'annuaire LDAP")."</h1>";
 
-if (is_admin($config, "system_is_admin",$login)!="Y")
+if (have_right($config, "system_is_admin",$login)!="Y")
 	die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 
 //Lance le script mkslurpd

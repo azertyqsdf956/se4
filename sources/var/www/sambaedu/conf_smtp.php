@@ -61,7 +61,7 @@ echo "<H1>".gettext("Configure le SMTP")."</H1>\n";
 //aide
 $_SESSION["pageaide"]="L%27interface_web_administrateur#Partie_:_Configuration_de_l.27exp.C3.A9dition_des_messages_syst.C3.A8me";
 
-if (is_admin($config,"system_is_admin",$login)=="Y") {
+if (have_right($config,"system_is_admin")) {
 	
 	// Creation du fichier de conf de ssmtp
 	if ($_GET[action] == "exim_mod") {

@@ -37,7 +37,7 @@
 	$login=isauth();
 	if ($login == "") header("Location:$urlauth");
 
-	if (is_admin($config, "se3_is_admin",$login)=="Y") {
+	if (have_right($config, "se3_is_admin")) {
 		if (isset($_POST['filtre'])) {
 			$filtre=$_POST['filtre'];
 			if ($filtre == "") $filtre = "objectclass=*";

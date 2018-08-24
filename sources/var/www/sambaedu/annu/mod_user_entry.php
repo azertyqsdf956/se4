@@ -37,7 +37,7 @@ require "ldap.inc.php";
 require "ihm.inc.php";
 require "jlcipher.inc.php";
 
-require "crob_ldap_functions.php";
+require "siecle.inc.php";
 
 // HTMLPurifier
 require_once ("traitement_data.inc.php");
@@ -60,7 +60,7 @@ echo "<h1>".gettext("Annuaire")."</h1>\n";
 
 aff_trailer ("4");
 
-$isadmin=is_admin($config, "Annu_is_admin",$login);
+$isadmin=have_right($config, "Annu_is_admin",$login);
 
 $cn=isset($_GET['cn']) ? $_GET['cn'] : (isset($_POST['cn']) ? $_POST['cn'] : NULL);
 
@@ -86,9 +86,9 @@ $string_auth=isset($_POST['string_auth']) ? $_POST['string_auth'] : '';
 $naissance=isset($_POST['naissance']) ? $_POST['naissance'] : '';
 $employeeNumber=isset($_POST['employeeNumber']) ? $_POST['employeeNumber'] : '';
 
-if (($isadmin=="Y") or ((tstclass($login,$cn)==1) and (ldap_get_right($config, "sovajon_is_admin",$login)=="Y"))) {
+if (have_right($config, "se3 is_admin") or ((tstclass($login,$cn)==1) and (have_right($config, "sovajon_is_admin")))) {
 	// Recuperation des entrees de l'utilisateur a modifier
-	$user=people_get_variables ($cn, false);
+	$user=search_user ($cn, false);
 
 	// decodage du mot de passe
 	if ((isset($user_entry))&&($user_entry)&&($string_auth!='')) {
@@ -306,7 +306,7 @@ if (($isadmin=="Y") or ((tstclass($login,$cn)==1) and (ldap_get_right($config, "
 			echo "\$user[0][$key]=$value<br />";
 		}
 		*/
-		// La fonction people_get_variables() est utilisée dans pas mal de pages modifier le retour si givenName prend pour valeur Prenom va être lourd.
+		// La fonction search_user($config, ) est utilisée dans pas mal de pages modifier le retour si givenName prend pour valeur Prenom va être lourd.
 		//======================================
 	
 		if ( $isadmin=="Y" ) {

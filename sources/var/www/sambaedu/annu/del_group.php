@@ -39,10 +39,10 @@ echo "<h1>".gettext("Annuaire")."</h1>";
 
 $cn = $_GET['cn'];
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 
 	aff_trailer ("6");
-	$group=search_groups ("(cn=".$cn.")");
+	$group=filter_group ("(cn=".$cn.")");
     	if ( $cn !="Eleves" && $cn !="Profs" && $cn !="Administratifs" && $group[0]["gidnumber"]!=$defaultgid) {
       		exec ("/usr/share/se3/sbin/groupDel.pl $cn",$AllOutPut,$ReturnValue);
       		if ($ReturnValue == "0") {

@@ -26,6 +26,7 @@
 
 
 require_once "config.inc.php";
+require_once "ldap.inc.php";
 require ("entete.inc.php");
 require_once("lang.inc.php");
 bindtextdomain('se4-core',"/var/www/sambaedu/locale");
@@ -35,7 +36,7 @@ textdomain ('se4-core');
 //aide
 $_SESSION["pageaide"]="L\'interface_web_administrateur#Configuration_g.C3.A9n.C3.A9rale";
 
-if (ldap_get_right($config, "se3_is_admin",$login)!="Y")
+if (!have_right($config, "se3_is_admin"))
         die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 
 $action = (isset($_GET['action'])?$_GET['action']:"");

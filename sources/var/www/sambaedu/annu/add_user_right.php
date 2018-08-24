@@ -45,7 +45,7 @@ $newrights = isset($_POST['newrights']) ? $_POST['newrights'] : "";
 echo "<h1>".gettext("Annuaire")."</h1>\n";
 
 if($cn=="") {
-	echo "<p>ERREUR : Il faut choisir un 'cn'</p>\n";
+	echo "<p>ERREUR : Il faut choisir un nom</p>\n";
 	include ("pdp.inc.php");
 	die();
 }
@@ -53,7 +53,7 @@ if($cn=="") {
 $filtre = "9_".$cn;
 aff_trailer ("$filtre");
 
-if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
+if (have_right($config, "se3_is_admin")) {
     if ($action == "AddRights") {
       	// Inscription des droits dans l'annuaire
       	echo "<H3>".gettext("Inscription des droits pour")." <U>$cn</U></H3>";
@@ -61,9 +61,7 @@ if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
       	for ($loop=0; $loop < count($newrights); $loop++) {
         	$right=$newrights[$loop];
         	echo gettext("D&#233;l&#233;gation du droit")." <U>$right</U> ".gettext("&#224; l'utilisateur")." $cn<BR>";
-        	$cDn = "cn=$cn,$people_rdn,$ldap_base_dn";
-        	$pDn = "cn=$right,$rights_rdn,$ldap_base_dn";
-        	exec ("/usr/share/se3/sbin/groupAddEntry.pl \"$cDn\" \"$pDn\"");
+            add_right($config, $cn, $right);
                 if ($right == "computers_is_admin") {
                     //echo "MAj interface wpkg";
                     $wpkgDroitSh="/usr/share/se3/scripts/update_droits_xml.sh";
@@ -79,21 +77,19 @@ if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
       	for ($loop=0; $loop < count($delrights); $loop++) {
         	$right=$delrights[$loop];
         	echo gettext("Suppression du droit")." <U>$right</U> ".gettext("pour l'utilisateur")." $cn<BR>";
-        	$cDn = "cn=$cn,$people_rdn,$ldap_base_dn";
-        	$pDn = "cn=$right,$rights_rdn,$ldap_base_dn";
-        	exec ("/usr/share/se3/sbin/groupDelEntry.pl \"$cDn\" \"$pDn\"");
+            remove_right($config, $cn, $right);
         	echo "<BR>";
       	}
     }
-    list($user, $groups)=people_get_variables($cn, true);
+    $user = search_user($cn);
     // Affichage du nom et de la description de l'utilisateur
     echo "<H3>".gettext("D&#233;l&#233;gation de droits &#224; ")."". $user["fullname"] ." (<U>$cn</U>)</H3>\n";
     echo gettext("S&#233;lectionnez les droits &#224; supprimer (liste de gauche) ou &#224; ajouter (liste de droite) ");
     echo gettext("et validez &#224; l'aide du bouton correspondant.")."<BR><BR>\n";
     // Lecture des droits disponibles
-    $userDn="cn=$cn,$people_rdn,$ldap_base_dn";
-    $list_possible_rights=search_machines("(!(member=$userDn))","rights");
-    $list_current_rights=search_machines("(member=$userDn)","rights");
+     $list_current_rights = list_rights($config, $cn);
+     $list_possible_rights = array_list_rights($config, "all", true);
+     
     ?>
 <FORM method="post" action="../annu/add_user_right.php">
   <INPUT TYPE="hidden" VALUE="<?php echo $cn;?>" NAME="cn">
@@ -113,22 +109,20 @@ if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
 
 <?php
 	// Gestion de l'heritage
-	list($user, $groups)=people_get_variables($cn, true);
+	$user = search_user($config, $cn);
 	// echo gettext("H&#233;ritage ");
 
 	echo "<hr>";
 
 	echo "<font size=\"-1\">";
 	$pass_heritage="0";
-	if ( count($groups) ) {
-                for ($loop=0; $loop < count ($groups) ; $loop++) {
-               		$groupe=$groups[$loop]["cn"];
-			$GroupDn="cn=$groupe,$groups_rdn,$ldap_base_dn";
-			$list_heritage_rights=search_machines("(member=$GroupDn)","rights");
+	if ( count($user['memberof']) ) {
+	    foreach ($user['memberof'] as $groupdn) {
+			$list_heritage_rights = list_rights($config, $groupdn);
 			if   ( count($list_heritage_rights)>15) $size=15; else $size=count($list_heritage_rights);
 			if ( $size>0) {
-				for ($loop2=0; $loop2 < count($list_heritage_rights); $loop2++) {
-					echo $list_heritage_rights[$loop2]["cn"]." ($groupe)<br>\n";
+				foreach  ($list_heritage_rights as $right) {
+					echo $right." ($groupdn)<br>\n";
 					$pass_heritage="1";
 				}
 			}
@@ -148,7 +142,7 @@ if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
     if ( $size>0) {
     	echo "<SELECT NAME=\"delrights[]\" SIZE=\"$size\" multiple=\"multiple\">";
       	for ($loop=0; $loop < count($list_current_rights); $loop++) {
-          	echo "<option value=".$list_current_rights[$loop]["cn"].">".$list_current_rights[$loop]["cn"]."\n";
+          	echo "<option value=".$list_current_rights[$loop].">".$list_current_rights[$loop]."\n";
       	}
 ?>
   </SELECT><BR><BR>
@@ -168,7 +162,7 @@ if (ldap_get_right($config, "se3_is_admin",$login)=="Y") {
     if ( $size>0) {
       echo "<SELECT NAME=\"newrights[]\" SIZE=\"$size\" multiple=\"multiple\">";
       for ($loop=0; $loop < count($list_possible_rights); $loop++) {
-          echo "<option value=".$list_possible_rights[$loop]["cn"].">".$list_possible_rights[$loop]["cn"]."\n";
+          echo "<option value=".$list_possible_rights[$loop].">".$list_possible_rights[$loop]."\n";
       }
 ?>
   </SELECT><BR><BR>

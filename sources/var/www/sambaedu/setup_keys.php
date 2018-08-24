@@ -358,7 +358,7 @@ include ("includes/entete.inc.php");
 //aide 
 $_SESSION["pageaide"]="L\'interface_web_administrateur#Partie_:_Param.C3.A9trage_de_l.27interface_SambaEdu.";
 
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 ?>
 <h1><?php echo gettext("G&#233;n&#233;ration d'un nouveau jeu de cl&#233;s d'authentification"); ?></h1>
 <p>

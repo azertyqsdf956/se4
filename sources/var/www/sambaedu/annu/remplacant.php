@@ -41,7 +41,7 @@ echo "<h1>".gettext("Annuaire")."</h1>\n";
 
 
 aff_trailer ("1");
-if (is_admin($config, "Annu_is_admin",$login)=="Y") {
+if (have_right($config, "Annu_is_admin")) {
 
     $abs=$_POST['cn'];
     $rpl=$_POST['remplacant'];
@@ -54,8 +54,8 @@ if (is_admin($config, "Annu_is_admin",$login)=="Y") {
         echo "<FORM action=\"add_user_group.php\" method=\"post\">\n";
         echo "<TABLE BORDER=0><TR><BR>";
 
-        //list($abs, $groups)=people_get_variables($cn, true);
-        list($absent, $groups)=people_get_variables($abs, true);
+        //list($abs, $groups)=search_user($config, $cn, true);
+        list($absent, $groups)=search_user($abs, true);
 
         //echo "<H3>".$abs["fullname"]."</H3>\n";
         //if ($abs["description"]) echo "<p>".$abs["description"]."</p>";

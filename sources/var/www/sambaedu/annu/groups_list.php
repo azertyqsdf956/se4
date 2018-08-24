@@ -42,7 +42,7 @@ $priority_group=$_POST['priority_group'];
 echo "<h1>".gettext("Annuaire")."</h1>\n";
 $_SESSION["pageaide"]="Annuaire";
 
-if ((ldap_get_right($config, "Annu_is_admin",$login)=="Y") || (ldap_get_right($config, "Annu_can_read",$login)=="Y") || (ldap_get_right($config, "se3_is_admin",$login)=="Y")) {
+if ((have_right($config, "Annu_is_admin")) || (have_right($config, "Annu_can_read")) || (have_right($config, "se3_is_admin"))) {
 
 	aff_trailer ("3");
 
@@ -64,7 +64,7 @@ if ((ldap_get_right($config, "Annu_is_admin",$login)=="Y") || (ldap_get_right($c
 	$filter=preg_replace("/\*\*/","*",$filter);
 	
 	#$TimeStamp_0=microtime();
-	$groups=search_groups($filter);
+	$groups=filter_group($filter);
 	#$TimeStamp_1=microtime();
 	  #############
 	  # DEBUG     #

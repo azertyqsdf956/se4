@@ -28,10 +28,10 @@
 include "entete.inc.php";
 include "ldap.inc.php";
 include "ihm.inc.php";
-include "crob_ldap_functions.php";
+include "siecle.inc.php";
 
 
-if (ldap_get_right($config, "se3_is_admin",$login)!="Y")
+if (!have_right($config, "se3_is_admin"))
         die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BO
 DY></HTML>");
 
@@ -170,7 +170,7 @@ if( $do==10 && $phase==2 ) {
 echo "	</head>\n";
 echo "	<body>\n";
 
-//if (is_admin($config, "se3_is_admin",$login)=="Y") {
+//if (have_right($config, "se3_is_admin")) {
 
 	//Aide
 	$_SESSION["pageaide"]="Annuaire#Nettoyage_des_comptes";
@@ -206,7 +206,7 @@ echo "	<body>\n";
 			else {
 				// On commence par controler s'il n'y a pas des utilisateurs qui ne sont plus ni dans Profs ni dans Eleves alors qu'ils ont le droit no_Trash_user
 
-				$tmp_tab_no_Trash_user=gof_members("no_Trash_user","rights",1);
+				$tmp_tab_no_Trash_user=list_members_rights($config, "no_Trash_user");
 				if(count($tmp_tab_no_Trash_user)>0) {
 					echo "<p>Controle des titulaires du droit no_Trash_user avant d'effectuer le transfert des comptes orphelins.</p>\n";
 					echo "<blockquote>\n";

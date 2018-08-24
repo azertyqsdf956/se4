@@ -49,7 +49,7 @@ if (!$testaction) {
 	echo "<h1>".gettext("Annuaire")."</h1>";
 	
 	$filter="Classe_*";
-  	$group=search_groups ("(cn=".$filter.")");
+  	$group=filter_group ("(cn=".$filter.")");
   	$cns = search_cns ("(cn=".$filter.")");
   	$people = search_people_groups ($cns,"(sn=*)","group");
 
@@ -64,7 +64,7 @@ if (!$testaction) {
 	fclose($get);
 
   	$filter="Profs";
-  	$group=search_groups ("(cn=".$filter.")");
+  	$group=filter_group ("(cn=".$filter.")");
   	$cns = search_cns ("(cn=".$filter.")");
   	$people = search_people_groups ($cns,"(sn=*)","group");
 
@@ -90,7 +90,7 @@ if (!$testaction) {
 	include "functions.inc.php";
 	$login=isauth();
 	if ($login == "") header("Location:$urlauth");
-	if (is_admin($config, "se3_is_admin",$login)=="Y") {
+	if (have_right($config, "se3_is_admin")) {
 
 		header("Content-Type: octet-stream");
 		header("Content-Length: ".filesize ("/tmp/export_eleves.csv") );
@@ -104,7 +104,7 @@ if (!$testaction) {
 	include "functions.inc.php";
 	$login=isauth();
 	if ($login == "") header("Location:$urlauth");
-	if (is_admin($config, "se3_is_admin",$login)=="Y") {
+	if (have_right($config, "se3_is_admin")) {
 
 		header("Content-Type: octet-stream");
 		header("Content-Length: ".filesize ("/tmp/export_profs.csv") );

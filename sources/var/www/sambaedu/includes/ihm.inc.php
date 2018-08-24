@@ -353,21 +353,6 @@ print "<h3 align='right'>".gettext("Bonjour")." $login</h3>";
 
 //=================================================
 
-/**
-* Test si $login a le droit $droit
-
-* @Parametres $config $droit droit a tester - $login login a tester
-* @Return Y si il a le droit, N sinon.
-*/
-
-function is_admin ($config,$droit,$login)
-{
-   if ((ldap_get_right($config,"se3_is_admin",$login)=="Y")||(ldap_get_right($config,$droit,$login)=="Y"))
-    $srch="Y";
-  else
-    $srch="N";
-  return $srch;
-}
 
 
 //=================================================
