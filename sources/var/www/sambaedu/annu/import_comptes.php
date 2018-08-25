@@ -2474,7 +2474,7 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 	
 							if($cn=='') {
 								// Creation d'un cn:
-								if(!$cn=creer_cn($nom,$prenom)) {
+								if(!$cn=creer_cn($config, $nom, $prenom)) {
 									$temoin_erreur_prof="o";
 									my_echo("<font color='red'>ECHEC: Problème lors de la création de l'cn...</font><br />\n");
 									if("$error"!="") {
@@ -2508,7 +2508,7 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 								}
 
 								if($simulation!="y") {
-									if(add_user($cn,$nom,$prenom,$sexe,$naissance,$password,$employeeNumber)) {
+									if(useradd($config, $nom,$prenom,$sexe,$naissance,$password,$employeeNumber)) {
 										my_echo("<font color='green'>SUCCES</font>");
 										$tab_nouveaux_comptes[]=$cn;
 										$listing[$nouveaux_comptes]['nom']="$nom";
@@ -2536,7 +2536,7 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 							// On n'a pas de F_cn.TXT pour imposer des logins
 	
 							// Creation d'un cn:
-							if(!$cn=creer_cn($nom,$prenom)) {
+							if(!$cn=creer_cn($config, $nom,$prenom)) {
 								$temoin_erreur_prof="o";
 								my_echo("<font color='red'>ECHEC: Problème lors de la création de l'cn...</font><br />\n");
 								if("$error"!="") {
@@ -2549,7 +2549,7 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 								if($prof[$cpt]["sexe"]==1) {$sexe="M";}else{$sexe="F";}
 								$naissance=$date;
 
-								switch ($pwdPolicy) {
+								switch ($config['pwdPolicy']) {
 									case 0:		// date de naissance
 										$password=$naissance;
 										break;
@@ -2567,7 +2567,7 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 								my_echo("Ajout du professeur $prenom $nom (<i>$cn</i>): ");
 
 								if($simulation!="y") {
-									if(add_user($cn,$nom,$prenom,$sexe,$naissance,$password,$employeeNumber)) {
+									if(useradd($config, $nom,$prenom,$sexe,$naissance,$password,$employeeNumber)) {
 										my_echo("<font color='green'>SUCCES</font>");
 										$tab_nouveaux_comptes[]=$cn;
 										$listing[$nouveaux_comptes]['nom']="$nom";
@@ -2989,7 +2989,7 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 
 					if($cn=='') {
 						// Creation d'un cn:
-						if(!$cn=creer_cn($nom,$prenom)) {
+						if(!$cn=creer_cn($config, $nom, $prenom)) {
 							$temoin_erreur_eleve="o";
 							my_echo("<font color='red'>ECHEC: Problème lors de la création de l'cn...</font><br />\n");
 							if("$error"!="") {
@@ -3007,7 +3007,7 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 						$naissance=$eleve[$numero]["date"];
 						$ele_div=$eleve[$numero]['division'];
 
-						switch ($pwdPolicy) {
+						switch ($config['pwdPolicy']) {
 							case 0:		// date de naissance
 								$password=$naissance;
 								break;
@@ -3025,7 +3025,7 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 
 						if($simulation!="y") {
 							# DBG system ("echo 'add_suser : $cn,$nom,$prenom,$sexe,$naissance,$password,$employeeNumber' >> /tmp/comptes.log");
-							if(add_user($cn,$nom,$prenom,$sexe,$naissance,$password,$employeeNumber)) {
+							if(useradd($config, $nom,$prenom,$sexe,$naissance,$password,$employeeNumber)) {
 								my_echo("<font color='green'>SUCCES</font>");
 								$tab_nouveaux_comptes[]=$cn;
 								$listing[$nouveaux_comptes]['nom']="$nom";
@@ -3061,7 +3061,7 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 					*/
 
 					// Creation d'un cn:
-					if(!$cn=creer_cn($nom,$prenom)) {
+					if(!$cn=creer_cn($config, $nom,b$prenom)) {
 						$temoin_erreur_eleve="o";
 						my_echo("<font color='red'>ECHEC: Problème lors de la création de l'cn...</font><br />\n");
 						if("$error"!="") {
@@ -3079,7 +3079,7 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 						$naissance=$eleve[$numero]["date"];
 						$ele_div=$eleve[$numero]["division"];
 
-						switch ($pwdPolicy) {
+						switch ($config['pwdPolicy']) {
 							case 0:		// date de naissance
 								$password=$naissance;
 								break;
@@ -3101,12 +3101,12 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 							/*
 							if(strtolower($nom)=="andro") {
 							$f_tmp=fopen("/tmp/debug_accents.txt","a+");
-							fwrite($f_tmp,"add_user($cn,$nom,$prenom,$sexe,$naissance,$password,$employeeNumber)\n");
+							fwrite($f_tmp,"useradd($config, $nom,$prenom,$sexe,$naissance,$password,$employeeNumber)\n");
 							fclose($f_tmp);
 							}
 							*/
 							
-							if(add_user($cn,$nom,$prenom,$sexe,$naissance,$password,$employeeNumber)) {
+							if(useradd($config, $nom,$prenom,$sexe,$naissance,$password,$employeeNumber)) {
 								my_echo("<font color='green'>SUCCES</font>");
 								$tab_nouveaux_comptes[]=$cn;
 								$listing[$nouveaux_comptes]['nom']="$nom";
