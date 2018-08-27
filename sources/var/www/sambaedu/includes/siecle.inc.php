@@ -200,7 +200,6 @@ function my_print_r($tab)
  */
 function remplace_accents($chaine)
 {
-    global $liste_caracteres_accentues, $liste_caracteres_desaccentues;
     // $retour=strtr(preg_replace("/Æ/","AE",preg_replace("/æ/","ae",preg_replace("/Œ/","OE",preg_replace("/œ/","oe","$chaine"))))," '$liste_caracteres_accentues","__$liste_caracteres_desaccentues");
     $chaine = preg_replace("/Æ/", "AE", "$chaine");
     $chaine = preg_replace("/æ/", "ae", "$chaine");
@@ -306,8 +305,13 @@ function traite_espaces($chaine)
  */
 function apostrophes_espaces_2_underscore($chaine)
 {
-    $retour = preg_replace("/'/", "_", preg_replace("/ /", "_", $chaine));
-    return $retour;
+    //$retour = preg_replace("/'/", "_", preg_replace("/ /", "_", $chaine));
+    $chaine = preg_replace("/'/", "_", $chaine);
+    $tab = explode(" ", $chaine, 1);
+    if (isset($tab[1])){
+        return $tab[0]."_".preg_replace("/ /", "-", $tab[1]);
+    }
+    return $tab[0];
 }
 
 // ================================================
@@ -770,7 +774,6 @@ function fich_debug($texte)
  */
 function creer_cn($config, $nom, $prenom)
 {
-    global $liste_caracteres_accentues, $liste_caracteres_desaccentues;
     global $error;
     $error = "";
 
@@ -779,24 +782,22 @@ function creer_cn($config, $nom, $prenom)
     fich_debug("\$nom=$nom\n");
     fich_debug("\$prenom=$prenom\n");
 
-    fich_debug("\$cnPolicy=$cnPolicy\n");
-    fich_debug("\$ldap_server=$ldap_server\n");
-    fich_debug("\$ldap_port=$ldap_port\n");
-    fich_debug("\$error=$error\n");
-    fich_debug("\$dn=$dn\n");
-
     /*
      * # Il faudrait ameliorer la fonction pour gerer les "Le goff Martin" qui devraient donner "Le_goff-Martin"
      * # Actuellement, on passe tous les espaces a _
      */
-
-    // Recuperation de l'cnPolicy (et du sid)
-    // crob_init(); Ne sert a rien !!!
-    // echo "<p>\$cnPolicy=$cnPolicy</p>";
-
+    // crob_init(); Ne sert a rien !!!!
+    //$nom = preg_replace("/[^a-z_ -]/", "", strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$nom")))), "'$liste_caracteres_accentues", "_$liste_caracteres_desaccentues")));
+    //$prenom = preg_replace("/[^a-z_ -]/", "", strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), "'$liste_caracteres_accentues", "_$liste_caracteres_desaccentues")));
+    $nom = apostrophes_espaces_2_underscore(remplace_accents($nom));
+    $prenom = apostrophes_espaces_2_underscore(remplace_accents($prenom));
+    
+    $nom = ucfirst(strtolower($nom));
+    $prenom = ucfirst(strtolower($prenom));
+    
     // Filtrer certains caracteres:
-    $nom = strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$nom")))), " '$liste_caracteres_accentues", "__$liste_caracteres_desaccentues"));
-    $prenom = strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), " '$liste_caracteres_accentues", "__$liste_caracteres_desaccentues"));
+    //$nom = strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$nom")))), " '$liste_caracteres_accentues", "__$liste_caracteres_desaccentues"));
+    //$prenom = strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), " '$liste_caracteres_accentues", "__$liste_caracteres_desaccentues"));
 
     fich_debug("Apr&#232;s filtrage...\n");
     fich_debug("\$nom=$nom\n");
@@ -849,7 +850,7 @@ function creer_cn($config, $nom, $prenom)
     }
 
     // Pour faire disparaitre les caracteres speciaux restants:
-    $cn = preg_replace("/[^a-z_.-]/", "", $cn);
+    $cn = strtolower(preg_replace("/[^a-z_.-]/", "", $cn));
 
     // Pour eviter les _ en fin d'UID... pb avec des connexions machine de M$7
     $cn = preg_replace("/_*$/", "", $cn);
@@ -889,7 +890,7 @@ function creer_cn($config, $nom, $prenom)
         $ok_cn = false;
 
         $cpt = 2;
-        while ((!$ok_cn) && ($cpt < 100)) {
+        while ((! $ok_cn) && ($cpt < 100)) {
             if (count(search_ad($config, $cn, "user", $config['dn']['people']))) {
                 $cn = substr($cn_souche, 0, strlen($cn_souche) - strlen($cpt)) . $cpt;
                 if ($cn == "adminse3") {
@@ -950,51 +951,22 @@ function creer_cn($config, $nom, $prenom)
  * if(count($tab)>0){return $tab;}else{return false;}
  * }
  */
-function verif_employeeNumber($employeeNumber)
+function verif_employeeNumber($config, $employeeNumber)
 {
-    global $ldap_server, $ldap_port, $dn;
     global $error;
     $error = "";
     // Tester si l'employeeNumber est dans l'annuaire ou non...
+    $filtre = "(&(objectclass=user)(jobtitle=$employeeNumber))";
+    $tab = search_ad($config, $filter, "filter", $config['dn']['people']);
+    $tab3 = search_ad($config, $filter, "filter", $config['dn']['trash']);
 
-    // $attribut=array("cn","employeenumber");
-    // $attribut=array("employeenumber");
-    $attribut = array(
-        "cn"
-    );
-    $tab = get_tab_attribut("people", "employeenumber=$employeeNumber", $attribut);
+    $filtre = "(&(objectclass=user)(employeenumber=" . sprintf("%05d", $employeeNumber) . "))";
+    $tab2 = search_ad($config, $filter, "filter", $config['dn']['people']);
+    $tab4 = search_ad($config, $filter, "filter", $config['dn']['trash']);
 
-    $attribut = array(
-        "cn"
-    );
-    $tab2 = get_tab_attribut("people", "employeenumber=" . sprintf("%05d", $employeeNumber), $attribut);
-
-    $attribut = array(
-        "cn"
-    );
-    $tab3 = get_tab_attribut("trash", "employeenumber=" . $employeeNumber, $attribut);
-
-    $attribut = array(
-        "cn"
-    );
-    $tab4 = get_tab_attribut("trash", "employeenumber=" . sprintf("%05d", $employeeNumber), $attribut);
-
-    $attribut = array(
-        "cn"
-    );
-    $tab5 = get_tab_attribut("people", "employeenumber=" . preg_replace("/^0*/", "", $employeeNumber), $attribut);
-
-    $attribut = array(
-        "cn"
-    );
-    $tab6 = get_tab_attribut("trash", "employeenumber=" . preg_replace("/^0*/", "", $employeeNumber), $attribut);
-
-    /*
-     * echo "count($tab)=".count($tab)."<br />\n";
-     * for($i=0;$i<count($tab);$i++){
-     * echo "tab[$i]=$tab[$i]<br />\n";
-     * }
-     */
+    $filtre = "(&(objectclass=user)(employeenumber=" . preg_replace("/^0*/", "", $employeeNumber) . "))";
+    $tab5 = search_ad($config, $filter, "filter", $config['dn']['people']);
+    $tab6 = search_ad($config, $filter, "filter", $config['dn']['trash']);
 
     if (count($tab) > 0) {
         $tab[- 1] = "people";
@@ -1029,9 +1001,8 @@ function verif_employeeNumber($employeeNumber)
  * @return
  *
  */
-function verif_nom_prenom_sans_employeeNumber($nom, $prenom)
+function verif_nom_prenom_sans_employeeNumber($config, $nom, $prenom)
 {
-    global $ldap_server, $ldap_port, $dn;
     global $error;
     $error = "";
     // Tester si un cn existe ou non dans l'annuaire pour $nom et $prenom sans employeeNumber...
@@ -1045,28 +1016,14 @@ function verif_nom_prenom_sans_employeeNumber($nom, $prenom)
     );
     $tab1 = array();
     // $tab1=get_tab_attribut("people","cn='$prenom $nom'",$attribut);
-    $tab1 = get_tab_attribut("people", "cn=$prenom $nom", $attribut);
-    /*
-     * if(strtolower($nom)=='andro') {
-     * $fich=fopen("/tmp/verif_nom_prenom_sans_employeeNumber_debug.txt","a+");
-     * fwrite($fich,"Recherche cn=$prenom $nom on recupere count($tab1)=".count($tab1)."<br />\n");
-     * fclose($fich);
-     * }
-     */
-
-    // echo "<p>error=$error</p>";
+    $tab1 = search_ad($config, "(&(objectclass=user)(displayname=" . $prenom . " " . $nom . "))", $config['dn']['people'], $attribut);
 
     if (count($tab1) > 0) {
-        // echo "<p>count(\$tab1)>0</p>";
         for ($i = 0; $i < count($tab1); $i ++) {
-            $attribut = array(
-                "employeenumber"
-            );
-            $tab2 = get_tab_attribut("people", "cn=$tab1[$i]", $attribut);
+            $tab2 = search_ad($config, $tab1[$i]['cn'], "user");
             if (count($tab2) == 0) {
-                // echo "<p>count(\$tab2)==0</p>";
                 $trouve ++;
-                $cn = $tab1[$i];
+                $cn = $tab1[$i]['cn'];
                 // echo "<p>cn=$cn</p>";
             }
         }

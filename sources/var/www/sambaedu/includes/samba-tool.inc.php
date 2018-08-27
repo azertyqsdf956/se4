@@ -42,7 +42,7 @@
 
 require_once ("siecle.inc.php");
 /*
-	Fonctions de crob_ldap_functions.php utilisées dans samba-tool.inc.php
+	Fonctions de siecle.inc.php utilisées dans samba-tool.inc.php
 	useradd()   -> creer_cn($nom,$prenom) //modifiée 
                     -> verif_employeeNumber($employeeNumber) // modifiée
 */

@@ -161,7 +161,7 @@ function bind_ad_gssapi($config)
     );
 }
 
-function search_ad($config, $name, $type = "dn", $branch = "all")
+function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = array())
 {
 
     /**
@@ -175,7 +175,16 @@ function search_ad($config, $name, $type = "dn", $branch = "all")
 
     // Initialisation
     $info = array();
-
+    $map = array(
+        "sn" => "nom",
+        "displayname" => "fullname",
+        "givenname" => "prenom",
+        "initials" => "pseudo",
+        "mailaddress" => "email",
+        "telephonenumber" => "tel",
+        "jobtitle" => "employeeNumber"
+    );
+    
     // LDAP attributs
     switch ($type) {
         case "user":
@@ -194,31 +203,15 @@ function search_ad($config, $name, $type = "dn", $branch = "all")
                 "useraccountcontrol", // état du compte actif : 512, desactivé 514
                 "memberof" // groupes
             );
-            $map = array(
-                "sn" => "nom",
-                "displayname" => "fullname",
-                "givenname" => "prenom",
-                "initials" => "pseudo",
-                "mailaddress" => "email",
-                "telephonenumber" => "tel",
-                "jobtitle" => "employeeNumber"
-            );
-
             if ($branch == "all") {
                 $branch = $config['ldap_base_dn'];
             }
             break;
-
-        case "filter": // user ou group
+         case "filter": // user ou group
             $filter = $name;
-            $ldap_attrs = array(
-                "cn", // login
-                "displayName", // Nom complet
-                "sn", // Nom
-                "description"
-            );
-
-            $branch = $config['ldap_base_dn'];
+            if ($branch == "all") {
+                $branch = $config['ldap_base_dn'];
+            }
             break;
         case "member": // cherche si user ou group est dans le groupe $branch
             $filter = "(&(cn=" . $branch . ")(|(member=cn=" . $name . "*)(manager=cn=" . $name . "*)))";
