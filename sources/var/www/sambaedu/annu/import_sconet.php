@@ -304,7 +304,7 @@ if (have_right($config, "Annu_is_admin")) {
             echo "</tr>\n";
             echo "</table>\n";
 
-            $date_export_xml_precedent = crob_getParam('xml_ele_last_import');
+            $date_export_xml_precedent = get_param($config, 'xml_ele_last_import');
             if ($date_export_xml_precedent != "") {
                 echo "<p>Le pr&#233;c&#233;dent export XML &#233;l&#233;ve import&#233; datait du <strong>$date_export_xml_precedent</strong>.</p>\n";
             }

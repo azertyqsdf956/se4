@@ -31,10 +31,8 @@ require_once('entete_ajax.inc.php');
 	// Ajout popup d'alerte
 	include("fonc_outils.inc.php");
 	
-	init_config(url_popup_alert,"http://wwdeb.crdp.ac-caen.fr/mediase3/index.php/Alerte_popup.html");
-	init_config(tag_popup_alert,0);
-	// On relit la table
-	get_config(true);
+	init_param($config, "url_popup_alert","http://wwdeb.crdp.ac-caen.fr/mediase3/index.php/Alerte_popup.html");
+	init_param($config, "tag_popup_alert", 0);
 	
 	system("cd /tmp; wget -q --tries=1 --timeout=2 ".$config['url_popup_alert']);
    	if (file_exists("/tmp/Alerte_popup.html")) {

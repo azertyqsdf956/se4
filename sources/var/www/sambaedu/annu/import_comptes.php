@@ -183,9 +183,6 @@
 	// Nom du groupe professeurs principaux
 	$nom_groupe_pp="Groupe_".$prefix."Professeurs_Principaux";
 
-	// Vérification de l'existence de la branche Trash:
-	test_creation_trash();
-
 	$tab_no_Trash_prof=array();
 	$tab_no_Trash_eleve=array();
 
@@ -756,7 +753,7 @@
 				}
 				if($date_export!="") {
 					my_echo("exporté le $date_export");
-					crob_setParam('xml_ele_last_import',$date_export,"Date du dernier export XML Eleves importé");
+					init_param($config, 'xml_ele_last_import', $date_export);
 				}
 				my_echo("</p>");
 
@@ -3585,40 +3582,6 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 			//$attributs["objectClass"]="groupOfNames";
 			// On ne peut pas avoir un tableau associatif avec plusieurs fois objectClass
 
-			if($type_Equipe_Matiere=="groupOfNames") {
-				// Ou recuperer un nom long du fichier de STS...
-				$attributs["description"]="$div";
-
-				// MODIF: boireaus 20070728
-				$attributs["objectClass"][1]="groupOfNames";
-
-				my_echo("Création de l'équipe Equipe_".$prefix."$div: ");
-				if(add_entry ("cn=Equipe_".$prefix."$div", "groups", $attributs)) {
-					/*
-					unset($attributs);
-					$attributs=array();
-					$attributs["objectClass"]="groupOfNames";
-					//$attributs["objectClass"]="posixGroup";
-					if(modify_attribut("cn=Equipe_".$prefix."$div","groups", $attributs, "add")) {
-					*/
-						my_echo("<font color='green'>SUCCES</font>");
-					/*
-					}
-					else{
-						my_echo("<font color='red'>ECHEC</font>");
-						$temoin_equipe="PROBLEME";
-						$nb_echecs++;
-					}
-					*/
-					//my_echo("<font color='green'>SUCCES</font>");
-				}
-				else{
-					my_echo("<font color='red'>ECHEC</font>");
-					$temoin_equipe="PROBLEME";
-					$nb_echecs++;
-				}
-			}
-			else{
 				// Les Equipes sont posix
 				$gidNumber=get_first_free_gidNumber();
 				if($gidNumber!=false) {
@@ -3668,7 +3631,7 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 					$temoin_equipe="PROBLEME";
 					$nb_echecs++;
 				}
-			}
+			
 			my_echo("<br />\n");
 			if($chrono=='y') {my_echo("Fin: ".date_et_heure()."<br />\n");}
 		}
@@ -3960,21 +3923,9 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 					$attributs=array();
 					$attributs["cn"]="Matiere_".$prefix."$mat";
 	
-					// MODIF: boireaus 20070728
-					//$attributs["objectClass"]="top";
-					$attributs["objectClass"][0]="top";
-	
-					//$attributs["objectClass"]="posixGroup";
-					//$attributs["objectClass"]="groupOfNames";
-	
 					// Ou recuperer un nom long du fichier de STS...
 					$attributs["description"]="$description";
 	
-					if($type_Equipe_Matiere=="groupOfNames") {
-						// Les groupes Matieres sont groupOfNames
-	
-						// MODIF: boireaus 20070728
-						$attributs["objectClass"][1]="groupOfNames";
 	
 						//my_echo("<p>Creation de la matiere Matiere_".$prefix."$mat: ");
 						my_echo("Création de la matière Matiere_".$prefix."$mat: ");
@@ -4002,56 +3953,8 @@ rm -f /tmp/erreur_svg_prealable_ldap_${date}.txt
 							$temoin_matiere="PROBLEME";
 							$nb_echecs++;
 						}
-					}
-					else{
-						// Les groupes Matieres sont posix
-						$gidNumber=get_first_free_gidNumber();
-						if($gidNumber!=false) {
-							$attributs["gidNumber"]="$gidNumber";
-	
-							// MODIF: boireaus 20070728
-							$attributs["objectClass"][1]="posixGroup";
-							//$attributs["objectClass"][2]="sambaGroupMapping";
-	
-							//my_echo("<p>Creation de la matiere Matiere_".$prefix."$mat: ");
-							my_echo("Création de la matière Matiere_".$prefix."$mat: ");
-							if(add_entry ("cn=Matiere_".$prefix."$mat", "groups", $attributs)) {
-								/*
-								unset($attributs);
-								$attributs=array();
-								//$attributs["objectClass"]="groupOfNames";
-								$attributs["objectClass"]="posixGroup";
-								if(modify_attribut("cn=Matiere_".$prefix."$mat","groups", $attributs, "add")) {
-								*/
-									my_echo("<font color='green'>SUCCES</font>");
-	
-									if ($servertype=="SE3") {
-										//my_echo("<br />/usr/bin/sudo /usr/share/se3/scripts/group_mapping.sh Matiere_".$prefix."$mat Matiere_".$prefix."$mat \"$description\"");
-										$resultat=exec("/usr/bin/sudo /usr/share/se3/scripts/group_mapping.sh Matiere_".$prefix."$mat Matiere_".$prefix."$mat \"$description\"", $retour);
-									}
-								/*
-								}
-								else{
-									my_echo("<font color='red'>ECHEC</font>");
-									$temoin_matiere="PROBLEME";
-									$nb_echecs++;
-								}
-								*/
-								//my_echo("<font color='green'>SUCCES</font>");
-							}
-							else{
-								my_echo("<font color='red'>ECHEC</font>");
-								$temoin_matiere="PROBLEME";
-								$nb_echecs++;
-							}
-						}
-						else{
-							my_echo("<font color='red'>ECHEC</font> Il n'y a plus de gidNumber disponible.<br />\n");
-							$temoin_matiere="PROBLEME";
-							$nb_echecs++;
-						}
-					}
-					my_echo("<br />\n");
+					
+				my_echo("<br />\n");
 					if($chrono=='y') {my_echo("Fin: ".date_et_heure()."<br />\n");}
 				}
 	

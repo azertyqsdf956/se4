@@ -184,7 +184,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
         "telephonenumber" => "tel",
         "jobtitle" => "employeeNumber"
     );
-    
+
     // LDAP attributs
     switch ($type) {
         case "user":
@@ -207,23 +207,24 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
                 $branch = $config['ldap_base_dn'];
             }
             break;
-         case "filter": // user ou group
+        case "filter": // user ou group
             $filter = $name;
             if ($branch == "all") {
                 $branch = $config['ldap_base_dn'];
             }
             break;
-        case "member": // cherche si user ou group est dans le groupe $branch
-            $filter = "(&(cn=" . $branch . ")(|(member=cn=" . $name . "*)(manager=cn=" . $name . "*)))";
+        case "member": // cherche si user ou group est dans la ou $branch (profs eleves administratifs)
+            $filter = "(&(cn=" . $name . ")(objectclass=user))";
             $ldap_attrs = array(
                 "cn" // login
             );
-            $branch = $config['dn']['groups'];
+            $branch = "ou=" . $branch . "," . $config['dn']['people'];
             break;
         case "pp": // cherche si user ou group est pp de la classe $branch
-            $filter = "(&(cn=Equipe_" . $branch . ")(member=cn=" . $name . "*)(manager=cn=" . $name . "*))";
+            $filter = "(&(objectclass=group)(cn=PP_*)(|(cn=PP_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
             $ldap_attrs = array(
-                "cn" // login
+                "cn", // login
+                "member"
             );
             $branch = $config['dn']['groups'];
             break;
@@ -287,12 +288,11 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
             $branch = $config['dn']['groups'];
             break;
         case "equipe":
-            $filter = "(&(objectclass=group)(|(cn=Equipe_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
+            $filter = "(&(objectclass=group)(cn=Equipe_*)(|(cn=Equipe_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
             $ldap_attrs = array(
                 "cn",
                 "description",
-                "member",
-                "manager"
+                "member"
             );
             $branch = $config['dn']['groups'];
             break;
@@ -824,7 +824,7 @@ function add_member_parc($config, $parc, $member)
 function remove_member_parc($config, $parc, $member)
 {
     if (type_parc($config, $parc) == "salle") {
-        return move_ad($member, $member . "," . $config['dn']['computers'], "machine");
+        return move_ad($config, $member, $member . "," . $config['dn']['computers'], "machine");
     } else {
         return groupdelmember($config, $member, $parc);
     }
@@ -924,9 +924,9 @@ function type_delegation($config, $name, $user = "login")
  * cherche les delegations pour un parc
  *
  */
-function search_delegations($parc)
+function search_delegations(array $config, string $parc)
 {
-    $ou_delegation = "ou=delegations," . $config['dn']['rights'];
+    $ou_delegations = "ou=delegations," . $config['ldap_base_dn'];
     $res = search_ad($config, "*_" . $parc, "group", $ou_delegations);
     return $res;
 }
@@ -934,11 +934,11 @@ function search_delegations($parc)
 function create_delegation($config, $parc, $name, $level)
 {
     $delegation = $level . "_" . $parc;
-    $ou_delegation = "ou=delegations," . $config['dn']['rights'];
+    $ou_delegations = "ou=delegations," . $config['ldap_base_dn'];
     $res = search_ad($config, $delegation, "group", $ou_delegations);
     $ret = true;
     if (! $res) {
-        $ret = groupadd($config, $delegation, $ou_delegation);
+        $ret = groupadd($config, $delegation, $ou_delegations);
     }
     if ($ret)
         $ret = groupaddmember($config, $delegation, $name);
@@ -952,7 +952,7 @@ function create_delegation($config, $parc, $name, $level)
 function delete_delegation($config, $parc, $name, $level)
 {
     $delegation = $level . "_" . $parc;
-    $ou_delegation = "ou=delegations," . $config['dn']['rights'];
+    $ou_delegations = "ou=delegations," . $config['ldap_base_dn'];
     $res = search_ad($config, $delegation, "group", $ou_delegations);
     $ret = groupdelmember($config, $name, $delegation);
     if (count($res[0]['member']) == 0) {
@@ -1129,17 +1129,17 @@ function is_pp($config, $name, $eleve = false)
  *            : eleve, prof, "*"
  * @return array $classe : le nom court des classes
  */
-function list_classes($config, $name)
+function list_classes(array $config, string $name)
 {
     $ret = array();
     $classes = search_ad($config, $name, "classe");
-    if (! $classes) {
+    if (count($classes) == 0) {
         $classes = search_ad($config, $name, "equipe");
     }
     if (is_array($classes)) {
         foreach ($classes as $val) {
-            list ($type, $classe) = explode("_", $val['cn'], 1);
-            $ret[] = $classe;
+            $res = type_group($config, $val['cn']);
+            $ret[] = $res['nom'];
         }
     }
     return $ret;
@@ -1201,10 +1201,12 @@ function list_pp($config, $name)
     $classes = list_classes($config, $name);
     $pps = array();
     foreach ($classes as $classe) {
-        $equipe = search_ad($config, $classe, "equipe");
+        $res = search_ad($config, $classe, "pp");
         // une seule equipe ?
-        foreach ($equipe[0]['manager'] as $pp) {
-            $pps[] = $pp;
+        if (isset($res[0]['member'])) {
+            foreach ($res[0]['member'] as $pp) {
+                $pps[] = $pp;
+            }
         }
     }
     return $pps;
@@ -1213,7 +1215,7 @@ function list_pp($config, $name)
 /**
  * teste si $prof est prof pour $name (eleve ou classe)
  *
- * @param unknown $config
+ * @param array $config
  * @param string $name
  *            eleve, classe
  * @param string $prof
@@ -1223,13 +1225,14 @@ function list_pp($config, $name)
 function is_my_prof($config, $name, $prof)
 {
     $profs = list_profs($config, $name);
-    return in_array($prof, $profs);
+    $dn = search_user($config, $prof);
+    return in_array($dn['dn'], $profs);
 }
 
 /**
  * teste si $eleve est eleve pour $name (prof ou classe)
  *
- * @param unknown $config
+ * @param array $config
  * @param string $name
  *            : prof, classe
  * @param string $eleve
@@ -1239,13 +1242,14 @@ function is_my_prof($config, $name, $prof)
 function is_my_eleve($config, $name, $eleve)
 {
     $eleves = list_eleves($config, $name);
-    return in_array($eleve, $eleves);
+    $dn = search_user($config, $eleve);
+    return in_array($dn['dn'], $eleves);
 }
 
 /**
  * teste si $prof est prof principal pour $name (eleve ou classe)
  *
- * @param unknown $config
+ * @param array $config
  * @param string $name
  *            eleve, classe
  * @param string $prof
@@ -1255,54 +1259,190 @@ function is_my_eleve($config, $name, $eleve)
 function is_my_pp($config, $eleve, $prof)
 {
     $pps = list_pp($config, $eleve);
-
-    return in_array($prof, $pps);
+    $dn = search_user($config, $prof);
+    if (isset($dn['dn']))
+        return in_array($dn['dn'], $pps);
+    else
+        return false;
 }
 
-function create_classe($config, $name, $description)
+/**
+ * retourne le type de groupe
+ *
+ * @param array $config
+ * @param string $name
+ *            nom complet du groupe (Classe_TRUC) ou court (TRUC)
+ * @return array nom et type du groupe. si les conventions de nommage et de placement ne sont pas vérifiées , retourne type=>"groupe"
+ */
+function type_group(array $config, string $name)
 {
-    $classe = "Classe_" . $name;
-    if (! search_ad($config, $classe, "classe")) {
-        $res = groupadd($classe, "ou=classe," . $config['dn']['groups'], $description);
-    }
-    $equipe = "Equipe_" . $name;
-    if (! search_ad($config, $equipe, "equipe")) {
-        $res = groupadd($equipe, "ou=classe," . $config['dn']['groups'], $description);
-    }
-}
-
-function create_eleve($config, $classe, $eleve, $update = false)
-{
-    $oldclasses = list_classes($config, $eleve);
-    $res = groupaddmember($config, $eleve, "Classe_" . $classe);
-    if ($res)
-        foreach ($oldclasses as $oldclasse) {
-            groupdelmember($config, $eleve, $oldclasse);
+    $groups = search_ad($config, "*" . $name, "group");
+    if (count($groups) > 0) {
+        foreach ($groups as $group) {
+            if (strcasecmp("Classe_" . $name, $group['cn']) || strcasecmp($name, $group['cn'])) {
+                $m = array();
+                $cn = explode("_", $group['cn'], 2);
+                if (preg_match("/ou=(.*),ou=.*/i", $group['dn'], $m)) {
+                    if ((strcasecmp($m[1], $cn[0]))) {
+                        return array(
+                            'nom' => $cn[1],
+                            'type' => strtolower($cn[0])
+                        );
+                    } else {
+                        return array(
+                            'nom' => $name,
+                            'type' => "groupe"
+                        );
+                    }
+                }
+            }
         }
-    if ($update) {
-        $res = update_classe($config, $eleve);
+    }
+    return false;
+}
+
+/**
+ * crée le groupe du type dommé
+ *
+ * @param array $config
+ * @param string $name
+ *            nom court sans le prefixe (Classe_, Equipe_)
+ *            : nom du groupe
+ * @param string $description
+ * @param string $type
+ *            classe (classe+equipe), matiere, cours, projet, groupe
+ * @return boolean
+ */
+function create_group(array $config, string $name, string $description, string $type = "groupe")
+{
+    $res = type_group($config, $name);
+    if (is_array($res) && ($type != $res['type'])) {
+        // on ne cree pas de groupe du meme nom qu'une classe !
+        return false;
+    }
+    if (($type == "classe") || ($type == "equipe")) {
+        $classe = "Classe_" . $name;
+        $ou = $config['classes_rdn'] . "," . $config['groups_rdn'];
+        $res = groupadd($config, $classe, $ou, $description);
+        $equipe = "Equipe_" . $name;
+        $ou = $config['equipes_rdn'] . "," . $config['groups_rdn'];
+        $res = groupadd($config, $equipe, $ou, "Equipe pédagogique de " . $description);
+        $pp = "PP_" . $name;
+        $ou = $config['equipes_rdn'] . "," . $config['groups_rdn'];
+        $res = groupadd($config, $pp, $ou, "Profs principaux de " . $description);
+    } else {
+        $classe = ucfirst($type) . "_" . $name;
+        $ou = $config[$type . "s_rdn"] . "," . $config['groups_rdn'];
+        $res = groupadd($config, $classe, $ou, $description);
     }
     return $res;
 }
 
-function create_prof($config, $classe, $prof, $pp = false)
+/**
+ * ajoute un eleve au groupe
+ *
+ * @param array $config
+ * @param string $classe
+ *            nom du groupe (forme courte admise)
+ * @param string $user
+ * @param string $type
+ *            classe, cours, projet
+ * @param bool $update
+ *            : mettre à jour les partages (eleve) ou prof principal (prof)
+ * @return boolean
+ */
+function add_user_group(array $config, string $classe, string $user, bool $update = false)
 {
-    $res = groupaddmember($config, $cn, "Equipe_" . $classe);
-        if ($res) {
-            $dn = search_user($config, $prof);
-            if (!is_my_pp($config, $classe, $prof) && $pp) {
-            modify_ad($config, "Equipe_".$classe, "group", array("manager" => $dn['dn']));
+    $res = type_group($config, $classe);
+    $type = $res['type'];
+    $nom = $res['nom'];
+    if ($type == "classe") {
+        if (is_eleve($config, $user)) {
+            $oldclasses = list_classes($config, $user);
+            $res = groupaddmember($config, $user, "Classe_" . $nom);
+            // un élève ne peut être que dans une classe !
+            if ($res)
+                foreach ($oldclasses as $oldclasse) {
+                    groupdelmember($config, $user, $oldclasse);
+                }
+            if ($update) {
+                $res = update_classe($config, $user);
+            }
+        } elseif (is_prof($config, $user)) {
+            $pp = $update;
+            $res = groupaddmember($config, $user, "Equipe_" . $nom);
+            if ($res) {
+                $my_pp = is_my_pp($config, $classe, $user);
+                if ((! $my_pp) && $pp) {
+                    $res = groupaddmember($config, $user, "PP_" . $nom);
+                    print "ajout";
+                } elseif ($my_pp && (! $pp)) {
+                    $res = groupdelmember($config, $user, "PP_" . $nom);
+                    print "suppression";
+                }
+            }
         }
+    } else {
+        $classe = ucfirst($type) . "_" . $nom;
+        $res = groupaddmember($config, $user, $classe);
     }
+    return $res;
 }
 
-function modify_classe($config, &$info)
-{}
+/**
+ * enlève un utilisateur d'un groupe
+ *
+ * @param array $config
+ * @param string $classe
+ * @param string $eleve
+ * @param bool $update
+ * @return boolean
+ */
+function remove_user_group(array $config, string $classe, string $user, bool $update = false)
+{
+    $res = type_group($config, $classe);
+    $type = $res['type'];
+    $nom = $res['nom'];
+    if ($type == "classe") {
+        if (is_eleve($config, $user)) {
+            $res = groupdelmember($config, $user, "Classe_" . $nom);
+        } elseif (is_prof($config, $user)) {
+            $res = groupdelmember($config, $user, "Equipe_" . $nom);
+            $res = groupdelmember($config, $user, "PP_" . $nom);
+        }
+    } else {
+        $classe = ucfirst($type) . "_" . $nom;
+        $res = groupaddmember($config, $user, $classe);
+    }
+    return $res;
+}
 
-function delete_classe($config, $name)
-{}
+function delete_group($config, $name)
+{
+    $res = type_group($config, $name);
+
+    if (is_array($res)) {
+        $type = $res['type'];
+        $classe = $res['nom'];
+    }
+
+    if (($type == "classe") || ($type == "equipe")) {
+        $name = "Classe_" . $classe;
+        $res = groupdel($config, $name);
+        $equipe = "Equipe_" . $classe;
+        $res = groupdel($config, $equipe);
+        $pp = "PP_" . $classe;
+        $res = groupdel($config, $pp);
+    } else {
+        $res = groupdel($config, $name);
+    }
+    return $res;
+}
 
 // ----------Gestion des partages--------------------------
+function update_classe($config, $user)
+{}
+
 function create_share($config, $name, $type = "file")
 {}
 ?>

@@ -305,11 +305,11 @@ function traite_espaces($chaine)
  */
 function apostrophes_espaces_2_underscore($chaine)
 {
-    //$retour = preg_replace("/'/", "_", preg_replace("/ /", "_", $chaine));
+    // $retour = preg_replace("/'/", "_", preg_replace("/ /", "_", $chaine));
     $chaine = preg_replace("/'/", "_", $chaine);
     $tab = explode(" ", $chaine, 1);
-    if (isset($tab[1])){
-        return $tab[0]."_".preg_replace("/ /", "-", $tab[1]);
+    if (isset($tab[1])) {
+        return $tab[0] . "_" . preg_replace("/ /", "-", $tab[1]);
     }
     return $tab[0];
 }
@@ -342,129 +342,6 @@ function traite_utf8($chaine)
     return $chaine;
 }
 
-// ================================================
-
-/**
- *
- * Retourne des infos sur l'admin ldap
- *
- * @Parametres
- * @return
- *
- */
-
-// function get_infos_admin_ldap(){
-// //global $dn;
-// global $ldap_base_dn;
-
-// $adminLdap=array();
-
-// // Etablir la connexion au serveur et la selection de la base?
-
-// $sql="SELECT value FROM params WHERE name='adminRdn'";
-// $res1=mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-// if(mysqli_num_rows($res1)==1){
-// $lig_tmp=mysqli_fetch_object($res1);
-// $adminLdap["adminDn"]=$lig_tmp->value.",".$ldap_base_dn;
-// }
-
-// $sql="SELECT value FROM params WHERE name='adminPw'";
-// $res2=mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-// if(mysqli_num_rows($res2)==1){
-// $lig_tmp=mysqli_fetch_object($res2);
-// $adminLdap["adminPw"]=$lig_tmp->value;
-// }
-
-// return $adminLdap;
-// }
-
-// ================================================
-
-/**
- *
- * test si l'ou trash existe sinon la cree
- *
- * @Parametres
- * @return
- *
- */
-function test_creation_trash()
-{
-    global $ldap_server, $ldap_port, $dn, $ldap_base_dn;
-    global $error;
-    $error = "";
-
-    // Parametres
-    // Aucun
-
-    // Tableau retourne
-    $tab = array();
-
-    fich_debug("======================\n");
-    fich_debug("test_creation_trash:\n");
-
-    $ds = @ldap_connect($ldap_server, $ldap_port);
-    if ($ds) {
-        $r = @ldap_bind($ds); // Bind anonyme
-        if ($r) {
-            $attribut = array(
-                "ou",
-                "objectClass"
-            );
-
-            // A REVOIR... LE TEST MERDOUILLE... IL A L'AIR DE RETOURNER vrai meme si ou=Trash n'existe pas
-
-            $result = ldap_search($ds, $ldap_base_dn, "ou=Trash", $attribut);
-            fich_debug("ldap_search($ds,\"$ldap_base_dn\",\"ou=Trash\",$attribut)\n");
-            // echo "<p>ldap_search($ds,$dn[$branche],\"$filtre\",$attribut);</p>";
-            if ($result) {
-                fich_debug("La branche Trash existe.\n");
-                @ldap_free_result($result);
-            } else {
-                fich_debug("La branche Trash n'existe pas.\n");
-
-                // On va la creer.
-                unset($attributs);
-                $attributs = array();
-                $attributs["ou"] = "Trash";
-                $attributs["objectClass"] = "organizationalUnit";
-
-                // $r=@ldap_bind($ds);// Bind anonyme
-                $adminLdap = get_infos_admin_ldap();
-                $r = @ldap_bind($ds, $adminLdap["adminDn"], $adminLdap["adminPw"]); // Bind admin LDAP
-                if ($r) {
-                    $dn_entree = "ou=Trash," . $ldap_base_dn;
-                    fich_debug("Cr&#233;ation de la branche: ");
-                    $result = ldap_add($ds, "$dn_entree", $attributs);
-                    if (! $result) {
-                        $error = "Echec d'ajout de l'entree ou=Trash";
-                        fich_debug("ECHEC\n");
-                        fich_debug("\$error=$error\n");
-                    } else {
-                        fich_debug("SUCCES\n");
-                    }
-                    @ldap_free_result($result);
-                } else {
-                    $error = gettext("Echec du bind admin LDAP");
-                    fich_debug("\$error=$error\n");
-                }
-            }
-        } else {
-            $error = gettext("Echec du bind anonyme");
-            fich_debug("\$error=$error\n");
-        }
-        @ldap_close($ds);
-    } else {
-        $error = gettext("Erreur de connection au serveur LDAP");
-        fich_debug("\$error=$error\n");
-    }
-
-    if ($error != "") {
-        echo "error=$error<br />\n";
-    }
-}
-
-// ================================================
 
 /**
  *
@@ -787,17 +664,17 @@ function creer_cn($config, $nom, $prenom)
      * # Actuellement, on passe tous les espaces a _
      */
     // crob_init(); Ne sert a rien !!!!
-    //$nom = preg_replace("/[^a-z_ -]/", "", strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$nom")))), "'$liste_caracteres_accentues", "_$liste_caracteres_desaccentues")));
-    //$prenom = preg_replace("/[^a-z_ -]/", "", strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), "'$liste_caracteres_accentues", "_$liste_caracteres_desaccentues")));
+    // $nom = preg_replace("/[^a-z_ -]/", "", strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$nom")))), "'$liste_caracteres_accentues", "_$liste_caracteres_desaccentues")));
+    // $prenom = preg_replace("/[^a-z_ -]/", "", strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), "'$liste_caracteres_accentues", "_$liste_caracteres_desaccentues")));
     $nom = apostrophes_espaces_2_underscore(remplace_accents($nom));
     $prenom = apostrophes_espaces_2_underscore(remplace_accents($prenom));
-    
+
     $nom = ucfirst(strtolower($nom));
     $prenom = ucfirst(strtolower($prenom));
-    
+
     // Filtrer certains caracteres:
-    //$nom = strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$nom")))), " '$liste_caracteres_accentues", "__$liste_caracteres_desaccentues"));
-    //$prenom = strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), " '$liste_caracteres_accentues", "__$liste_caracteres_desaccentues"));
+    // $nom = strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$nom")))), " '$liste_caracteres_accentues", "__$liste_caracteres_desaccentues"));
+    // $prenom = strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), " '$liste_caracteres_accentues", "__$liste_caracteres_desaccentues"));
 
     fich_debug("Apr&#232;s filtrage...\n");
     fich_debug("\$nom=$nom\n");
@@ -1730,209 +1607,30 @@ function get_cn_from_f_cn_file($employeeNumber)
     }
 }
 
-/**
- * Recherche les compte dans la branche Trash
- *
- * @Parametres $filter filtre ldap de recherche
- * @return
- */
-
-// Fonction extraite de /annu/ldap_cleaner.php
-function search_people_trash($filter)
-{
-    // global $ldap_server, $ldap_port, $dn, $adminDn, $adminPw;
-    global $ldap_server, $ldap_port, $dn;
-    global $error;
-    $error = "";
-    global $sambadomain;
-
-    $adminLdap = get_infos_admin_ldap();
-    $adminDn = $adminLdap["adminDn"];
-    $adminPw = $adminLdap["adminPw"];
-
-    // LDAP attributes
-
-    $ldap_search_people_attr = array(
-        "sambaacctFlags",
-        "sambapwdMustChange",
-        "sambantPassword",
-        "sambalmPassword",
-        "sambaSID",
-        "sambaPrimaryGroupSID",
-        "userPassword",
-        "gecos",
-        "employeenumber",
-        "homedirectory",
-        "gidNumber",
-        "cnNumber",
-        "loginShell",
-        "objectClass",
-        "mail",
-        "sn",
-        "givenName",
-        "cn",
-        "cn"
-    );
-
-    $ds = @ldap_connect($ldap_server, $ldap_port);
-    if ($ds) {
-        $r = @ldap_bind($ds, $adminDn, $adminPw);
-        if ($r) {
-            // Recherche dans la branche trash
-            $result = @ldap_search($ds, $dn["trash"], $filter, $ldap_search_people_attr);
-            if ($result) {
-                $info = @ldap_get_entries($ds, $result);
-                if ($info["count"]) {
-                    for ($loop = 0; $loop < $info["count"]; $loop ++) {
-                        if (isset($info[$loop]["employeenumber"][0])) {
-                            $ret[$loop] = array(
-                                "sambaacctflags" => $info[$loop]["sambaacctflags"][0],
-                                "sambapwdmustchange" => $info[$loop]["sambapwdmustchange"][0],
-                                "sambantpassword" => $info[$loop]["sambantpassword"][0],
-                                "sambalmpassword" => $info[$loop]["sambalmpassword"][0],
-                                "sambasid" => $info[$loop]["sambasid"][0],
-                                "sambaprimarygroupsid" => $info[$loop]["sambaprimarygroupsid"][0],
-                                "userpassword" => $info[$loop]["userpassword"][0],
-                                "gecos" => $info[$loop]["gecos"][0],
-                                "employeenumber" => $info[$loop]["employeenumber"][0],
-                                "homedirectory" => $info[$loop]["homedirectory"][0],
-                                "gidnumber" => $info[$loop]["gidnumber"][0],
-                                "uidnumber" => $info[$loop]["uidnumber"][0],
-                                "loginshell" => $info[$loop]["loginshell"][0],
-                                "mail" => $info[$loop]["mail"][0],
-                                "sn" => $info[$loop]["sn"][0],
-                                "givenname" => $info[$loop]["givenname"][0],
-                                "cn" => $info[$loop]["cn"][0],
-                                "cn" => $info[$loop]["cn"][0]
-                            );
-                        } else {
-                            $ret[$loop] = array(
-                                "sambaacctflags" => $info[$loop]["sambaacctflags"][0],
-                                "sambapwdmustchange" => $info[$loop]["sambapwdmustchange"][0],
-                                "sambantpassword" => $info[$loop]["sambantpassword"][0],
-                                "sambalmpassword" => $info[$loop]["sambalmpassword"][0],
-                                "sambasid" => $info[$loop]["sambasid"][0],
-                                "sambaprimarygroupsid" => $info[$loop]["sambaprimarygroupsid"][0],
-                                "userpassword" => $info[$loop]["userpassword"][0],
-                                "gecos" => $info[$loop]["gecos"][0],
-                                "homedirectory" => $info[$loop]["homedirectory"][0],
-                                "gidnumber" => $info[$loop]["gidnumber"][0],
-                                "uidnumber" => $info[$loop]["uidnumber"][0],
-                                "loginshell" => $info[$loop]["loginshell"][0],
-                                "mail" => $info[$loop]["mail"][0],
-                                "sn" => $info[$loop]["sn"][0],
-                                "givenname" => $info[$loop]["givenname"][0],
-                                "cn" => $info[$loop]["cn"][0],
-                                "cn" => $info[$loop]["cn"][0]
-                            );
-                        }
-                    }
-                }
-                @ldap_free_result($result);
-            } else
-                $error = "Erreur de lecture dans l'annuaire LDAP";
-        } else
-            $error = "Echec du bind en admin";
-        @ldap_close($ds);
-    } else
-        $error = "Erreur de connection au serveur LDAP";
-    // Tri du tableau par ordre alphabetique
-    if (count($ret))
-        usort($ret, "cmp_name");
-    return $ret;
-}
-
-// Fin function search_people_trash
 
 // Les temps sont durs, il faut faire les poubelles pour en recuperer des choses...
-function recup_from_trash($cn)
+function recup_from_trash($config, $cn)
 {
-    global $ldap_server, $ldap_port, $dn, $ldap_base_dn;
+    $user = search_ad($config, $cn, "user", $config['dn']['trash']);
 
     $recup = false;
-
-    $adminLdap = get_infos_admin_ldap();
-    $adminDn = $adminLdap["adminDn"];
-    $adminPw = $adminLdap["adminPw"];
-
-    $user = search_people_trash("cn=$cn");
-    // Positionnement des constantes "objectclass"
-    $user[0]["sambaacctflags"] = "[U		 ]";
-    $user[0]["objectclass"][0] = "top";
-    $user[0]["objectclass"][1] = "posixAccount";
-    $user[0]["objectclass"][2] = "shadowAccount";
-    $user[0]["objectclass"][3] = "person";
-    $user[0]["objectclass"][4] = "inetOrgPerson";
-    $user[0]["objectclass"][5] = "sambaAccount";
-    $user[0]["objectclass"][5] = "sambaSamAccount";
-
     $f = fopen("/tmp/recup_from_trash.txt", "a+");
     foreach ($user[0] as $key => $value) {
         fwrite($f, "\$user[0]['$key']=$value\n");
     }
     fwrite($f, "=======================\n");
     fclose($f);
-
-    $ds = @ldap_connect($ldap_server, $ldap_port);
-    if ($ds) {
+    // Ajout dans la branche people
+    if (move_ad($config, $user[0]['cn'], "cn=" . $user[0]['cn'] . "," . $config['dn']['people'], "user")) {
         $f = fopen("/tmp/recup_from_trash.txt", "a+");
-        fwrite($f, "\$ds OK\n");
+        fwrite($f, "\ldap_add OK\n");
         fwrite($f, "=======================\n");
-        fclose($f);
-
-        $r = @ldap_bind($ds, $adminDn, $adminPw); // Bind en admin
-        if ($r) {
-            $f = fopen("/tmp/recup_from_trash.txt", "a+");
-            fwrite($f, "\$r OK\n");
-            fwrite($f, "=======================\n");
-            fclose($f);
-
-            // Ajout dans la branche people
-            if (@ldap_add($ds, "cn=" . $user[0]["cn"] . "," . $dn["people"], $user[0])) {
-                $f = fopen("/tmp/recup_from_trash.txt", "a+");
-                fwrite($f, "\ldap_add OK\n");
-                fwrite($f, "=======================\n");
-                fclose($f);
-
-                // Suppression de la branche Trash
-                @ldap_delete($ds, "cn=" . $user[0]["cn"] . "," . $dn["trash"]);
-                $recup = true;
-            } else {
-                $recup = false;
-            }
-        }
+        $recup = true;
+    } else {
+        $recup = false;
     }
-    ldap_close($ds);
 
     return $recup;
-}
-
-// ====================================================
-function crob_getParam($name)
-{
-    $sql = "SELECT value FROM params WHERE name='" . ((isset($GLOBALS["___mysqli_ston"]) && is_object($GLOBALS["___mysqli_ston"])) ? mysqli_real_escape_string($GLOBALS["___mysqli_ston"], $name) : ((trigger_error("[MySQLConverterToo] Fix the mysql_escape_string() call! This code does not work.", E_USER_ERROR)) ? "" : "")) . "';";
-    $res = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-    if (mysqli_num_rows($res) > 0) {
-        $lig = mysqli_fetch_object($res);
-        return $lig->value;
-    } else {
-        return "";
-    }
-}
-
-// ====================================================
-function crob_setParam($name, $value, $descr)
-{
-    $sql = "DELETE FROM params WHERE name='" . ((isset($GLOBALS["___mysqli_ston"]) && is_object($GLOBALS["___mysqli_ston"])) ? mysqli_real_escape_string($GLOBALS["___mysqli_ston"], $name) : ((trigger_error("[MySQLConverterToo] Fix the mysql_escape_string() call! This code does not work.", E_USER_ERROR)) ? "" : "")) . "';";
-    $del = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-
-    $sql = "INSERT INTO params SET name='$name', descr='$descr', cat='0', value='" . ((isset($GLOBALS["___mysqli_ston"]) && is_object($GLOBALS["___mysqli_ston"])) ? mysqli_real_escape_string($GLOBALS["___mysqli_ston"], $value) : ((trigger_error("[MySQLConverterToo] Fix the mysql_escape_string() call! This code does not work.", E_USER_ERROR)) ? "" : "")) . "';";
-    $insert = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-    if ($insert) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 // ====================================================
