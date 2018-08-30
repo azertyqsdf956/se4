@@ -67,7 +67,7 @@ function userexist($config, $cn)
     }
 }
 
-function useradd($config, $prenom, $nom, $userpwd, $naissance, $sexe, $categorie, $employeeNumber)
+function useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $categorie, $employeeNumber)
 {
     /*
      * $sexe : M ou F
@@ -76,41 +76,35 @@ function useradd($config, $prenom, $nom, $userpwd, $naissance, $sexe, $categorie
      *
      * Return $cn if succes.
      */
-    if (! verif_employeeNumber($config, $employeeNumber)) {
-        // Il faut determiner le login (attribut cn : use-username-as-cn) en fonction du nom prenom de l'uidpolicy...
-        // Si $cn existe déja dans l'AD (doublon) il faut en fabriquer un autre
-        $cn = creer_cn($config, $nom, $prenom);
+    $office = $naissance . "," . $sexe;
 
-        $office = "$naissance,$sexe";
+    if (! isset($userpwd)) {
+        $userpwd = $naissance;
+    }
 
-        if (! isset($userpwd)) {
-            $userpwd = $naissance;
-        }
+    if (empty($employeeNumber)) {
+        // Pas de champ job-title pour employeeNumber dans ce cas
+        $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@" . $config['domain'] . "' --physical-delivery-office='$office'";
+        if ($categorie != '')
+            $command = $command . " --userou='ou=$categorie,". $config['peopleRdn']."'";
+    } else {
+        $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@" . $config['domain'] . "' --job-title='$employeeNumber' --physical-delivery-office='$office'";
+        if ($categorie != '')
+            $command = $command . " --userou='ou=$categorie,". $config['peopleRdn']."'";
+    }
 
-        if (empty($employeeNumber)) {
-            // Pas de champ job-title pour employeeNumber dans ce cas
-            $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@" . $config['domain'] . "' --physical-delivery-office='$office'";
-            if ($categorie != '')
-                $command = $command . " --userou='ou=$categorie,ou=Users'";
-        } else {
-            $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@" . $config['domain'] . "' --job-title='$employeeNumber' --physical-delivery-office='$office'";
-            if ($categorie != '')
-                $command = $command . " --userou='ou=$categorie,ou=Users'";
-        }
-
-        $RES = sambatool($config, $command);
-        // A revoir !
-        if (count($RES) == 1) {
-            $newcn = explode("'", $RES[0]);
-            // Ajout a un groupe principal
-            if ($categorie != '') {
-                if (groupaddmember($config, $newcn[1], $categorie)) {
-                    echo "Succes de l ajout de " . $newcn[1] . " au groupe $categorie.<br />\n";
-                } else {
-                    echo "Echec de l ajout de " . $newcn[1] . " au groupe $categorie.<br />\n";
-                }
-                return $newcn[1];
+    $RES = sambatool($config, $command);
+    // A revoir !
+    if (count($RES) == 1) {
+        $newcn = explode("'", $RES[0]);
+        // Ajout a un groupe principal
+        if ($categorie != '') {
+            if (groupaddmember($config, $newcn[1], $categorie)) {
+                echo "Succes de l ajout de " . $newcn[1] . " au groupe $categorie.<br />\n";
+            } else {
+                echo "Echec de l ajout de " . $newcn[1] . " au groupe $categorie.<br />\n";
             }
+            return $newcn[1];
         }
     }
 }
@@ -338,7 +332,7 @@ function groupdel($config, $cn)
      */
     $command = "group delete " . escapeshellarg($cn);
     $RES = sambatool($config, $command);
-    
+
     if (count($RES) == 1) {
         $group = explode(" ", $RES[0]);
         if ($group[2] == $cn) {

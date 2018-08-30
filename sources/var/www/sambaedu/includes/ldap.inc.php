@@ -124,6 +124,17 @@ function cmp_location($a, $b)
     return strcasecmp($a["printer-location"], $b["printer-location"]);
 }
 
+/**
+ *
+ * @param string $dn
+ * @return string $cn
+ */
+function ldap_dn2cn(string $dn)
+{
+    $rdns = explode(",", ldap_dn2ufn($dn));
+    return $rdns[0];
+}
+
 function remove_count($arr)
 {
     foreach ($arr as $key => $val) {
@@ -207,8 +218,20 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
                 $branch = $config['ldap_base_dn'];
             }
             break;
+        case "employeenumber": // recherche par le n° Siecle/STS
+            $filter = "(&(objectclass=user)(|(jobtitle=" . $name . ")(jobtitle=" . sprintf("%05d", $name) . ")(jobtitle=" . preg_replace("/^0*/", "", $name) . "))";
+            $ldap_attrs = array(
+                "cn" // login
+            );
+            if ($branch == "all") {
+                $branch = $config['ldap_base_dn'];
+            }
+            break;
         case "filter": // user ou group
             $filter = $name;
+            $ldap_attrs = array(
+                "cn" // 
+            );
             if ($branch == "all") {
                 $branch = $config['ldap_base_dn'];
             }
@@ -220,8 +243,18 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
             );
             $branch = "ou=" . $branch . "," . $config['dn']['people'];
             break;
+        case "memberof": // cherche si user ou group est membre du groupe branch
+            $filter = "(&(cn=" . $name . ")(objectclass=user)(memberof=cn=" . $branch . "*))";
+            $ldap_attrs = array(
+                "cn" // login
+            );
+            $branch = $config['dn']['people'];
+            break;
         case "pp": // cherche si user ou group est pp de la classe $branch
-            $filter = "(&(objectclass=group)(cn=PP_*)(|(cn=PP_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
+            if ($name == "*")
+                $filter = "(&(objectclass=group)(cn=PP_*))";
+            else
+                $filter = "(&(objectclass=group)(cn=PP_*)(|(cn=PP_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
             $ldap_attrs = array(
                 "cn", // login
                 "member"
@@ -268,7 +301,10 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
             );
             break;
         case "group":
-            $filter = "(&(objectclass=group)(|(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
+            if ($name == "*")
+                $filter = "(objectclass=group)";
+            else
+                $filter = "(&(objectclass=group)(|(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
             $ldap_attrs = array(
                 "cn",
                 "description",
@@ -279,27 +315,36 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
             }
             break;
         case "classe":
-            $filter = "(&(objectclass=group)(|(cn=Classe_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
+            if ($name == "*")
+                $filter = "(objectclass=group)";
+            else
+                $filter = "(&(objectclass=group)(|(cn=Classe_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
             $ldap_attrs = array(
                 "cn",
                 "description",
                 "member"
             );
-            $branch = $config['dn']['groups'];
+            $branch = $config['classes_rdn'] . "," . $config['dn']['groups'];
             break;
         case "equipe":
-            $filter = "(&(objectclass=group)(cn=Equipe_*)(|(cn=Equipe_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
+            if ($name == "*")
+                $filter = "(objectclass=group)";
+            else
+                $filter = "(&(objectclass=group)(cn=Equipe_*)(|(cn=Equipe_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
             $ldap_attrs = array(
                 "cn",
                 "description",
                 "member"
             );
-            $branch = $config['dn']['groups'];
+            $branch = $config['equipes_rdn'] . "," . $config['dn']['groups'];
             break;
         case "imprimante":
             break;
         case "delegation":
-            $filter = "(&(objectclass=group)(|(member=" . $name . ")(member=cn=" . $name . "*)))";
+            if ($name == "*")
+                $filter = "(objectclass=group)";
+            else
+                $filter = "(&(objectclass=group)(|(member=" . $name . ")(member=cn=" . $name . "*)))";
             $ldap_attrs = array(
                 "cn"
             );
@@ -393,27 +438,42 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
     return $ret;
 }
 
-function modify_ad($config, $name, $type, $attrs)
+/**
+ * Modifie un ojet dans l'AD
+ *
+ * @param array $config
+ * @param string $name
+ *            le nom de l'objet (cn)
+ * @param string $type
+ *            le type d'objet à chercher : user, computer, group, classe, equipe, projet, parc, rights
+ * @param array $attrs
+ *            tableau associatif des attributs à changer (format ldapmodify)
+ * @param string $mode
+ *            type d'opération
+ * @return boolean // Pour del aussi, il faut fournir la bonne valeur de l'attribut pour que cela fonctionne
+ *         // On peut ajouter, modifier, supprimer plusieurs attributs a la fois.
+ */
+function modify_ad(array $config, string $name, string $type, array $attrs, string $mode = "replace")
 {
-
-    /**
-     * modifie un objet dans l'AD
-     *
-     * @Parametres $name - le nom de l'objet (cn)
-     * @Parametres $type - le type d'objet à chercher : user, computer, group, classe, equipe, projet, parc, rights
-     * @Parametre $attrs - tableau associatif des attributs à changer (format ldapmodify)ore
-     * @return true ou false
-     */
     $res = search_ad($config, $name, $type);
-    var_dump($attrs);
-    if ($res) {
+    if (count($res) == 1) {
         $dn = $res[0]['dn'];
         var_dump($dn);
-        list ($ds, $r, $ret) = bind_ad_gssapi($config);
+        list ($ds, $r, $result) = bind_ad_gssapi($config);
         if ($r) {
-            $ret = ldap_mod_replace($ds, $dn, $attrs);
+            switch ($mode) {
+                case "add":
+                    $result = ldap_mod_add($ds, $dn, $attrs);
+                    break;
+                case "del":
+                    $result = ldap_mod_del($ds, $dn, $attrs);
+                    break;
+                case "replace":
+                    $result = ldap_mod_replace($ds, $dn, $attrs);
+                    break;
+            }
             @ldap_close($ds);
-            return $ret;
+            return $result;
         }
     }
     return false;
@@ -542,6 +602,19 @@ function search_user($config, $cn)
     return $ret;
 }
 
+function create_user(array $config, string $cn, string $prenom, string $nom, string $userpwd, string $naissance, string $sexe, string $categorie, string $employeeNumber)
+{
+    if (! verif_employeeNumber($config, $employeeNumber)) {
+        // Il faut determiner le login (attribut cn : use-username-as-cn) en fonction du nom prenom de l'uidpolicy...
+        // Si $cn existe déja dans l'AD (doublon) il faut en fabriquer un autre
+        if ($cn == "")
+            $cn = creer_cn($config, $nom, $prenom);
+        $res = useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $categorie, $employeeNumber);
+        return $res;
+    }
+    return false;
+}
+
 function search_machine($config, $cn, $ip = false)
 {
 
@@ -570,6 +643,26 @@ function search_machine($config, $cn, $ip = false)
         }
     }
     return $ret;
+}
+
+/**
+ * retourne le groupe principal d'un utilisateur
+ *
+ * @param array $config
+ * @param string $user
+ * @return string
+ */
+function type_user(array $config, string $user)
+{
+    $res = search_user($config, $user);
+    if (in_array("cn=Eleves," . $config['dn']['groups'], $res['memberof']))
+        return "eleve";
+    elseif (in_array("cn=Profs," . $config['dn']['groups'], $res['memberof']))
+        return "prof";
+    elseif (in_array("cn=Administratifs," . $config['dn']['groups'], $res['memberof']))
+        return "administratif";
+    else
+        return "";
 }
 
 /**
@@ -1118,7 +1211,7 @@ function is_prof($config, $name)
         return false;
 }
 
-function is_pp($config, $name, $eleve = false)
+function is_pp(array $config, string $name)
 {}
 
 /**
@@ -1167,7 +1260,7 @@ function list_profs($config, $name)
 }
 
 /**
- * rtourne la liste des eleves du prof, ou de la classe ou tous
+ * retourne la liste des eleves du prof, ou de la classe ou tous
  *
  * @param unknown $config
  * @param unknown $name
@@ -1375,10 +1468,14 @@ function add_user_group(array $config, string $classe, string $user, bool $updat
                 $my_pp = is_my_pp($config, $classe, $user);
                 if ((! $my_pp) && $pp) {
                     $res = groupaddmember($config, $user, "PP_" . $nom);
+                    $res = groupaddmember($config, $user, "Profs_Principaux");
                     print "ajout";
                 } elseif ($my_pp && (! $pp)) {
                     $res = groupdelmember($config, $user, "PP_" . $nom);
                     print "suppression";
+                    // si il ne reste plus aucune classe ou il est pp
+                    if (count(list_pp($config, $user)) == 0)
+                        $res = groupdelmember($config, $user, "Profs_Principaux");
                 }
             }
         }

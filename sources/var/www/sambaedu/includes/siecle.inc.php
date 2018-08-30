@@ -342,282 +342,6 @@ function traite_utf8($chaine)
     return $chaine;
 }
 
-
-/**
- *
- * Ajoute une entree dans l'annuaire
- *
- * @Parametres
- * @return
- *
- */
-function add_entry($entree, $branche, $attributs)
-{
-    global $ldap_server, $ldap_port, $dn;
-    global $error;
-    $error = "";
-
-    // Parametres:
-    /*
-     * $entree: cn=toto
-     * $branche: people, groups,... ou rights
-     * $attributs: tableau associatif des attributs
-     */
-
-    $ds = @ldap_connect($ldap_server, $ldap_port);
-    if ($ds) {
-        // $r=@ldap_bind($ds);// Bind anonyme
-        $adminLdap = get_infos_admin_ldap();
-        $r = @ldap_bind($ds, $adminLdap["adminDn"], $adminLdap["adminPw"]); // Bind admin LDAP
-        if ($r) {
-            $dn_entree = "$entree," . $dn["$branche"];
-            $result = ldap_add($ds, "$dn_entree", $attributs);
-            if (! $result) {
-                $error = "Echec d'ajout de l'entree $entree";
-            }
-            @ldap_free_result($result);
-        } else {
-            $error = gettext("Echec du bind admin LDAP");
-        }
-        @ldap_close($ds);
-    } else {
-        $error = gettext("Erreur de connection au serveur LDAP");
-    }
-
-    if ($error == "") {
-        return true;
-    } else {
-        // echo "<p>$error</p>";
-        return false;
-    }
-}
-
-// ================================================
-
-/**
- *
- * Supprime une entree de l'annuaire
- *
- * @Parametres
- * @return
- *
- */
-function del_entry($entree, $branche)
-{
-    global $ldap_server, $ldap_port, $dn;
-    global $error;
-    $error = "";
-
-    // Parametres:
-    /*
-     * $entree: cn=toto
-     * $branche: people, groups,... ou rights
-     */
-
-    $ds = @ldap_connect($ldap_server, $ldap_port);
-    if ($ds) {
-        // $r=@ldap_bind($ds);// Bind anonyme
-        $adminLdap = get_infos_admin_ldap();
-        $r = @ldap_bind($ds, $adminLdap["adminDn"], $adminLdap["adminPw"]); // Bind admin LDAP
-        if ($r) {
-            $result = ldap_delete($ds, "$entree," . $dn["$branche"]);
-            if (! $result) {
-                $error = "Echec de la suppression de l'entree $entree";
-            }
-            @ldap_free_result($result);
-        } else {
-            $error = gettext("Echec du bind admin LDAP");
-        }
-        @ldap_close($ds);
-    } else {
-        $error = gettext("Erreur de connection au serveur LDAP");
-    }
-
-    if ($error == "") {
-        return true;
-    } else {
-        // echo "<p>$error</p>";
-        return false;
-    }
-}
-
-// ================================================
-
-/**
- *
- * Modifie une entree dans l'annuaire
- *
- * @Parametres
- * @return
- *
- */
-function modify_entry($entree, $branche, $attributs)
-{
-    global $ldap_server, $ldap_port, $dn;
-    global $error;
-    $error = "";
-
-    // Je ne suis pas sur d'avoir bien saisi le fonctionnement de la fonction ldap_modify() de PHP
-    // Du coup, je lui ai prefere les fonctions ldap_mod_add(), ldap_mod_del() et ldap_mod_replace() utilisees dans ma fonction modify_attribut()
-
-    // Parametres:
-    /*
-     * $entree: cn=toto
-     * $branche: people, groups,... ou rights
-     * $attributs: tableau associatif des attributs
-     */
-
-    $ds = @ldap_connect($ldap_server, $ldap_port);
-    if ($ds) {
-        // $r=@ldap_bind($ds);// Bind anonyme
-        $adminLdap = get_infos_admin_ldap();
-        $r = @ldap_bind($ds, $adminLdap["adminDn"], $adminLdap["adminPw"]); // Bind admin LDAP
-        if ($r) {
-            $result = ldap_modify($ds, "$entree," . $dn["$branche"], $attributs);
-            if (! $result) {
-                $error = "Echec d'ajout de l'entree $entree";
-            }
-            @ldap_free_result($result);
-        } else {
-            $error = gettext("Echec du bind en admin");
-        }
-        @ldap_close($ds);
-    } else {
-        $error = gettext("Erreur de connection au serveur LDAP");
-    }
-
-    if ($error == "") {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-// ================================================
-
-/**
- *
- * Modifie un attribut dans l'annuaire
- *
- * @Parametres
- * @return
- *
- */
-function modify_attribut($entree, $branche, $attributs, $mode)
-{
-    global $ldap_server, $ldap_port, $dn;
-    global $error;
-    $error = "";
-
-    // Parametres:
-    /*
-     * $entree: cn=toto
-     * $branche: people, groups,... ou rights
-     * $attribut: tableau associatif des attributs a modifier
-     * $mode: add replace ou del
-     *
-     * // Pour del aussi, il faut fournir la bonne valeur de l'attribut pour que cela fonctionne
-     * // On peut ajouter, modifier, supprimer plusieurs attributs a la fois.
-     */
-
-    $ds = @ldap_connect($ldap_server, $ldap_port);
-    if ($ds) {
-        // $r=@ldap_bind($ds);// Bind anonyme
-        $adminLdap = get_infos_admin_ldap();
-        $r = @ldap_bind($ds, $adminLdap["adminDn"], $adminLdap["adminPw"]); // Bind admin LDAP
-        if ($r) {
-            switch ($mode) {
-                case "add":
-                    $result = ldap_mod_add($ds, "$entree," . $dn["$branche"], $attributs);
-                    break;
-                case "del":
-                    $result = ldap_mod_del($ds, "$entree," . $dn["$branche"], $attributs);
-                    break;
-                case "replace":
-                    $result = ldap_mod_replace($ds, "$entree," . $dn["$branche"], $attributs);
-                    break;
-            }
-            if (! $result) {
-                $error = "Echec d'ajout de la modification $mode sur $entree";
-            }
-            @ldap_free_result($result);
-        } else {
-            $error = gettext("Echec du bind en admin");
-        }
-        @ldap_close($ds);
-    } else {
-        $error = gettext("Erreur de connection au serveur LDAP");
-    }
-
-    if ($error == "") {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-/*
- * function crob_init() {
- * // Recuperation de variables dans la base MySQL se3db
- * //global $domainsid,$cnPolicy;
- * global $defaultgid,$domain,$defaultshell,$domainsid;
- *
- * $domainsid="";
- * $sql="select value from params where name='domainsid';";
- * $res=mysql_query($sql);
- * if(mysql_num_rows($res)==1){
- * $lig_tmp=mysql_fetch_object($res);
- * $domainsid=$lig_tmp->value;
- * } else {
- * // Cas d'un LCS ou sambaSID n'est pas dans la table params
- * unset($retval);
- * exec ("ldapsearch -x -LLL objectClass=sambaDomain | grep sambaSID | cut -d ' ' -f 2",$retval);
- * $domainsid = $retval[0];
- * // Si il n'y a pas de sambaSID dans l'annuaire, on fixe une valeur factice
- * // Il faudra appliquer un correct SID lors de l'installation d'un se3
- * if (!isset($domainsid)) $domainsid ="S-0-0-00-0000000000-000000000-0000000000";
- * }
- *
- * $cnPolicy="";
- * $sql="select value from params where name='cnPolicy';";
- * $res=mysql_query($sql);
- * if(mysql_num_rows($res)==1){
- * $lig_tmp=mysql_fetch_object($res);
- * $cnPolicy=$lig_tmp->value;
- * }
- *
- * $defaultgid="";
- * $sql="select value from params where name='defaultgid';";
- * $res=mysql_query($sql);
- * if(mysql_num_rows($res)==1){
- * $lig_tmp=mysql_fetch_object($res);
- * $defaultgid=$lig_tmp->value;
- * } else {
- * // Cas d'un LCS ou defaultgid n'est pas dans la table params
- * exec ("getent group lcs-users | cut -d ':' -f 3", $retval);
- * $defaultgid= $retval[0];
- * }
- *
- * $domain="";
- * $sql="select value from params where name='domain';";
- * $res=mysql_query($sql);
- * if(mysql_num_rows($res)==1){
- * $lig_tmp=mysql_fetch_object($res);
- * $domain=$lig_tmp->value;
- * }
- *
- * $defaultshell="";
- * $sql="select value from params where name='defaultshell';";
- * $res=mysql_query($sql);
- * if(mysql_num_rows($res)==1){
- * $lig_tmp=mysql_fetch_object($res);
- * $defaultshell=$lig_tmp->value;
- * }
- * }
- */
-
-// ================================================
-
 /**
  *
  * Active le mode debug
@@ -812,57 +536,18 @@ function creer_cn($config, $nom, $prenom)
  * @return
  *
  */
-
-/*
- * function verif_employeeNumber($employeeNumber){
- * global $ldap_server, $ldap_port, $dn;
- * global $error;
- * $error="";
- * // Tester si l'employeeNumber est dans l'annuaire ou non...
- *
- * //$attribut=array("cn","employeenumber");
- * //$attribut=array("employeenumber");
- * $attribut=array("cn");
- * $tab=get_tab_attribut("people","employeenumber=$employeeNumber",$attribut);
- *
- * if(count($tab)>0){return $tab;}else{return false;}
- * }
- */
 function verif_employeeNumber($config, $employeeNumber)
 {
-    global $error;
-    $error = "";
     // Tester si l'employeeNumber est dans l'annuaire ou non...
-    $filtre = "(&(objectclass=user)(jobtitle=$employeeNumber))";
-    $tab = search_ad($config, $filter, "filter", $config['dn']['people']);
-    $tab3 = search_ad($config, $filter, "filter", $config['dn']['trash']);
+    $tab1 = search_ad($config, $employeeNumber, "employeenumber", $config['dn']['people']);
+    $tab2 = search_ad($config, $employeeNumber, "employeenumber", $config['dn']['trash']);
 
-    $filtre = "(&(objectclass=user)(employeenumber=" . sprintf("%05d", $employeeNumber) . "))";
-    $tab2 = search_ad($config, $filter, "filter", $config['dn']['people']);
-    $tab4 = search_ad($config, $filter, "filter", $config['dn']['trash']);
-
-    $filtre = "(&(objectclass=user)(employeenumber=" . preg_replace("/^0*/", "", $employeeNumber) . "))";
-    $tab5 = search_ad($config, $filter, "filter", $config['dn']['people']);
-    $tab6 = search_ad($config, $filter, "filter", $config['dn']['trash']);
-
-    if (count($tab) > 0) {
-        $tab[- 1] = "people";
-        return $tab;
+    if (count($tab1) > 0) {
+        $tab1[0]['branch'] = "people";
+        return $tab1[0];
     } elseif (count($tab2) > 0) {
-        $tab2[- 1] = "people";
-        return $tab2;
-    } elseif (count($tab3) > 0) {
-        $tab3[- 1] = "trash";
-        return $tab3;
-    } elseif (count($tab4) > 0) {
-        $tab4[- 1] = "trash";
-        return $tab4;
-    } elseif (count($tab5) > 0) {
-        $tab5[- 1] = "people";
-        return $tab5;
-    } elseif (count($tab6) > 0) {
-        $tab6[- 1] = "trash";
-        return $tab6;
+        $tab1[0]['branch'] = "trash";
+        return $tab2[0];
     } else {
         return false;
     }
@@ -878,13 +563,10 @@ function verif_employeeNumber($config, $employeeNumber)
  * @return
  *
  */
-function verif_nom_prenom_sans_employeeNumber($config, $nom, $prenom)
+function verif_nom_prenom($config, $nom, $prenom)
 {
-    global $error;
-    $error = "";
     // Tester si un cn existe ou non dans l'annuaire pour $nom et $prenom sans employeeNumber...
     // ... ce qui correspondrait a un compte cree a la main.
-
     $trouve = 0;
 
     // On fait une recherche avec éventuellement les accents dans les nom/prénom... et on en fait si nécessaire une deuxième sans les accents
@@ -893,7 +575,7 @@ function verif_nom_prenom_sans_employeeNumber($config, $nom, $prenom)
     );
     $tab1 = array();
     // $tab1=get_tab_attribut("people","cn='$prenom $nom'",$attribut);
-    $tab1 = search_ad($config, "(&(objectclass=user)(displayname=" . $prenom . " " . $nom . "))", $config['dn']['people'], $attribut);
+    $tab1 = search_ad($config, "(&(objectclass=user)(displayname=" . $prenom . " " . $nom . "))", "filter", $config['dn']['people']);
 
     if (count($tab1) > 0) {
         for ($i = 0; $i < count($tab1); $i ++) {
@@ -916,35 +598,14 @@ function verif_nom_prenom_sans_employeeNumber($config, $nom, $prenom)
         // On fait en sorte de ne pas avoir d'accents dans la branche People de l'annuaire
         $nom = remplace_accents(traite_espaces($nom));
         $prenom = remplace_accents(traite_espaces($prenom));
-
-        $attribut = array(
-            "cn"
-        );
-        $tab1 = array();
-        // $tab1=get_tab_attribut("people","cn='$prenom $nom'",$attribut);
-        $tab1 = get_tab_attribut("people", "cn=$prenom $nom", $attribut);
-
-        /*
-         * if(strtolower($nom)=='andro') {
-         * $fich=fopen("/tmp/verif_nom_prenom_sans_employeeNumber_debug.txt","a+");
-         * fwrite($fich,"Recherche cn=$prenom $nom on recupere count($tab1)=".count($tab1)."<br />\n");
-         * fclose($fich);
-         * }
-         */
-
-        // echo "<p>error=$error</p>";
+        $tab1 = search_ad($config, "(&(objectclass=user)(displayname=" . $prenom . " " . $nom . "))", "filter", $config['dn']['people']);
 
         if (count($tab1) > 0) {
-            // echo "<p>count(\$tab1)>0</p>";
             for ($i = 0; $i < count($tab1); $i ++) {
-                $attribut = array(
-                    "employeenumber"
-                );
-                $tab2 = get_tab_attribut("people", "cn=$tab1[$i]", $attribut);
+                $tab2 = search_ad($config, $tab1[$i]['cn'], "user");
                 if (count($tab2) == 0) {
-                    // echo "<p>count(\$tab2)==0</p>";
                     $trouve ++;
-                    $cn = $tab1[$i];
+                    $cn = $tab1[$i]['cn'];
                     // echo "<p>cn=$cn</p>";
                 }
             }
@@ -956,8 +617,6 @@ function verif_nom_prenom_sans_employeeNumber($config, $nom, $prenom)
             } else {
                 return false;
             }
-        } else {
-            return false;
         }
     }
 }
@@ -966,476 +625,26 @@ function verif_nom_prenom_sans_employeeNumber($config, $nom, $prenom)
 
 /**
  *
- * Obtient un tableau avecc les attributs
- *
- * @Parametres $attribut doit etre un tableau d'une seule valeur  Ex.: $attribut[0]="cnNumber";
- *
- * @return un tableau avec les attributs
- *        
- */
-function get_tab_attribut($branche, $filtre, $attribut)
-{
-    global $ldap_server, $ldap_port, $dn;
-    global $error;
-    $error = "";
-
-    // Parametres
-    // $attribut doit etre un tableau d'une seule valeur.
-    // Ex.: $attribut[0]="cnNumber";
-
-    // Tableau retourne
-    $tab = array();
-
-    fich_debug("======================\n");
-    fich_debug("get_tab_attribut:\n");
-
-    $ds = @ldap_connect($ldap_server, $ldap_port);
-    if ($ds) {
-        $r = @ldap_bind($ds); // Bind anonyme
-        if ($r) {
-            $result = ldap_search($ds, $dn[$branche], "$filtre", $attribut);
-            fich_debug("ldap_search($ds," . $dn[$branche] . ",\"$filtre\",$attribut)\n");
-            // echo "<p>ldap_search($ds,$dn[$branche],\"$filtre\",$attribut);</p>";
-            if ($result) {
-                // echo "\$result=$result<br />";
-                $info = @ldap_get_entries($ds, $result);
-                if ($info) {
-                    fich_debug("\$info[\"count\"]=" . $info["count"] . "\n");
-                    // echo "<br />".$info["count"]."<br />";
-                    for ($i = 0; $i < $info["count"]; $i ++) {
-                        fich_debug("\$info[$i][$attribut[0]][\"count\"]=" . $info[$i][$attribut[0]]["count"] . "\n");
-                        for ($loop = 0; $loop < $info[$i][$attribut[0]]["count"]; $loop ++) {
-                            $tab[] = $info[$i][$attribut[0]][$loop];
-                            fich_debug("\$tab[]=" . $info[$i][$attribut[0]][$loop] . "\n");
-                        }
-                    }
-                    rsort($tab);
-                } else {
-                    fich_debug("\$info vide... @ldap_get_entries($ds,$result) n'a rien donn&#233;.\n");
-                }
-            } else {
-                $error = "Echec de la lecture des entr&#233;es: ldap_search($ds," . $dn[$branche] . ",\"$filtre\",$attribut)";
-                fich_debug("\$error=$error\n");
-            }
-            @ldap_free_result($result);
-        } else {
-            $error = gettext("Echec du bind anonyme");
-            fich_debug("\$error=$error\n");
-        }
-        @ldap_close($ds);
-    } else {
-        $error = gettext("Erreur de connection au serveur LDAP");
-        fich_debug("\$error=$error\n");
-    }
-
-    if ($error != "") {
-        echo "error=$error<br />\n";
-    }
-
-    return $tab;
-}
-
-// ================================================
-
-/**
- *
- * Recherche le premier cnNumber disponible On demarre les cn a 1001, mais admin est en 5000:
+ * Verifie et corrige le nom et date de naissance
  *
  * @Parametres
  *
  * @return
  *
  */
-function get_first_free_cnNumber()
+function verif_et_corrige_user($cn, $naissance, $sexe, $simulation = "N")
 {
-    global $ldap_server, $ldap_port, $dn;
-    global $error;
-    $error = "";
-
-    // On demarre les cn a 1001, mais admin est en 5000:
-    // unattend est en 1000 chez moi... mais cela peut changer avec des etablissements dont l'annuaire SE3 date d'avant l'ajout d'unattend
-    // on peut aussi avoir un compte de client linux qui n'est pas dans l'annuaire mais a besoin de l'cnNumber 1000... risque de conflit si c'est occup�
-    $first_cnNumber = 1001;
-    $last_cnNumber = 4999;
-    // $last_cnNumber=1200;
-
-    unset($attribut);
-    $attribut = array();
-    $attribut[0] = "uidnumber";
-    // $tab=array();
-    // $tab=get_tab_attribut("people", "cn=*", $attribut);
-    $tab1 = array();
-    $tab1 = get_tab_attribut("people", "cn=*", $attribut);
-    $tab2 = array();
-    $tab2 = get_tab_attribut("trash", "cn=*", $attribut);
-    $tab = array_merge($tab1, $tab2);
-    rsort($tab);
-
-    /*
-     * // Debug:
-     * echo "count(\$tab)=".count($tab)."<br />";
-     * for($i=0;$i<count($tab);$i++){
-     * echo "\$tab[$i]=$tab[$i]<br />";
-     * }
-     */
-
-    /*
-     * // Methode OK, mais on risque la penurie des cnNumber entre 1000 et 5000
-     * // a ne pas recuperer des cnNumber d'utilisateurs qui ont quitte l'etablissement
-     * //$last_cnNumber=1473;
-     * $cnNumber=$last_cnNumber;
-     * while((!in_array($cnNumber,$tab))&&($cnNumber>$first_cnNumber)){
-     * $cnNumber--;
-     * //echo "\$cnNumber=$cnNumber<br />";
-     * }
-     * $cnNumber++;
-     * if(($cnNumber>$last_cnNumber)||(in_array($cnNumber,$tab))){
-     * $error="Il n'y a plus de plus grand cnNumber libre en dessous de $last_cnNumber";
-     * echo "error=$error<br />";
-     * return false;
-     * }
-     * else{
-     * echo "<p><b>\$cnNumber=$cnNumber</b></p>";
-     * return $cnNumber;
-     * }
-     */
-
-    // TEST: $last_cnNumber=1200;
-    // Ou: on recherche le plus petit cnNumber dispo entre $first_cnNumber et $last_cnNumber
-    $cnNumber = $first_cnNumber;
-    while ((in_array($cnNumber, $tab)) && ($cnNumber < $last_cnNumber)) {
-        $cnNumber ++;
-    }
-    // echo "<p><b>\$cnNumber=$cnNumber</b></p>";
-
-    if (($cnNumber == $last_cnNumber) && (in_array($cnNumber, $tab))) {
-        $error = "Il n'y a plus d'cnNumber libre";
-        // echo "error=$error<br />";
-        return false;
-    } else {
-        return $cnNumber;
-    }
-
-    /*
-     * // Ou: On mixe les deux methodes:
-     * // C'EST UNE FAUSSE SOLUTION:
-     * // Quand tout va etre rempli la premiere fois, on va commencer a recuperer des cnNumber par le haut des qu'un cnNumber va se liberer et on va re-affecter des cnNumber utilises recemment.
-     * $cnNumber=$last_cnNumber;
-     * while((!in_array($cnNumber,$tab))&&($cnNumber>$first_cnNumber)){
-     * $cnNumber--;
-     * //echo "\$cnNumber=$cnNumber<br />";
-     * }
-     * $cnNumber++;
-     * if(($cnNumber>$last_cnNumber)||(in_array($cnNumber,$tab))){
-     * // On commence a reaffecter des cnNumber libres par le bas
-     * $cnNumber=$first_cnNumber;
-     * while((in_array($cnNumber,$tab))&&($cnNumber<$last_cnNumber)){
-     * $cnNumber++;
-     * }
-     *
-     * if(($cnNumber==$last_cnNumber)&&(in_array($cnNumber,$tab))){
-     * $error="Il n'y a plus d'cnNumber libre";
-     * //echo "error=$error<br />";
-     * return false;
-     * }
-     * else{
-     * return $cnNumber;
-     * }
-     * }
-     * else{
-     * //echo "<p><b>\$cnNumber=$cnNumber</b></p>";
-     * return $cnNumber;
-     * }
-     */
-}
-
-// ================================================
-
-/**
- *
- * Recherche le premier gidNumber disponible
- *
- * @Parametres
- *
- * @return
- *
- */
-function get_first_free_gidNumber($start = NULL)
-{
-    global $ldap_server, $ldap_port, $dn;
-    global $error;
-    $error = "";
-
-    /*
-     * # Quelques groupes:
-     * # 5000:admins
-     * # 5001:Eleves
-     * # 5002:Profs
-     * # 5003:Administratifs
-     * # 1560:overfill
-     * # 1000:lcs-users
-     * # 998:machines
-     */
-
-    $first_gidNumber = 2000;
-    $last_gidNumber = 4999;
-    // $last_gidNumber=2010;
-
-    if ((isset($start)) && (strlen(preg_replace("/[0-9]/", "", $start)) == 0) && ($start >= $first_gidNumber)) {
-        $first_gidNumber = $start;
-        $last_gidNumber = 64000;
-    }
-
-    unset($attribut);
-    $attribut = array();
-    $attribut[0] = "gidnumber";
-
-    $tab1 = array();
-    $tab1 = get_tab_attribut("people", "cn=*", $attribut);
-
-    $tab = array();
-    for ($i = 0; $i < count($tab1); $i ++) {
-        // echo "\$tab1[$i]=$tab1[$i]<br />";
-        $tab[] = $tab1[$i];
-    }
-
-    // echo "<hr />";
-
-    $tab2 = array();
-    $tab2 = get_tab_attribut("groups", "cn=*", $attribut);
-
-    for ($i = 0; $i < count($tab2); $i ++) {
-        // echo "\$tab2[$i]=$tab2[$i]<br />";
-        if (! in_array($tab2[$i], $tab)) {
-            $tab[] = $tab2[$i];
-        }
-    }
-    rsort($tab);
-
-    /*
-     * // Debug:
-     * echo "count(\$tab)=".count($tab)."<br />";
-     * for($i=0;$i<count($tab);$i++){
-     * echo "\$tab[$i]=$tab[$i]<br />";
-     * }
-     */
-
-    // On recherche le plus petit gidNumber dispo entre $first_gidNumber et $last_gidNumber
-    $gidNumber = $first_gidNumber;
-    while ((in_array($gidNumber, $tab)) && ($gidNumber < $last_gidNumber)) {
-        $gidNumber ++;
-    }
-    // echo "<p><b>\$gidNumber=$gidNumber</b></p>";
-
-    if (($gidNumber == $last_gidNumber) && (in_array($gidNumber, $tab))) {
-        $error = "Il n'y a plus de gidNumber libre";
-        // echo "error=$error<br />";
-        return false;
-    } else {
-        return $gidNumber;
-    }
-    // Pour controler:
-    // ldapsearch -xLLL gidNumber | grep gidNumber | sed -e "s/^gidNumber: //" | sort -n -r | uniq | head
-    // ldapsearch -xLLL gidNumber | grep gidNumber | sed -e "s/^gidNumber: //" | sort -n -r | uniq | tail
-}
-
-/**
- * OBSOLETE NE PAS UTILISER
- * Ajoute un utilisateur dans l'annuaire LDAP
- *
- * @Parametres
- *
- * @return
- *
- */
-function add_user($cn, $nom, $prenom, $sexe, $naissance, $password, $employeeNumber)
-{
-    // Recuperer le gidNumber par defaut -> lcs-users (1000) ou slis (600)
-    global $defaultgid, $domain, $defaultshell, $domainsid, $cnPolicy;
-    global $attribut_pseudo;
-    global $liste_caracteres_accentues, $liste_caracteres_desaccentues;
-
-    fich_debug("================\n");
-    fich_debug("add_user:\n");
-    fich_debug("\$defaultgid=$defaultgid\n");
-    fich_debug("\$domain=$domain\n");
-    fich_debug("\$defaultshell=$defaultshell\n");
-    fich_debug("\$domainsid=$domainsid\n");
-    fich_debug("\$cnPolicy=$cnPolicy\n");
-
-    global $pathscripts;
-    fich_debug("\$pathscripts=$pathscripts\n");
-
-    // crob_init(); Ne sert a rien !!!!
-    $nom = preg_replace("/[^a-z_ -]/", "", strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$nom")))), "'$liste_caracteres_accentues", "_$liste_caracteres_desaccentues")));
-    $prenom = preg_replace("/[^a-z_ -]/", "", strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), "'$liste_caracteres_accentues", "_$liste_caracteres_desaccentues")));
-
-    $nom = ucfirst(strtolower($nom));
-    $prenom = ucfirst(strtolower($prenom));
-
-    fich_debug("\$nom=$nom\n");
-    fich_debug("\$prenom=$prenom\n");
-
-    // Recuperer un cnNumber:
-    // $cnNumber=get_first_free_cnNumber();
-    if (! get_first_free_cnNumber()) {
-        return false;
-        exit();
-    }
-    $cnNumber = get_first_free_cnNumber();
-    $rid = 2 * $cnNumber + 1000;
-    // On n'utilise plus ce $pgrid: on passe à 513
-    $pgrid = 2 * $defaultgid + 1001;
-
-    fich_debug("\$cnNumber=$cnNumber\n");
-
-    // Faut-il interdire les espaces dans le password? les apostrophes?
-    // Comment le script ntlmpass.pl prend-il le parametre sans les apostrophes?
-
-    // $ntlmpass=explode(" ",exec("$pathscripts/ntlmpass.pl '$password'"));
-    echo "Preparation du mot de passe pour $nom $prenom\n";
-    $ntlmpass = explode(" ", exec("export LC_ALL=\"fr_FR.UTF-8\";$pathscripts/ntlmpass.pl '$password'"));
-
-    $sambaLMPassword = $ntlmpass[0];
-    $sambaNTPassword = $ntlmpass[1];
-    // $userPassword=exec("$pathscripts/unixPassword.pl '$password'");
-    $userPassword = exec("export LC_ALL=\"fr_FR.UTF-8\";$pathscripts/unixPassword.pl '$password'");
-
-    $attribut = array();
-    $attribut["cn"] = "$cn";
-    $attribut["cn"] = "$prenom $nom";
-
-    // $attribut["givenName"]=strtolower($prenom).strtoupper(substr($nom,0,1));
-    $attribut["givenName"] = ucfirst(strtolower($prenom));
-    // $attribut["$attribut_pseudo"]=strtolower($prenom).strtoupper(substr($nom,0,1));
-    $attribut["$attribut_pseudo"] = preg_replace("/ /", "_", strtolower($prenom) . strtoupper(substr($nom, 0, 1)));
-
-    $attribut["sn"] = "$nom";
-
-    $attribut["mail"] = "$cn@$domain";
-    // $attribut["objectClass"]="top";
-    /*
-     * // Comme la cle est toujours objectClass, cela pose un probleme: un seul attribut objectClass est ajoute (le dernier defini)
-     * $attribut["objectClass"]="posixAccount";
-     * $attribut["objectClass"]="shadowAccount";
-     * $attribut["objectClass"]="person";
-     * $attribut["objectClass"]="inetOrgPerson";
-     * $attribut["objectClass"]="sambaSamAccount";
-     */
-    $attribut["objectClass"][0] = "top";
-    $attribut["objectClass"][1] = "posixAccount";
-    $attribut["objectClass"][2] = "shadowAccount";
-    $attribut["objectClass"][3] = "person";
-    $attribut["objectClass"][4] = "inetOrgPerson";
-    $attribut["objectClass"][5] = "sambaSamAccount";
-
-    $attribut["loginShell"] = "$defaultshell";
-    $attribut["cnNumber"] = "$cnNumber";
-
-    $attribut["gidNumber"] = "$defaultgid";
-
-    $attribut["homeDirectory"] = "/home/$cn";
-    $attribut["gecos"] = "$prenom $nom,$naissance,$sexe,N";
-
-    $attribut["sambaSID"] = "$domainsid-$rid";
-    // $attribut["sambaPrimaryGroupSID"]="$domainsid-$pgrid";
-    $attribut["sambaPrimaryGroupSID"] = "$domainsid-513";
-
-    $attribut["sambaPwdMustChange"] = "2147483647";
-    $attribut["sambaPwdLastSet"] = "1";
-    $attribut["sambaAcctFlags"] = "[U		  ]";
-    $attribut["sambaLMPassword"] = "$sambaLMPassword";
-    $attribut["sambaNTPassword"] = "$sambaNTPassword";
-    $attribut["userPassword"] = "$userPassword";
-    $attribut["shadowLastChange"] = time();
-    // IL faut aussi l'employeeNumber
-    if ("$employeeNumber" != "") {
-        $attribut["employeeNumber"] = "$employeeNumber";
-    }
-
-    $result = create_user("cn=$cn", "people", $attribut);
-
-    if ($result) {
-        /*
-         * // Reste a ajouter les autres attributs objectClass
-         * unset($attribut);
-         * $attribut=array();
-         * $attribut["objectClass"]="posixAccount";
-         * if(modify_attribut("cn=$cn","people", $attribut, "add")){
-         * unset($attribut);
-         * $attribut=array();
-         * $attribut["objectClass"]="shadowAccount";
-         * if(modify_attribut("cn=$cn","people", $attribut, "add")){
-         * unset($attribut);
-         * $attribut=array();
-         * $attribut["objectClass"]="person";
-         * if(modify_attribut("cn=$cn","people", $attribut, "add")){
-         * unset($attribut);
-         * $attribut=array();
-         * $attribut["objectClass"]="inetOrgPerson";
-         * if(modify_attribut("cn=$cn","people", $attribut, "add")){
-         * unset($attribut);
-         * $attribut=array();
-         * $attribut["objectClass"]="sambaSamAccount";
-         * if(modify_attribut("cn=$cn","people", $attribut, "add")) return true;
-         * else return false;
-         * } else return false;
-         * } else return false;
-         * } else return false;
-         * } else return false;
-         */
-        return true;
-    } else
-        return false;
-}
-
-// ================================================
-
-/**
- *
- * Verifie et corrige le Gecos
- *
- * @Parametres
- *
- * @return
- *
- */
-function verif_et_corrige_gecos($cn, $nom, $prenom, $naissance, $sexe)
-{
-    // Verification/correction du GECOS
-    global $simulation;
-    global $infos_corrections_gecos;
-
-    // Correction du nom/prenom fournis
-    $nom = remplace_accents(traite_espaces($nom));
-    $prenom = remplace_accents(traite_espaces($prenom));
-
-    $nom = preg_replace("/[^a-z_-]/", "", strtolower("$nom"));
-    $prenom = preg_replace("/[^a-z_-]/", "", strtolower("$prenom"));
-
-    $nom = ucfirst(strtolower($nom));
-    $prenom = ucfirst(strtolower($prenom));
-
-    unset($attribut);
-    $attribut = array(
-        "gecos"
-    );
-    $tab = get_tab_attribut("people", "cn=$cn", $attribut);
+    $tab = search_user($config, $cn);
     if (count($tab) > 0) {
-        if ("$tab[0]" != "$prenom $nom,$naissance,$sexe,N") {
-            unset($attributs);
+        if (($tab['sexe'] != $sexe) || ($tab['date'] != $naissance)) {
             $attributs = array();
-            $attributs["gecos"] = "$prenom $nom,$naissance,$sexe,N";
-            $attributs["cn"] = "$prenom $nom";
-            $attributs["givenName"] = strtolower($prenom) . strtoupper(substr($nom, 0, 1));
-            $attributs["sn"] = "$nom";
-            my_echo("Correction de l'attribut 'gecos': ");
+            $attributs["physicaldeliveryoffice"] = "$naissance,$sexe";
+            my_echo("Correction des attributs: ");
 
-            // if($infos_corrections_gecos!="") {$infos_corrections_gecos.="<br />";}
-            $infos_corrections_gecos .= "Correction du nom, prénom, date de naissance ou sexe de <b>$cn</b><br />\n";
+            $infos_corrections_gecos .= "Correction  date de naissance ou sexe de <b>$cn</b><br />\n";
 
             if ($simulation != 'y') {
-                if (modify_attribut("cn=$cn", "people", $attributs, "replace")) {
+                if (modify_ad($config, $cn, $attributs, "replace")) {
                     my_echo("<font color='green'>SUCCES</font>");
                 } else {
                     my_echo("<font color='red'>ECHEC</font>");
@@ -1451,18 +660,16 @@ function verif_et_corrige_gecos($cn, $nom, $prenom, $naissance, $sexe)
 
 /**
  *
- * Verifie et corrige le givenName
+ * Verifie et corrige le prénom
  *
  * @Parametres
  *
  * @return
  *
  */
-function verif_et_corrige_givenname($cn, $prenom)
+function verif_et_corrige_prenom($cn, $prenom, $simulation = "N")
 {
     // Verification/correction du givenName
-    global $simulation;
-
     // Correction du nom/prenom fournis
     $prenom = remplace_accents(traite_espaces($prenom));
 
@@ -1471,24 +678,14 @@ function verif_et_corrige_givenname($cn, $prenom)
     // FAUT-IL LA MAJUSCULE?
     $prenom = ucfirst(strtolower($prenom));
 
-    unset($attribut);
-    // $attribut=array("givenName");
-    $attribut = array(
-        "givenname"
-    );
-    $tab = get_tab_attribut("people", "cn=$cn", $attribut);
-    // my_echo("\$tab=get_tab_attribut(\"people\", \"cn=$cn\", \$attribut)<br />");
-    // my_echo("count(\$tab)=".count($tab)."<br />");
+    $tab = search_user($config, $cn);
     if (count($tab) > 0) {
-        // my_echo("\$tab[0]=".$tab[0]." et \$prenom=$prenom<br />");
-        if ("$tab[0]" != "$prenom") {
-            unset($attributs);
+        if ($tab['givenName'] != "$prenom") {
             $attributs = array();
-            // $attributs["givenName"]=strtolower($prenom);
             $attributs["givenName"] = $prenom;
             my_echo("Correction de l'attribut 'givenName': ");
             if ($simulation != 'y') {
-                if (modify_attribut("cn=$cn", "people", $attributs, "replace")) {
+                if (modify_ad($config, $cn, $attributs, "replace")) {
                     my_echo("<font color='green'>SUCCES</font>");
                 } else {
                     my_echo("<font color='red'>ECHEC</font>");
@@ -1511,16 +708,9 @@ function verif_et_corrige_givenname($cn, $prenom)
  * @return
  *
  */
-function verif_et_corrige_pseudo($cn, $nom, $prenom)
+function verif_et_corrige_pseudo($cn, $nom, $prenom, $annuelle = "y", $simulation = "N")
 {
     // Verification/correction de l'attribut choisi pour le pseudo
-    global $attribut_pseudo;
-    global $annuelle;
-    global $simulation;
-
-    // En minuscules pour la recherche:
-    $attribut_pseudo_min = strtolower($attribut_pseudo);
-
     // Correction du nom/prenom fournis
     $nom = remplace_accents(traite_espaces($nom));
     $prenom = remplace_accents(traite_espaces($prenom));
@@ -1528,27 +718,19 @@ function verif_et_corrige_pseudo($cn, $nom, $prenom)
     $nom = preg_replace("/[^a-z_-]/", "", strtolower("$nom"));
     $prenom = preg_replace("/[^a-z_-]/", "", strtolower("$prenom"));
 
-    unset($attribut);
-    $attribut = array(
-        "$attribut_pseudo_min"
-    );
-    $tab = get_tab_attribut("people", "cn=$cn", $attribut);
-    // my_echo("\$tab=get_tab_attribut(\"people\", \"cn=$cn\", \$attribut)<br />");
-    // my_echo("count(\$tab)=".count($tab)."<br />");
-
+    $tab = search_user($config, $cn);
     $tmp_pseudo = strtolower($prenom) . strtoupper(substr($nom, 0, 1));
     if (count($tab) > 0) {
         // Si le pseudo existe déjà, on ne réinitialise le pseudo que lors d'un import annuel
         if ($annuelle == "y") {
             // my_echo("\$tab[0]=".$tab[0]." et \$prenom=$prenom<br />");
             // $tmp_pseudo=strtolower($prenom).strtoupper(substr($nom,0,1));
-            if ("$tab[0]" != "$tmp_pseudo") {
-                unset($attributs);
+            if ($tab['initials'] != "$tmp_pseudo") {
                 $attributs = array();
-                $attributs["$attribut_pseudo"] = $tmp_pseudo;
-                my_echo("Correction de l'attribut '$attribut_pseudo': ");
+                $attributs['initials'] = $tmp_pseudo;
+                my_echo("Correction de l'attribut 'initials': ");
                 if ($simulation != 'y') {
-                    if (modify_attribut("cn=$cn", "people", $attributs, "replace")) {
+                    if (modify_ad($config, $cn, $attributs, "replace")) {
                         my_echo("<font color='green'>SUCCES</font>");
                     } else {
                         my_echo("<font color='red'>ECHEC</font>");
@@ -1564,11 +746,10 @@ function verif_et_corrige_pseudo($cn, $nom, $prenom)
         // L'attribut pseudo n'existait pas:
         unset($attributs);
         $attributs = array();
-        // $attributs["$tmp_pseudo"]=strtolower($prenom).strtoupper(substr($nom,0,1));
-        $attributs["$attribut_pseudo"] = $tmp_pseudo;
-        my_echo("Renseignement de l'attribut '$attribut_pseudo': ");
+        $attributs['initials'] = $tmp_pseudo;
+        my_echo("Renseignement de l'attribut 'initials': ");
         if ($simulation != 'y') {
-            if (modify_attribut("cn=$cn", "people", $attributs, "add")) {
+            if (modify_ad($config, $cn, $attributs, "replace")) {
                 my_echo("<font color='green'>SUCCES</font>");
             } else {
                 my_echo("<font color='red'>ECHEC</font>");
@@ -1606,7 +787,6 @@ function get_cn_from_f_cn_file($employeeNumber)
         }
     }
 }
-
 
 // Les temps sont durs, il faut faire les poubelles pour en recuperer des choses...
 function recup_from_trash($config, $cn)

@@ -121,9 +121,9 @@ if (have_right($config, "se3 is_admin") or ((tstclass($login,$cn)==1) and (have_
 
 	$info_employeeNumber="";
 	if($employeeNumber!='') {
-		$tmp_tab=verif_employeeNumber($employeeNumber);
+		$tmp_tab=verif_employeeNumber($config, $employeeNumber);
 		if(($tmp_tab)&&(count($tmp_tab)>0)) {
-			if($tmp_tab[0]!=$cn) {
+			if($tmp_tab['cn']!=$cn) {
 				$info_employeeNumber="Le num&#233;ro <b>$employeeNumber</b> est d&#233;j&#225; attribu&#233; &#225; <a href='".$_SERVER['PHP_SELF']."?cn=".$tmp_tab[0]."'>".$tmp_tab[0]."</a> dans la branche <b>".$tmp_tab[-1]."</b><br />";
 			}
 		}
