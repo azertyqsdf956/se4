@@ -1,4 +1,4 @@
-/sources/debian/sambeadu-*/
+/sources/debian/sambaedu-*/
 /nbproject/private/
 *.deb
 *.dsc
@@ -10,3 +10,8 @@
 /build
 /sources/debian/files
 /sources/debian/tmp
+/etc
+/ldif
+/usr
+/var
+/sources/.settings

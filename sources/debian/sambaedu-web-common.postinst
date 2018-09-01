@@ -63,12 +63,16 @@ case "$1" in
         a2enmod proxy_fcgi setenvif
         cp -a /usr/share/doc/sambaedu/fpm.conf /etc/php/7.0/fpm/pool.d/sambaedu.conf
 
-
         a2enconf php7.0-fpm
         apachectl restart
         systemctl enable php7.0-fpm
         systemctl restart php7.0-fpm
         
+        # php-cli
+        if  [ ! -f /etc/php/7.0/cli/conf.d/30-sambaedu.ini ] ; then
+        	cp -a /usr/share/doc/sambaedu/php-cli.ini.example /etc/php/7.0/cli/conf.d/30-sambaedu.ini
+    	fi
+    	        
         mkdir -p /var/log/sambaedu
         chown www-admin /var/log/sambaedu
         
