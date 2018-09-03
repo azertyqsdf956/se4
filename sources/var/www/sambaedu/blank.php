@@ -153,7 +153,7 @@ if (!have_right($config,"se3_is_admin"))
         die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BO
 DY></HTML>");
 
-if ($registred > 1) {
+if ($config['registred'] > 1) {
 
 
 	// Ajout popup d'alerte

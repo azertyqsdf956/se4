@@ -86,11 +86,11 @@ function useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $cate
         // Pas de champ job-title pour employeeNumber dans ce cas
         $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@" . $config['domain'] . "' --physical-delivery-office='$office'";
         if ($categorie != '')
-            $command = $command . " --userou='ou=$categorie,". $config['peopleRdn']."'";
+            $command = $command . " --userou='ou=$categorie,". $config['people_rdn']."'";
     } else {
         $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@" . $config['domain'] . "' --job-title='$employeeNumber' --physical-delivery-office='$office'";
         if ($categorie != '')
-            $command = $command . " --userou='ou=$categorie,". $config['peopleRdn']."'";
+            $command = $command . " --userou='ou=$categorie,". $config['people_rdn']."'";
     }
 
     $RES = sambatool($config, $command);
@@ -251,7 +251,7 @@ function grouplistmembers($config, $cn)
     /*
      * Return array of member's cn
      */
-    $command = "group listmembers ";
+    $command = "group listmembers '$cn'";
     $res = sambatool($config, $command);
 
     return $res;

@@ -12,8 +12,8 @@
  * file: rep_classes.php
  */
 include "entete.inc.php";
-include "ldap.inc.php";
-include "ihm.inc.php";
+require_once "ldap.inc.php";
+require_once "ihm.inc.php";
 
 require_once ("lang.inc.php");
 bindtextdomain('sambaedu-partages', "/var/www/sambaedu/locale");
@@ -45,7 +45,7 @@ $texte_alert = "Vous allez supprimer tout le repertoire classe. Voulez vous vrai
 </script>
 
 <?php
-if ((have_right($config, "se3_is_admin", $login) == "Y") or ( have_right($config, "annu_is_admin", $login) == "Y")) {
+if ((have_right($config, "se3_is_admin")) or ( have_right($config, "annu_is_admin"))) {
 
     function my_echo_debug($chaine) {
         $debug = 1;
@@ -211,13 +211,14 @@ if ((have_right($config, "se3_is_admin", $login) == "Y") or ( have_right($config
 
     echo "<br />\n";
     // Recherche de la liste des classes dans l'annuaire
-    $list_classes = filter_group("cn=Classe_*");
+    $list_classes = list_classes($config, "*", "Classes");
     // Recherche des sous dossiers classes d&#233;ja existant sur le serveur selectionn&#233;
     // Constitution d'un tableau avec les ressources deja existantes
     $dirClasses = dir("/var/sambaedu/Classes");
     $indice = 0;
     while ($Entry = $dirClasses->read()) {
         if (( preg_match("/^Classe_/", $Entry) ) && (!preg_match("/^Classe_grp/", $Entry) )) {
+            $Entry = preg_replace("/^Classe_/", "", $Entry);
             $RessourcesClasses[$indice] = $Entry;
             $indice++;
         }
@@ -233,7 +234,7 @@ if ((have_right($config, "se3_is_admin", $login) == "Y") or ( have_right($config
     $k = 0;
     for ($i = 0; $i < count($list_classes); $i++) {
         for ($j = 0; $j < count($RessourcesClasses); $j++) {
-            if ($list_classes[$i]["cn"] == $RessourcesClasses[$j]) {
+            if ($list_classes[$i] == $RessourcesClasses[$j]) {
                 $exist = true;
                 break;
             }
@@ -243,7 +244,7 @@ if ((have_right($config, "se3_is_admin", $login) == "Y") or ( have_right($config
         }
 
         if (!$exist) {
-            $list_new_classes[$k]["cn"] = $list_classes[$i]["cn"];
+            $list_new_classes[$k]['cn'] = $list_classes[$i];
             $k++;
         }
     }

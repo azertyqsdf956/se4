@@ -19,36 +19,33 @@
  * @Repertoire: includes/
  */
 
-// ================================================
-// Correspondances de caractères accentués/désaccentués
-$liste_caracteres_accentues = "ÂÄÀÁÃÅÇÊËÈÉÎÏÌÍÑÔÖÒÓÕØ¦ÛÜÙÚÝ¾´áàâäãåçéèêëîïìíñôöðòóõø¨ûüùúýÿ¸";
-$liste_caracteres_desaccentues = "AAAAAACEEEEIIIINOOOOOOSUUUUYYZaaaaaaceeeeiiiinooooooosuuuuyyz";
-
-// ================================================
-
 /**
  *
  * Fonction de generation de mot de passe recuperee sur TotallyPHP
  * Aucune mention de licence pour ce script...
  *
  * @Parametres
- * @return 1 ou 0
+ * @return string $password
  *        
  *         The letter l (lowercase L) and the number 1
  *         have been removed, as they can be mistaken
  *         for each other.
  */
-function createRandomPassword($nb_chars)
+function createRandomPassword(int $nb_chars, bool $complex = false)
 {
-    $chars = "abcdefghijkmnopqrstuvwxyz023456789";
+    if ($complex) {
+        $chars = 'ABCDEFGHIJKLMN_PQRSTUVWXYZ&*$abcdefghijkmnopqrstuvwxyz023456789';
+        $nchars = 62;
+    } else {
+        $chars = "abcdefghijkmnopqrstuvwxyz023456789";
+        $nchars = 33;
+    }
     srand((double) microtime() * 1000000);
     $i = 0;
     $pass = '';
 
-    // while ($i <= 7) {
-    // while ($i <= 5) {
     while ($i <= $nb_chars) {
-        $num = rand() % 33;
+        $num = rand() % $nchars;
         $tmp = substr($chars, $num, 1);
         $pass = $pass . $tmp;
         $i ++;
@@ -306,12 +303,17 @@ function traite_espaces($chaine)
 function apostrophes_espaces_2_underscore($chaine)
 {
     // $retour = preg_replace("/'/", "_", preg_replace("/ /", "_", $chaine));
-    $chaine = preg_replace("/'/", "_", $chaine);
-    $tab = explode(" ", $chaine, 1);
+    $chaine = preg_replace("/'/", " ", $chaine);
+    $tab = explode(" ", $chaine, 2);
     if (isset($tab[1])) {
         return $tab[0] . "_" . preg_replace("/ /", "-", $tab[1]);
     }
     return $tab[0];
+}
+
+function supprime_espaces($chaine)
+{
+    return preg_replace("/ /", "", $chaine);
 }
 
 // ================================================
@@ -393,8 +395,8 @@ function creer_cn($config, $nom, $prenom)
     $nom = apostrophes_espaces_2_underscore(remplace_accents($nom));
     $prenom = apostrophes_espaces_2_underscore(remplace_accents($prenom));
 
-    $nom = ucfirst(strtolower($nom));
-    $prenom = ucfirst(strtolower($prenom));
+    $nom = strtolower($nom);
+    $prenom = strtolower($prenom);
 
     // Filtrer certains caracteres:
     // $nom = strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$nom")))), " '$liste_caracteres_accentues", "__$liste_caracteres_desaccentues"));
@@ -570,54 +572,18 @@ function verif_nom_prenom($config, $nom, $prenom)
     $trouve = 0;
 
     // On fait une recherche avec éventuellement les accents dans les nom/prénom... et on en fait si nécessaire une deuxième sans les accents
-    $attribut = array(
-        "cn"
-    );
-    $tab1 = array();
+    $tab = array();
     // $tab1=get_tab_attribut("people","cn='$prenom $nom'",$attribut);
-    $tab1 = search_ad($config, "(&(objectclass=user)(displayname=" . $prenom . " " . $nom . "))", "filter", $config['dn']['people']);
+    $nom1 = remplace_accents(traite_espaces($nom));
+    $prenom1 = remplace_accents(traite_espaces($prenom));
+    $nom2 = supprime_espaces($nom);
+    $prenom2 = supprime_espaces($prenom);
 
-    if (count($tab1) > 0) {
-        for ($i = 0; $i < count($tab1); $i ++) {
-            $tab2 = search_ad($config, $tab1[$i]['cn'], "user");
-            if (count($tab2) == 0) {
-                $trouve ++;
-                $cn = $tab1[$i]['cn'];
-                // echo "<p>cn=$cn</p>";
-            }
-        }
+    $tab = search_ad($config, "(&(objectclass=user)(|(displayname=" . $prenom . " " . $nom . ")(displayname=" . $prenom1 . " " . $nom1 . ")(displayname=" . $prenom2 . " " . $nom2 . ")))", "filter", $config['dn']['people']);
 
-        // On ne cherche a traiter que le cas d'une seule correspondance.
-        // S'il y en a plus, on ne pourra pas identifier...
-        if ($trouve == 1) {
-            return $cn;
-        } else {
-            return false;
-        }
-    } else {
-        // On fait en sorte de ne pas avoir d'accents dans la branche People de l'annuaire
-        $nom = remplace_accents(traite_espaces($nom));
-        $prenom = remplace_accents(traite_espaces($prenom));
-        $tab1 = search_ad($config, "(&(objectclass=user)(displayname=" . $prenom . " " . $nom . "))", "filter", $config['dn']['people']);
-
-        if (count($tab1) > 0) {
-            for ($i = 0; $i < count($tab1); $i ++) {
-                $tab2 = search_ad($config, $tab1[$i]['cn'], "user");
-                if (count($tab2) == 0) {
-                    $trouve ++;
-                    $cn = $tab1[$i]['cn'];
-                    // echo "<p>cn=$cn</p>";
-                }
-            }
-
-            // On ne cherche a traiter que le cas d'une seule correspondance.
-            // S'il y en a plus, on ne pourra pas identifier...
-            if ($trouve == 1) {
-                return $cn;
-            } else {
-                return false;
-            }
-        }
+    if (count($tab) == 1) {
+        return $tab[0]['cn'];
+        return false;
     }
 }
 
@@ -632,23 +598,24 @@ function verif_nom_prenom($config, $nom, $prenom)
  * @return
  *
  */
-function verif_et_corrige_user($cn, $naissance, $sexe, $simulation = "N")
+function verif_et_corrige_user($config, $cn, $naissance, $sexe, $simulation = "N")
 {
+    $ret = true;
     $tab = search_user($config, $cn);
     if (count($tab) > 0) {
         if (($tab['sexe'] != $sexe) || ($tab['date'] != $naissance)) {
             $attributs = array();
-            $attributs["physicaldeliveryoffice"] = "$naissance,$sexe";
+            $attributs["physicaldeliveryofficename"] = "$naissance,$sexe";
             my_echo("Correction des attributs: ");
 
-            $infos_corrections_gecos .= "Correction  date de naissance ou sexe de <b>$cn</b><br />\n";
+            my_echo("Correction  date de naissance ou sexe de <b>$cn</b>");
 
             if ($simulation != 'y') {
-                if (modify_ad($config, $cn, $attributs, "replace")) {
+                if (modify_ad($config, $cn, "user", $attributs, "replace")) {
                     my_echo("<font color='green'>SUCCES</font>");
                 } else {
                     my_echo("<font color='red'>ECHEC</font>");
-                    $nb_echecs ++;
+                    $ret = false;
                 }
             } else {
                 my_echo("<font color='blue'>SIMULATION</font>");
@@ -656,6 +623,7 @@ function verif_et_corrige_user($cn, $naissance, $sexe, $simulation = "N")
             my_echo("<br />\n");
         }
     }
+    return $ret;
 }
 
 /**
@@ -667,7 +635,7 @@ function verif_et_corrige_user($cn, $naissance, $sexe, $simulation = "N")
  * @return
  *
  */
-function verif_et_corrige_prenom($cn, $prenom, $simulation = "N")
+function verif_et_corrige_prenom($config, $cn, $prenom, $simulation = "N")
 {
     // Verification/correction du givenName
     // Correction du nom/prenom fournis
@@ -677,7 +645,7 @@ function verif_et_corrige_prenom($cn, $prenom, $simulation = "N")
 
     // FAUT-IL LA MAJUSCULE?
     $prenom = ucfirst(strtolower($prenom));
-
+    $success = false;
     $tab = search_user($config, $cn);
     if (count($tab) > 0) {
         if ($tab['givenName'] != "$prenom") {
@@ -685,18 +653,21 @@ function verif_et_corrige_prenom($cn, $prenom, $simulation = "N")
             $attributs["givenName"] = $prenom;
             my_echo("Correction de l'attribut 'givenName': ");
             if ($simulation != 'y') {
-                if (modify_ad($config, $cn, $attributs, "replace")) {
+                if (modify_ad($config, $cn, "user", $attributs, "replace")) {
                     my_echo("<font color='green'>SUCCES</font>");
+                    $success = true;
                 } else {
                     my_echo("<font color='red'>ECHEC</font>");
-                    $nb_echecs ++;
+                    $success = false;
                 }
             } else {
                 my_echo("<font color='blue'>SIMULATION</font>");
+                $success = true;
             }
             my_echo("<br />\n");
         }
     }
+    return $success;
 }
 
 /**
@@ -708,7 +679,7 @@ function verif_et_corrige_prenom($cn, $prenom, $simulation = "N")
  * @return
  *
  */
-function verif_et_corrige_pseudo($cn, $nom, $prenom, $annuelle = "y", $simulation = "N")
+function verif_et_corrige_pseudo($config, $cn, $nom, $prenom, $annuelle = "y", $simulation = "N")
 {
     // Verification/correction de l'attribut choisi pour le pseudo
     // Correction du nom/prenom fournis
@@ -730,7 +701,7 @@ function verif_et_corrige_pseudo($cn, $nom, $prenom, $annuelle = "y", $simulatio
                 $attributs['initials'] = $tmp_pseudo;
                 my_echo("Correction de l'attribut 'initials': ");
                 if ($simulation != 'y') {
-                    if (modify_ad($config, $cn, $attributs, "replace")) {
+                    if (modify_ad($config, $cn, "user", $attributs, "replace")) {
                         my_echo("<font color='green'>SUCCES</font>");
                     } else {
                         my_echo("<font color='red'>ECHEC</font>");
@@ -749,11 +720,10 @@ function verif_et_corrige_pseudo($cn, $nom, $prenom, $annuelle = "y", $simulatio
         $attributs['initials'] = $tmp_pseudo;
         my_echo("Renseignement de l'attribut 'initials': ");
         if ($simulation != 'y') {
-            if (modify_ad($config, $cn, $attributs, "replace")) {
+            if (modify_ad($config, $cn, "user", $attributs, "add")) {
                 my_echo("<font color='green'>SUCCES</font>");
             } else {
                 my_echo("<font color='red'>ECHEC</font>");
-                $nb_echecs ++;
             }
         } else {
             my_echo("<font color='blue'>SIMULATION</font>");

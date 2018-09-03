@@ -22,9 +22,9 @@
  * file: import_sconet.php
  */
 include "config.inc.php";
-require_once "siecle.inc.php";
 require_once "ldap.inc.php";
-include "/var/www/sambaedu/includes/ihm.inc.php";
+require_once "siecle.inc.php";
+include "ihm.inc.php";
 
 require_once "lang.inc.php";
 bindtextdomain('sambaedu-annu', "/var/www/sambaedu/locale");
@@ -32,104 +32,9 @@ textdomain('sambaedu-annu');
 
 // HTMLPurifier
 require_once ("traitement_data.inc.php");
-if ($argc < 17 || in_array($argv[1], array(
-    '--help',
-    '-help',
-    '-h',
-    '-?'
-))) {
-    // ===========================================================
-    $chaine = "USAGE: Vous devez passer en paramétres (dans l'ordre):\n";
-    $chaine .= "       . Le type du fichier 'csv' ou 'xml';\n";
-    $chaine .= "       . le chemin du fichier élèves;\n";
-    $chaine .= "       . le chemin du fichier XML de STS EDT;";
-    $chaine .= "       . le préfixe (CLG_, LYC_, LP_, LEGT_) si vous en avez besoin;\n";
-    $chaine .= "       . 'y' ou 'n' selon que l'import est annuel ou non;\n";
-    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez seulement une simulation ou non;\n";
-    $chaine .= "       . le suffixe pour le fichier HTML result.SUFFIXE.html généré;\n";
-    $chaine .= "       . une chaine aléatoire pour le sous-dossier de stockage des CSV;\n";
-    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez créer les CSV ou non.\n";
-    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez chronométrer les opérations ou non.\n";
-
-    // ===========================================================
-    // AJOUTS: 20070914 boireaus
-    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez créer des Equipes vides ou non.\n";
-    $chaine .= "                    (avec 'n' elles sont créées et peuplées)\n";
-    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez créer Cours ou non.\n";
-    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez créer Matières ou non.\n";
-    // ===========================================================
-    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez corriger ou non les attributs\n";
-    $chaine .= "                    gecos, cn, sn et givenName si des différences sont trouvées.\n";
-    $chaine .= "       . 'y' ou 'n' selon qu'il faut utiliser ou non un fichier F_UID.txt\n";
-    $chaine .= "       . 'y' ou 'n' selon qu'il faut alimenter un groupe Professeurs Principaux\n";
-    // ===========================================================
-
-    echo $chaine;
-
-    // Récupérer les adresses,... dans le /etc/ssmtp/ssmtp.conf
-    unset($tabssmtp);
-    $tabssmtp = lireSSMTP();
-    // Contrôler les champs affectés...
-    if (isset($tabssmtp["root"])) {
-        $adressedestination = $tabssmtp["root"];
-        $sujet = "ERREUR: import_comptes.php ";
-        $message = $chaine;
-        $entete = "From: " . $tabssmtp["root"];
-        mail("$adressedestination", "$sujet", "$message", "$entete");
-    }
-
-    exit();
-}
-
-// Récupération des variables
-$type_fichier_eleves = $argv[1];
-$eleves_file = $argv[2];
-$sts_xml_file = $argv[3];
-$prefix = $argv[4];
-$annuelle = $argv[5];
-$simulation = $argv[6];
-$timestamp = $argv[7];
-$randval = $argv[8];
-$temoin_creation_fichiers = $argv[9];
-$chrono = $argv[10];
-
-// ===========================================================
-// AJOUTS: 20070914 boireaus
-$creer_equipes_vides = $argv[11];
-$creer_cours = $argv[12];
-$creer_matieres = $argv[13];
-// ===========================================================
-$corriger_gecos_si_diff = $argv[14];
-// ===========================================================
-$temoin_f_uid = $argv[15];
-// ===========================================================
-$alimenter_groupe_pp = $argv[16];
-// ===========================================================
-
-// Pour effectuer des affichages de debug:
-$debug_import_comptes = "n";
-
 $racine_www = "/var/www/sambaedu";
-$www_import = "/annu/import_sconet.php";
-$chemin_http_csv = "setup/csv/" . $timestamp . "_" . $randval;
-$dossiercsv = $racine_www . "/" . $chemin_http_csv;
-$echo_file = "$racine_www/Admin/result.$timestamp.html";
-$echo_http_file = "http://admin." . $config['domain'] . "/Admin/result." . $timestamp . ".html";
-$dossier_tmp_import_comptes = "/var/lib/sambaedu/import_comptes";
-$pathscripts = "/usr/share/sambaedu/scripts";
-$user_web = "www-admin";
-
-$rafraichir_classes = "n";
-if ((isset($argv[17])) && ($argv[17] == "y")) {
-    $rafraichir_classes = "y";
-}
-
-// AJOUT: 20080610
-$attribut_pseudo = "initials";
-$controler_pseudo = "y";
-$corriger_givenname_si_diff = "y";
-
-// TODO : créer une session indépendante pour pouvoir suivre le process en asynchrone ?
+$chemin_csv = "/tmp";
+$helpinfo = "../elements/images/help-info.gif";
 
 if (have_right($config, "Annu_is_admin")) {
 
@@ -201,7 +106,7 @@ if (have_right($config, "Annu_is_admin")) {
         }
         echo "</blockquote>\n";
 
-        include $pathlcsorse3 . "pdp.inc.php";
+        include "pdp.inc.php";
         exit();
     }
 
@@ -210,34 +115,19 @@ if (have_right($config, "Annu_is_admin")) {
 
         // Deverrouillage si un import etait annonce deja en cours:
         if ($deverrouiller == 'y') {
-            $sql = "UPDATE params SET value='n' WHERE name='imprt_cmpts_en_cours'";
-            $res0 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-
-            if ($res0) {
-                echo "<p>D&#233;verrouillage r&#233;ussi!</p>\n";
-            } else {
-                echo "<p style='color:red;'>Echec du d&#233;verrouillage!</p>\n";
-            }
+            set_param($config, "imprt_cmpts_en_cours", "n");
+            echo "<p>D&#233;verrouillage r&#233;ussi!</p>\n";
         }
 
         // Un import est-il deja en cours?
-        $sql = "SELECT value FROM params WHERE name='imprt_cmpts_en_cours'";
-        $res1 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-        if (mysqli_num_rows($res1) == 0) {
-            $imprt_cmpts_en_cours = "n";
-        } else {
-            $ligtmp = mysqli_fetch_object($res1);
-            $imprt_cmpts_en_cours = $ligtmp->value;
+        if (! isset($config['imprt_cmpts_en_cours'])) {
+            set_param($config, "imprt_cmpts_en_cours", "n");
         }
-
-        if ($imprt_cmpts_en_cours == "y") {
+        if ($config['imprt_cmpts_en_cours'] == "y") {
             echo "<p><b>ATTENTION:</b> Il semble qu'un import soit d&#233;j&#224; en cours";
-
-            $sql = "SELECT value FROM params WHERE name='dernier_import'";
-            $res2 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-            if (mysqli_num_rows($res1) > 0) {
-                $ligtmp = mysqli_fetch_object($res2);
-                echo ":<br />\n<a href='$urlse3/Admin/result." . $ligtmp->value . ".html' target='_blank'>$urlse3/Admin/result." . $ligtmp->value . ".html</a>";
+            if (isset($config['dernier_import'])) {
+                $ligtmp = $config['dernier_import'];
+                echo ":<br />\n<a href='http://admin.".$config['domain']."/tmp/result." . $ligtmp->value . ".html' target='_blank'>http://admin.".$config['domain']."/tmp/result." . $ligtmp->value . ".html</a>";
             }
 
             echo "<br />\n";
@@ -456,28 +346,19 @@ if (have_right($config, "Annu_is_admin")) {
     } else {
 
         // Un import est-il deja en cours?
-        $sql = "SELECT value FROM params WHERE name='imprt_cmpts_en_cours'";
-        $res1 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-        if (mysqli_num_rows($res1) == 0) {
-            $imprt_cmpts_en_cours = "n";
-        } else {
-            $ligtmp = mysqli_fetch_object($res1);
-            $imprt_cmpts_en_cours = $ligtmp->value;
+        if (! isset($config['imprt_cmpts_en_cours'])) {
+            set_param($config, "imprt_cmpts_en_cours", "n");
         }
-
-        if ($imprt_cmpts_en_cours == "y") {
+        if ($config['imprt_cmpts_en_cours'] == "y") {
             echo "<p><b>ATTENTION:</b> Il semble qu'un import soit d&#233;j&#224; en cours";
-
-            $sql = "SELECT value FROM params WHERE name='dernier_import'";
-            $res2 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-            if (mysqli_num_rows($res1) > 0) {
-                $ligtmp = mysqli_fetch_object($res2);
-                echo ":<br />\n<a href='$urlse3/Admin/result." . $ligtmp->value . ".html' target='_blank'>$urlse3/Admin/result." . $ligtmp->value . ".html</a>";
+            if (isset($config['dernier_import'])) {
+                $ligtmp = $config['dernier_import'];
+                echo ":<br />\n<a href='http://admin.".$config['domain']."/tmp/result." . $ligtmp->value . ".html' target='_blank'>http://admin.".$config['domain']."/tmp/result." . $ligtmp->value . ".html</a>";
             }
-
+            
             echo "<br />\n";
             echo "Si vous &#234;tes certain que ce n'est pas le cas, vous pouvez faire sauter le verrou.<br />Sinon, il vaut mieux patienter quelques minutes.</p>\n";
-
+            
             echo "<p><a href='" . $_SERVER['PHP_SELF'] . "?deverrouiller=y'>Faire sauter le verrou</a>.</p>\n";
             include $pathlcsorse3 . "pdp.inc.php";
             exit();
@@ -491,22 +372,14 @@ if (have_right($config, "Annu_is_admin")) {
         $tab_comptes_avec_employeeNumber_mis_a_jour = array();
 
         // Creation d'un temoin de mise a jour en cours.
-        $sql = "SELECT value FROM params WHERE name='imprt_cmpts_en_cours'";
-        $res1 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-        if (mysqli_num_rows($res1) == 0) {
-            $sql = "INSERT INTO params SET name='imprt_cmpts_en_cours',value='y'";
-            $res0 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-        } else {
-            // Si la valeur est deja a y, c'est qu'on a fait F5... un import est deja en cours.
-            $ligtmp = mysqli_fetch_object($res1);
-            if ($ligtmp->value == "y") {
-                echo ("<p>Un import est d&#233;j en cours");
 
-                $sql = "SELECT value FROM params WHERE name='dernier_import'";
-                $res2 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-                if (mysqli_num_rows($res1) > 0) {
-                    $ligtmp = mysqli_fetch_object($res2);
-                    echo ": <a href='$urlse3/Admin/result." . $ligtmp->value . ".html' target='_blank'>$urlse3/Admin/result." . $ligtmp->value . ".html</a>";
+        if (isset($config['imprt_cmpts_en_cours'])) {
+            // Si la valeur est deja a y, c'est qu'on a fait F5... un import est deja en cours.
+            if ($config['imprt_cmpts_en_cours'] == "y") {
+                echo ("<p>Un import est déjà en cours");
+
+                if ($config['dernier_import']) {
+                    echo ": <a href='http://admin.".$config['domain']."/tmp/result." . $config['dernier_import'] . ".html' target='_blank'>http://admin.".$config['domain']."/tmp/result." . $config['dernier_import'] . ".html</a>";
                 } else {
                     echo ".";
                 }
@@ -516,22 +389,12 @@ if (have_right($config, "Annu_is_admin")) {
                 echo ("</body>\n</html>\n");
                 exit();
             }
-
-            $sql = "UPDATE params SET value='y' WHERE name='imprt_cmpts_en_cours'";
-            $res0 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
+        } else {
+            set_param($config, 'imprt_cmpts_en_cours', 'y');
         }
 
         $timestamp = preg_replace("/ /", "_", microtime());
-
-        $sql = "SELECT value FROM params WHERE name='dernier_import'";
-        $res1 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-        if (mysqli_num_rows($res1) == 0) {
-            $sql = "INSERT INTO params SET name='dernier_import',value='$timestamp'";
-            $res0 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-        } else {
-            $sql = "UPDATE params SET value='$timestamp' WHERE name='dernier_import'";
-            $res0 = mysqli_query($GLOBALS["___mysqli_ston"], $sql);
-        }
+        set_param($config, 'dernier_import', $timestamp);
 
         if (($_FILES["eleves_file"]["name"] == "") && ($_FILES["sts_xml_file"]["name"] == "")) {
             echo "<p style='color:red;'><b>ERREUR:</b> Aucun fichier n'a &#233;t&#233; fourni!</p>\n";
@@ -572,7 +435,7 @@ if (have_right($config, "Annu_is_admin")) {
 
             die();
         }
-
+        $dossier_tmp_import_comptes = "/var/www/sambaedu/tmp";
         $dest_file = "$dossier_tmp_import_comptes/fichier_eleves";
         // SUR CA, IL VAUDRAIT SANS DOUTE MIEUX FORCER LE NOM DESTINATION POUR EVITER DES SALES BLAGUES
         if (file_exists($dest_file)) {
@@ -588,12 +451,7 @@ if (have_right($config, "Annu_is_admin")) {
             if (($extension_fichier_emis == ".zip") || ($_FILES['eleves_file']['type'] == "application/zip")) {
 
                 // if(!file_exists($racine_www."/includes/pclzip.lib.php")) {
-                if (! file_exists($chemin_www_includes . "/pclzip.lib.php")) {
-                    echo "<p style='color:red;'>Erreur : Un fichier ZIP a &#233;t&#233; fourni, mais la biblioth&#232;que de d&#233;zippage est absente.</p>\n";
-                    require "pdp.inc.php";
-                    die();
-                } else {
-                    // $unzipped_max_filesize=getSettingValue('unzipped_max_filesize')*1024*1024;
+                 // $unzipped_max_filesize=getSettingValue('unzipped_max_filesize')*1024*1024;
 
                     // On consid&#232;re un XML &#233;l&#232;ve de 20Mo maxi
                     $unzipped_max_filesize = 20 * 1024 * 1024;
@@ -641,7 +499,7 @@ if (have_right($config, "Annu_is_admin")) {
                             die();
                         }
                     }
-                }
+                
             }
         }
 
@@ -702,7 +560,7 @@ if (have_right($config, "Annu_is_admin")) {
         }
 
         // $timestamp=preg_replace("/ /","_",microtime());
-        $echo_file = "$racine_www/Admin/result.$timestamp.html";
+        $echo_file = "$racine_www/tmp/result.$timestamp.html";
         $dest_mode = "file";
         $fich = fopen("$echo_file", "w+");
         fwrite($fich, "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">
@@ -715,7 +573,7 @@ body{
 </style>
 <!--head-->
 <title>Import de comptes</title>
-<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1' />
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
 <!--meta http-equiv='Refresh' CONTENT='120;URL=result.$timestamp.html#menu' /-->
 <link type='text/css' rel='stylesheet' href='$stylecss' />
 <body>
@@ -820,32 +678,32 @@ decompte(cpt);
         }
 
         /*
-         * echo "\$resultat=exec(\"/usr/bin/sudo $php $chemin/import_comptes.php '$type_fichier_eleves' '$chemin_fich/fichier_eleves' '$chemin_fich/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp'\",$retour);";
+         * echo "\$resultat=exec(\"/usr/bin/sudo $php $chemin/import_comptes.php '$type_fichier_eleves' '$dossier_tmp_import_comptes/fichier_eleves' '$dossier_tmp_import_comptes/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp'\",$retour);";
          *
-         * $resultat=exec("/usr/bin/sudo $php $chemin/import_comptes.php '$type_fichier_eleves' '$chemin/fichier_eleves' '$chemin_fich/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp'",$retour);
+         * $resultat=exec("/usr/bin/sudo $php $chemin/import_comptes.php '$type_fichier_eleves' '$chemin/fichier_eleves' '$dossier_tmp_import_comptes/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp'",$retour);
          *
          */
 
         /*
-         * echo "\$resultat=exec(\"/usr/bin/sudo $chemin/import_comptes.php '$type_fichier_eleves' '$chemin_fich/fichier_eleves' '$chemin_fich/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp'\",$retour);";
+         * echo "\$resultat=exec(\"/usr/bin/sudo $chemin/import_comptes.php '$type_fichier_eleves' '$dossier_tmp_import_comptes/fichier_eleves' '$dossier_tmp_import_comptes/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp'\",$retour);";
          *
-         * $resultat=exec("/usr/bin/sudo $chemin/import_comptes.php '$type_fichier_eleves' '$chemin/fichier_eleves' '$chemin_fich/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp'",$retour);
+         * $resultat=exec("/usr/bin/sudo $chemin/import_comptes.php '$type_fichier_eleves' '$chemin/fichier_eleves' '$dossier_tmp_import_comptes/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp'",$retour);
          */
 
         $fich = fopen("$dossier_tmp_import_comptes/import_comptes.sh", "w+");
-        // fwrite($fich,"#!/bin/bash\n/usr/bin/sudo $chemin/import_comptes.php '$type_fichier_eleves' '$chemin_fich/fichier_eleves' '$chemin_fich/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers'\n");
+        // fwrite($fich,"#!/bin/bash\n/usr/bin/sudo $chemin/import_comptes.php '$type_fichier_eleves' '$dossier_tmp_import_comptes/fichier_eleves' '$dossier_tmp_import_comptes/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers'\n");
 
         // ===========================================================
         // AJOUTS: 20070914 boireaus
-        // fwrite($fich,"#!/bin/bash\n/usr/bin/php $chemin/import_comptes.php '$type_fichier_eleves' '$chemin_fich/fichier_eleves' '$chemin_fich/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers' '$chrono'\n");
+        // fwrite($fich,"#!/bin/bash\n/usr/bin/php $chemin/import_comptes.php '$type_fichier_eleves' '$dossier_tmp_import_comptes/fichier_eleves' '$dossier_tmp_import_comptes/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers' '$chrono'\n");
 
-        // fwrite($fich,"#!/bin/bash\n/usr/bin/php $chemin/import_comptes.php '$type_fichier_eleves' '$chemin_fich/fichier_eleves' '$chemin_fich/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers' '$chrono' '$creer_equipes_vides' '$creer_cours' '$creer_matieres'\n");
+        // fwrite($fich,"#!/bin/bash\n/usr/bin/php $chemin/import_comptes.php '$type_fichier_eleves' '$dossier_tmp_import_comptes/fichier_eleves' '$dossier_tmp_import_comptes/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers' '$chrono' '$creer_equipes_vides' '$creer_cours' '$creer_matieres'\n");
 
-        // fwrite($fich,"#!/bin/bash\n/usr/bin/php $chemin/import_comptes.php '$type_fichier_eleves' '$chemin_fich/fichier_eleves' '$chemin_fich/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers' '$chrono' '$creer_equipes_vides' '$creer_cours' '$creer_matieres' '$corriger_gecos_si_diff'\n");
+        // fwrite($fich,"#!/bin/bash\n/usr/bin/php $chemin/import_comptes.php '$type_fichier_eleves' '$dossier_tmp_import_comptes/fichier_eleves' '$dossier_tmp_import_comptes/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers' '$chrono' '$creer_equipes_vides' '$creer_cours' '$creer_matieres' '$corriger_gecos_si_diff'\n");
 
-        fwrite($fich, "#!/bin/bash\n/usr/bin/php $chemin/import_comptes.php '$type_fichier_eleves' '$chemin_fich/fichier_eleves' '$chemin_fich/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers' '$chrono' '$creer_equipes_vides' '$creer_cours' '$creer_matieres' '$corriger_gecos_si_diff' '$temoin_f_cn' '$alimenter_groupe_pp' '$rafraichir_classes'\n");
+        fwrite($fich, "#!/bin/bash\n/usr/bin/php /var/www/sambaedu/annu/import_comptes.php '$type_fichier_eleves' '$dossier_tmp_import_comptes/fichier_eleves' '$dossier_tmp_import_comptes/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers' '$chrono' '$creer_equipes_vides' '$creer_cours' '$creer_matieres' '$corriger_gecos_si_diff' '$temoin_f_cn' '$alimenter_groupe_pp' '$rafraichir_classes'\n");
 
-        // echo "<p>#!/bin/bash<br />\n/usr/bin/php $chemin/import_comptes.php '$type_fichier_eleves' '$chemin_fich/fichier_eleves' '$chemin_fich/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers' '$chrono' '$creer_equipes_vides' '$creer_cours' '$creer_matieres' '$corriger_gecos_si_diff'</p>\n";
+        // echo "<p>#!/bin/bash<br />\n/usr/bin/php $chemin/import_comptes.php '$type_fichier_eleves' '$dossier_tmp_import_comptes/fichier_eleves' '$dossier_tmp_import_comptes/fichier_sts' '$prefix' '$annuelle' '$simulation' '$timestamp' '$randval' '$temoin_creation_fichiers' '$chrono' '$creer_equipes_vides' '$creer_cours' '$creer_matieres' '$corriger_gecos_si_diff'</p>\n";
         // ===========================================================
 
         fclose($fich);
@@ -858,7 +716,8 @@ decompte(cpt);
         // $resultat=exec("/usr/bin/at -f $dossier_tmp_import_comptes/import_comptes.sh $heure_aujourdhui:$d_minute_aujourdhui",$retour);
         // sudo
         // echo "DBG >>/usr/bin/sudo $chemin/run_import_comptes.sh $dossier_tmp_import_comptes<br />";
-        $resultat = exec("/usr/bin/sudo $chemin/run_import_comptes.sh $dossier_tmp_import_comptes", $retour);
+        $retour =array();
+        exec("/bin/bash ".$dossier_tmp_import_comptes."/import_comptes.sh 2>".$dossier_tmp_import_comptes."/import.err >/dev/null &", $retour);
 
         if (count($retour) > 0) {
             echo "<p>Il semble que la programmation ait &#233;chou&#233;...";
@@ -880,7 +739,7 @@ decompte(cpt);
         }
         echo ".</p>\n";
 
-        echo "<p>Patientez un peu, puis suivez ce lien: <a href='../Admin/result.$timestamp.html' target='_blank'>R&#233;sultat</a></p>\n";
+        echo "<p>Patientez un peu, puis suivez ce lien: <a href='../tmp/result.$timestamp.html' target='_blank'>R&#233;sultat</a></p>\n";
 
         echo ("<p><i>NOTES:</i></p>\n");
         echo ("<ul>\n");
@@ -892,52 +751,7 @@ decompte(cpt);
 
         include "pdp.inc.php";
         flush();
-
-        /*
-         * //echo "On va lancer le script PHP.";
-         *
-         * $type_fichier_eleves=$_POST['type_fichier_eleves'];
-         *
-         * $tmp_eleves_file=$HTTP_POST_FILES['eleves_file']['tmp_name'];
-         * $eleves_file=$HTTP_POST_FILES['eleves_file']['name'];
-         * $size_eleves_file=$HTTP_POST_FILES['eleves_file']['size'];
-         *
-         * if(is_uploaded_file($tmp_eleves_file)){
-         * $dest_file="tmp/$eleves_file";
-         * // SUR CA, IL VAUDRAIT SANS DOUTE MIEUX FORCER LE NOM DESTINATION POUR EVITER DES SALES BLAGUES
-         *
-         * $source_file=stripslashes("$tmp_eleves_file");
-         * $res_copy=copy("$source_file" , "$dest_file");
-         *
-         * $php="/usr/bin/php";
-         * $chemin="/home/www/html/steph/test_php-cli";
-         * $resultat=exec("$php $chemin/traitement.php $type_fichier_eleves $chemin/$dest_file",$retour);
-         * for($i=0;$i<count($retour);$i++){
-         * echo "\$retour[$i]=$retour[$i]<br />";
-         * }
-         *
-         * //mer fev 28 12:53:29 steph@fuji:~/2007_02_21/se3
-         * //$ cat /tmp/rapport_test.txt
-         * //$type_fichier_eleves=csv
-         * //$eleves_file=/home/www/html/steph/test_php-cli/tmp/exportCSVExtraction_20061018.csv
-         * //mer fev 28 12:53:33 steph@fuji:~/2007_02_21/se3
-         * //$
-         *
-         *
-         * //On va lancer le script PHP.$retour[0]=
-         *
-         *
-         *
-         * }
-         */
-    }
-
-    // Dans la version PHP4-CLI, envoyer le rapport par mail.
-    // Envoyer le contenu de la page aussi?
-
-    // Peut-etre forcer une sauvegarde de l'annuaire avant de proceder a une oepration qui n'est pas une simulation.
-    // Ou placer le fichier de sauvegarde?
-    // Probleme de l'encombrement a terme.
+      }
 }
-// include $pathlcsorse3."pdp.inc.php";
+
 ?>

@@ -24,7 +24,7 @@ textdomain('sambaedu-core');
 // pour utiliser bind_ad_gssapi
 include_once "functions.inc.php";
 
-// Pour activer/desactiver la modification du givenName (Prenom) lors de la modification dans annu/mod_user_entry.php
+// Pour activer/desactiver la modification du givenname (Prenom) lors de la modification dans annu/mod_user_entry.php
 $corriger_givenname_si_diff = "n";
 
 // fonctions validées se4
@@ -191,9 +191,9 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
         "displayname" => "fullname",
         "givenname" => "prenom",
         "initials" => "pseudo",
-        "mailaddress" => "email",
+        "mail" => "email",
         "telephonenumber" => "tel",
-        "jobtitle" => "employeeNumber"
+        "title" => "employeenumber"
     );
 
     // LDAP attributs
@@ -205,11 +205,11 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
                 "displayname", // Prenom Nom
                 "sn", // Nom
                 "givenname", // Pseudo -> Prenom
-                "mailaddress", // Mail
+                "mail", // Mail
                 "telephonenumber", // Num telephone
                 "description",
-                "physicaldeliveryoffice", // Date de naissance,Sexe (F/M)
-                "jobtitle", // numero unique siecle
+                "physicaldeliveryofficename", // Date de naissance,Sexe (F/M)
+                "title", // numero unique siecle
                 "initials", // pseudo
                 "useraccountcontrol", // état du compte actif : 512, desactivé 514
                 "memberof" // groupes
@@ -219,7 +219,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
             }
             break;
         case "employeenumber": // recherche par le n° Siecle/STS
-            $filter = "(&(objectclass=user)(|(jobtitle=" . $name . ")(jobtitle=" . sprintf("%05d", $name) . ")(jobtitle=" . preg_replace("/^0*/", "", $name) . "))";
+            $filter = "(&(objectclass=user)(|(title=" . $name . ")(title=" . sprintf("%05d", $name) . ")(title=" . preg_replace("/^0*/", "", $name) . ")))";
             $ldap_attrs = array(
                 "cn" // login
             );
@@ -271,7 +271,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
             $ldap_attrs = array(
                 "cn", // nom d'origine
                 "displayname", // Nom netbios avec $
-                "dnshostname", // FDQN
+                "dnsHostname", // FDQN
                 "location", // Emplacement
                 "description", // Description de la machine
                 "iphostnumber", // adresse ip reservée
@@ -316,7 +316,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
             break;
         case "classe":
             if ($name == "*")
-                $filter = "(objectclass=group)";
+                $filter = "(&(objectclass=group)(cn=Classe_*))";
             else
                 $filter = "(&(objectclass=group)(|(cn=Classe_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
             $ldap_attrs = array(
@@ -328,7 +328,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
             break;
         case "equipe":
             if ($name == "*")
-                $filter = "(objectclass=group)";
+                $filter = "(&(objectclass=group)(cn=Equipe_*))";
             else
                 $filter = "(&(objectclass=group)(cn=Equipe_*)(|(cn=Equipe_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
             $ldap_attrs = array(
@@ -362,7 +362,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
         case "type":
             $filter = "(|(objectclass=group)(objectclass=person)(objectclass=organizationalunit))";
             $ldap_attrs = array(
-                "objectclass"
+                "objectClass"
             );
             if ($branch == "all") {
                 $branch = $config['ldap_base_dn'];
@@ -402,7 +402,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
                             } else {
                                 $key = $key2;
                             }
-                            if ("$key" == "physicaldeliveryoffice") {
+                            if ("$key" == "physicaldeliveryofficename") {
                                 if (isset($attr[0])) {
                                     $tmp = preg_split('/,/', $attr[0], 4);
                                     $ret[$key1]['sexe'] = (isset($tmp[1]) ? $tmp[1] : "");
@@ -602,14 +602,14 @@ function search_user($config, $cn)
     return $ret;
 }
 
-function create_user(array $config, string $cn, string $prenom, string $nom, string $userpwd, string $naissance, string $sexe, string $categorie, string $employeeNumber)
+function create_user(array $config, string $cn, string $prenom, string $nom, string $userpwd, string $naissance, string $sexe, string $categorie, string $employeenumber)
 {
-    if (! verif_employeeNumber($config, $employeeNumber)) {
+    if (! verif_employeenumber($config, $employeenumber)) {
         // Il faut determiner le login (attribut cn : use-username-as-cn) en fonction du nom prenom de l'uidpolicy...
         // Si $cn existe déja dans l'AD (doublon) il faut en fabriquer un autre
         if ($cn == "")
             $cn = creer_cn($config, $nom, $prenom);
-        $res = useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $categorie, $employeeNumber);
+        $res = useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $categorie, $employeenumber);
         return $res;
     }
     return false;
@@ -630,9 +630,9 @@ function search_machine($config, $cn, $ip = false)
     $ret = search_ad($config, $cn, "machine");
     if (count($ret) > 0) {
         $ret = $ret[0];
-        if ($ip && ! isset($ret['iphostnumber']) && isset($ret['dnshostname'])) {
-            $ret['iphostnumber'] = gethostbyname($ret['dnshostname']);
-            if ($ret['iphostnumber'] == $ret['dnshostname']) {
+        if ($ip && ! isset($ret['iphostnumber']) && isset($ret['dnsHostName'])) {
+            $ret['iphostnumber'] = gethostbyname($ret['dnsHostName']);
+            if ($ret['iphostnumber'] == $ret['dnsHostName']) {
                 // pas de dns, on tente le dhcp
                 $lease = get_dhcp_lease($config, $cn);
                 if (isset($lease)) {
@@ -1119,6 +1119,7 @@ function export_dhcp_reservations($config)
 {
     $reservations = "/etc/sambaedu/reservations.inc";
     $content = "# reservations exportees autmatiquement de l'annuaire AD\n";
+    $content .= "# le ". date(DATE_RSS)."\n";
     $machines = search_ad($config, "*", "machine", "all");
     foreach ($machines as $machine) {
 

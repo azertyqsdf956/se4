@@ -1,6 +1,6 @@
 <?php
 
-require ("config.inc.php");
+    require ("config.inc.php");
 require_once ("samba-tool.inc.php");
 require_once ("ldap.inc.php");
 
@@ -40,10 +40,10 @@ var_dump(list_eleves($config, "CIM3"));
 var_dump(is_my_pp($config, "CIM3", "prof.test"));
 print 'var_dump(is_eleve($config, "prof.test"));';
 var_dump(is_eleve($config, "prof.test"));
-*/
+
 print 'var_dump(add_prof_group($config, "CIM3", "prof.test", true));';
 var_dump(add_user_group($config, "CIM3", "prof.test", true));
-/*
+
 print 'list_profs($config, "CIM3")';
 var_dump(list_profs($config, "CIM3"));
 print 'list_pp($config, "CIM3")';
@@ -64,5 +64,17 @@ var_dump(list_classes($config, "eleve.test"));
 //print 'var_dump(list_classes($config, "*"));';
 //var_dump(list_classes($config, "*"));
 
-print 'list_pp($config, "prof.tes")';
-var_dump(list_pp($config, "prof.test"));
+//print 'list_pp($config, "prof.tes")';
+//var_dump(list_pp($config, "prof.test"));
+//cn = creer_cn($config, "test", "eleve10");
+//var_dump($config, "denis.bonnenfant", "user");
+$password = createRandomPassword(8, 1);
+//create_user($config, $cn, "eleve10", "test", $password, "01012001", "F", "Profs", "P4075");
+//$cn = verif_nom_prenom($config, "l obry", "bernadette");
+//echo $cn;
+$user = search_user($config, "denis.bonnenfant");
+$en = $user['employeenumber'];
+$attr = array( 'title'=>"")
+$res = modify_ad($config)
+
+?>

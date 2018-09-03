@@ -23,24 +23,23 @@
 
   */	
 
-if (!session_status()) {
-    session_start();
-    set_time_limit (300);
+session_start();
+set_time_limit (300);
 
-	require_once "config.inc.php";
+	require "config.inc.php";
+	require_once "ldap.inc.php";
 	require_once "functions.inc.php";
-	require_once "ihm.inc.php";
+	require "ihm.inc.php";
 
 
         // HTMLPurifier
         require_once ("traitement_data.inc.php");
         
-	$login=isauth();
-]
-	if (!have_right($config, "Annu_is_admin")) {
+
+//	if (!have_right("Annu_is_admin", "admin")) {
 		// dégage crétin
-		echo "dégage...";
-	} else {
+//		echo "dégage...";
+//	} else {
 		$listing = unserialize(rawurldecode($_POST['hiddeninput']));
 
 // Tri du listing par classe/nom/prénom
@@ -95,12 +94,17 @@ usort($listing, "trieleve");
 	$content .="</page>";
 	
 
-	require_once('../html2pdf/vendor/autoload.php');
-	$html2pdf = new HTML2PDF('P','A4','fr', true, 'UTF-8');
-	$html2pdf->WriteHTML($content);
-	$html2pdf->Output('liste.pdf');
-
-        $pdf = new HTML2PDF('P','A4','fr'); 
+	require_once(dirname(__FILE__).'/../html2pdf/vendor/autoload.php');
+	use Spipu\Html2Pdf\Html2Pdf;
+	use Spipu\Html2Pdf\Exception\Html2PdfException;
+	use Spipu\Html2Pdf\Exception\ExceptionFormatter;
+	
+	$html2pdf = new Html2Pdf('P', 'A4', 'fr');
+	$html2pdf->pdf->SetDisplayMode('fullpage');
+	$html2pdf->writeHTML($content);
+	$html2pdf->output('listing.pdf');
+	
+  //      $pdf = new \HTML2PDF('P','A4','fr'); 
 
 	if((isset($_POST['purge_session_data']))&&($_POST['purge_session_data']=='y')) {
 		unset($_SESSION['comptes_crees']) ;	
@@ -110,5 +114,5 @@ usort($listing, "trieleve");
 			unlink("/tmp/changement_mdp.csv"); 
 		}	
 	}
-}
+//}
 ?>

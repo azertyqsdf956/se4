@@ -9,7 +9,108 @@
  * Dernière modification: 03/12/2011
  * modifs Christian Westphal 17/03/2013 christian.westphal@ac-strasbourg.fr
  */
-include "se3orlcs_import_comptes.php";
+//include "se3orlcs_import_comptes.php";
+include "config.inc.php";
+require_once "samba-tool.inc.php";
+require_once "ldap.inc.php";
+require_once "siecle.inc.php";
+
+if ($argc < 17 || in_array($argv[1], array(
+    '--help',
+    '-help',
+    '-h',
+    '-?'
+))) {
+    // ===========================================================
+    $chaine = "USAGE: Vous devez passer en paramétres (dans l'ordre):\n";
+    $chaine .= "       . Le type du fichier 'csv' ou 'xml';\n";
+    $chaine .= "       . le chemin du fichier élèves;\n";
+    $chaine .= "       . le chemin du fichier XML de STS EDT;";
+    $chaine .= "       . le préfixe (CLG_, LYC_, LP_, LEGT_) si vous en avez besoin;\n";
+    $chaine .= "       . 'y' ou 'n' selon que l'import est annuel ou non;\n";
+    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez seulement une simulation ou non;\n";
+    $chaine .= "       . le suffixe pour le fichier HTML result.SUFFIXE.html généré;\n";
+    $chaine .= "       . une chaine aléatoire pour le sous-dossier de stockage des CSV;\n";
+    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez créer les CSV ou non.\n";
+    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez chronométrer les opérations ou non.\n";
+    
+    // ===========================================================
+    // AJOUTS: 20070914 boireaus
+    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez créer des Equipes vides ou non.\n";
+    $chaine .= "                    (avec 'n' elles sont créées et peuplées)\n";
+    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez créer Cours ou non.\n";
+    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez créer Matières ou non.\n";
+    // ===========================================================
+    $chaine .= "       . 'y' ou 'n' selon que vous souhaitez corriger ou non les attributs\n";
+    $chaine .= "                    gecos, cn, sn et givenName si des différences sont trouvées.\n";
+    $chaine .= "       . 'y' ou 'n' selon qu'il faut utiliser ou non un fichier F_UID.txt\n";
+    $chaine .= "       . 'y' ou 'n' selon qu'il faut alimenter un groupe Professeurs Principaux\n";
+    // ===========================================================
+    
+    echo $chaine;
+    
+    // Contrôler les champs affectés...
+    if (isset($config["admin_mail"])) {
+        $adressedestination = $config["admin_mail"];
+        $sujet = "ERREUR: import_comptes.php ";
+        $message = $chaine;
+        $entete = "From: " . $config["admin_mail"];
+        mail("$adressedestination", "$sujet", "$message", "$entete");
+    }
+    
+    exit();
+}
+
+// Récupération des variables
+$type_fichier_eleves = $argv[1];
+$eleves_file = $argv[2];
+$sts_xml_file = $argv[3];
+$prefix = $argv[4];
+$annuelle = $argv[5];
+$simulation = $argv[6];
+$timestamp = $argv[7];
+$randval = $argv[8];
+$temoin_creation_fichiers = $argv[9];
+$chrono = $argv[10];
+
+// ===========================================================
+// AJOUTS: 20070914 boireaus
+$creer_equipes_vides = $argv[11];
+$creer_cours = $argv[12];
+$creer_matieres = $argv[13];
+// ===========================================================
+$corriger_gecos_si_diff = $argv[14];
+// ===========================================================
+$temoin_f_cn = $argv[15];
+// ===========================================================
+$alimenter_groupe_pp = $argv[16];
+// ===========================================================
+
+// Pour effectuer des affichages de debug:
+$debug_import_comptes = "n";
+
+$racine_www = "/var/www/sambaedu";
+$www_import = "/annu/import_sconet.php";
+$chemin_http_csv = "setup/csv/" . $timestamp . "_" . $randval;
+$dossiercsv = $racine_www . "/" . $chemin_http_csv;
+$echo_file = "$racine_www/tmp/result.$timestamp.html";
+$echo_http_file = "http://admin." . $config['domain'] . "/tmp/result." . $timestamp . ".html";
+$dossier_tmp_import_comptes = "/var/lib/sambaedu/import_comptes";
+$pathscripts = "/usr/share/sambaedu/scripts";
+$user_web = "www-admin";
+
+$rafraichir_classes = "n";
+if ((isset($argv[17])) && ($argv[17] == "y")) {
+    $rafraichir_classes = "y";
+}
+
+// AJOUT: 20080610
+$attribut_pseudo = "initials";
+$controler_pseudo = "y";
+$corriger_givenname_si_diff = "y";
+$liste_caracteres_accentues = "ÂÄÀÁÃÅÇÊËÈÉÎÏÌÍÑÔÖÒÓÕØ¦ÛÜÙÚÝ¾´áàâäãåçéèêëîïìíñôöðòóõø¨ûüùúýÿ¸";
+
+// TODO : créer une session indépendante pour pouvoir suivre le process en asynchrone ?
 
 // $debug_import_comptes peut être initialisée dans se3orlcs_import_comptes.php
 // $debug_import_comptes="y";
@@ -160,11 +261,11 @@ if ($annuelle == "y") {
                 my_echo(", ");
             }
             my_echo("$tmp_tab_no_Trash_user[$loop]");
-            if (is_prof($tmp_tab_no_Trash_user[$loop])) {
+            if (is_prof($config, $tmp_tab_no_Trash_user[$loop])) {
                 my_echo("(<i>prof</i>)");
                 $tab_no_Trash_prof[$cpt_trash_prof] = $tmp_tab_no_Trash_user[$loop];
                 $cpt_trash_prof ++;
-            } elseif (is_prof($tmp_tab_no_Trash_user[$loop])) {
+            } elseif (is_prof($config, $tmp_tab_no_Trash_user[$loop])) {
                 my_echo("(<i>élève</i>)");
                 $tab_no_Trash_eleve[$cpt_trash_ele] = $tmp_tab_no_Trash_user[$loop];
                 $cpt_trash_ele ++;
@@ -272,13 +373,13 @@ if ($annuelle == "y") {
         $tab = search_ad($config, "(|(cn=Classe_*)(cn=Equipe_*)(cn=Cours_*)(cn=Matiere_*)(cn=PP_*))", "filter", $config['dn']['groups']);
         if (count($tab) > 0) {
             my_echo("<table border='0'>\n");
-            for ($i = 0; $i < count($tab); $i ++) {
+            foreach ($tab as $groupe) {
                 my_echo("<tr>");
                 my_echo("<td>");
-                my_echo("Suppression de $tab[$i]['cn']: ");
+                my_echo("Suppression de ".$groupe['cn'].": ");
                 my_echo("</td>");
                 my_echo("<td>");
-                if (groupdel($config, $tab[$i]['cn'])) {
+                if (groupdel($config, $groupe['cn'])) {
                     my_echo("<font color='green'>SUCCES</font>");
                 } else {
                     my_echo("<font color='red'>ECHEC</font>");
@@ -362,8 +463,8 @@ if ($annuelle == "y") {
     }
 
     // Vider les fonds d'ecran pour que les eleves ne restent pas avec les noms de classes de l'annee precedente
-    my_echo("<p>On vide les fonds d'écran pour que les élèves ne restent pas avec les noms de classes de l'année précédente.</p>\n");
-    exec("/usr/bin/sudo $pathscripts/genere_fond.sh variable_bidon supprimer");
+    //my_echo("<p>On vide les fonds d'écran pour que les élèves ne restent pas avec les noms de classes de l'année précédente.</p>\n");
+    //exec("/usr/bin/sudo $pathscripts/genere_fond.sh variable_bidon supprimer");
     if ($chrono == 'y') {
         my_echo("<p>Fin de l'opération: " . date_et_heure() . "</p>\n");
     }
@@ -564,7 +665,7 @@ if ($type_fichier_eleves == "csv") {
                             $eleve[$numero]["sexe"] = $tabtmp[$index[4]];
 
                             $eleve[$numero]["division"] = strtr(trim($tabtmp[$index[5]]), "/", "_");
-                            if ($clean_caract_classe == "y") {
+                            if ($config['clean_caract_classe'] == "y") {
                                 $eleve[$numero]["division"] = preg_replace("/[^a-zA-Z0-9_ -]/", "", remplace_accents($eleve[$numero]["division"]));
                             }
                         }
@@ -661,16 +762,7 @@ if ($type_fichier_eleves == "csv") {
             my_echo("</body>\n</html>\n");
 
             // Renseignement du temoin de mise a jour terminee.
-            $sql = "SELECT value FROM params WHERE name='imprt_cmpts_en_cours'";
-            $res1 = mysql_query($sql);
-            if (mysql_num_rows($res1) == 0) {
-                $sql = "INSERT INTO params SET name='imprt_cmpts_en_cours',value='n'";
-                $res0 = mysql_query($sql);
-            } else {
-                $sql = "UPDATE params SET value='n' WHERE name='imprt_cmpts_en_cours'";
-                $res0 = mysql_query($sql);
-            }
-
+            set_param($config, "imprt_cmpts_en_cours", "n");
             // On a fourni un fichier, mais invalide, donc ABANDON
             die();
         } else {
@@ -682,6 +774,7 @@ if ($type_fichier_eleves == "csv") {
             my_echo("<blockquote>\n");
 
             // 20130115
+            $elenoet = "";
             $uaj = "";
             $uaj_tronque = "";
             $annee_scolaire = "";
@@ -925,7 +1018,7 @@ if ($type_fichier_eleves == "csv") {
                                 // my_echo("\$structure->$key=".$value."<br />");
 
                                 $eleves[$i]["structures"][$j][strtolower($key)] = strtr(trim(traite_utf8($value)), "/", "_");
-                                if ($clean_caract_classe == "y") {
+                                if ($config['clean_caract_classe'] == "y") {
                                     $eleves[$i]["structures"][$j][strtolower($key)] = preg_replace("/[^a-zA-Z0-9_ -]/", "", remplace_accents($eleves[$i]["structures"][$j][strtolower($key)]));
                                 }
                             }
@@ -1301,16 +1394,7 @@ if ($sts_xml) {
         my_echo("</body>\n</html>\n");
 
         // Renseignement du temoin de mise a jour terminee.
-        $sql = "SELECT value FROM params WHERE name='imprt_cmpts_en_cours'";
-        $res1 = mysql_query($sql);
-        if (mysql_num_rows($res1) == 0) {
-            $sql = "INSERT INTO params SET name='imprt_cmpts_en_cours',value='n'";
-            $res0 = mysql_query($sql);
-        } else {
-            $sql = "UPDATE params SET value='n' WHERE name='imprt_cmpts_en_cours'";
-            $res0 = mysql_query($sql);
-        }
-
+        set_param($config, "imprt_cmpts_en_cours", "n");
         // On a fourni un fichier, mais invalide, donc ABANDON
         die();
     } else {
@@ -1667,7 +1751,7 @@ if ($sts_xml) {
                         // $prof[$i]["prof_princ"][$j][strtolower($key)]=preg_replace("/[^a-zA-Z0-9_ -]/", "",strtr(remplace_accents(trim(traite_utf8($value))),"/","_"));
 
                         $prof[$i]["prof_princ"][$j][strtolower($key)] = strtr(trim(traite_utf8($value)), "/", "_");
-                        if ($clean_caract_classe == "y") {
+                        if ($config['clean_caract_classe'] == "y") {
                             $prof[$i]["prof_princ"][$j][strtolower($key)] = preg_replace("/[^a-zA-Z0-9_ -]/", "", remplace_accents($prof[$i]["prof_princ"][$j][strtolower($key)]));
                         }
 
@@ -1733,7 +1817,7 @@ if ($sts_xml) {
                     // $divisions[$i]['code']=preg_replace("/[^a-zA-Z0-9_ -]/", "",strtr(remplace_accents(trim(traite_utf8($value))),"/","_"));
 
                     $divisions[$i]['code'] = strtr(trim(traite_utf8($value)), "/", "_");
-                    if ($clean_caract_classe == "y") {
+                    if ($config['clean_caract_classe'] == "y") {
                         $divisions[$i]['code'] = preg_replace("/[^a-zA-Z0-9_ -]/", "", remplace_accents($divisions[$i]['code']));
                     }
 
@@ -1825,7 +1909,7 @@ if ($sts_xml) {
             foreach ($objet_groupe->DIVISIONS_APPARTENANCE->children() as $objet_division_apartenance) {
                 foreach ($objet_division_apartenance->attributes() as $key => $value) {
                     $groupes[$i]["divisions"][$j][strtolower($key)] = strtr(trim(traite_utf8($value)), "/", "_");
-                    if ($clean_caract_classe == "y") {
+                    if ($config['clean_caract_classe'] == "y") {
                         $groupes[$i]["divisions"][$j][strtolower($key)] = preg_replace("/[^a-zA-Z0-9_ -]/", "", remplace_accents($groupes[$i]["divisions"][$j][strtolower($key)]));
                     }
                 }
@@ -2318,7 +2402,7 @@ if ($temoin_creation_fichiers != "non") {
  * }
  */
 
-exec("/usr/bin/sudo $pathscripts/sauvegarde_ldap_avant_import.sh", $retour);
+// exec("/usr/bin/sudo $pathscripts/sauvegarde_ldap_avant_import.sh", $retour);
 
 // =========================================================
 
@@ -2392,7 +2476,7 @@ if ((! isset($prof)) || (count($prof) == 0)) {} else {
                     }
                     // }
                     // ================================
-                } elseif ($tab[- 1] == "trash") {
+                } elseif ($tab['branch'] == "trash") {
                     // On restaure le compte de Trash puisqu'il y est avec le meme employeeNumber
                     my_echo("Restauration du compte depuis la branche Trash: \n");
                     if (recup_from_trash($confg, $cn)) {
@@ -2419,8 +2503,8 @@ if ((! isset($prof)) || (count($prof) == 0)) {} else {
 
                     if ($simulation != "y") {
                         $attributs = array();
-                        $attributs["employeeNumber"] = $employeeNumber;
-                        if (modify_ad($config, $cn, $attributs, "add")) {
+                        $attributs["title"] = $employeeNumber;
+                        if (modify_ad($config, $cn, "user", $attributs, "add")) {
                             my_echo("<font color='green'>SUCCES</font>");
                             $comptes_avec_employeeNumber_mis_a_jour ++;
                             $tab_comptes_avec_employeeNumber_mis_a_jour[] = $cn;
@@ -2444,8 +2528,8 @@ if ((! isset($prof)) || (count($prof) == 0)) {} else {
                         if ($cn = get_cn_from_f_cn_file($employeeNumber)) {
                             // On controle si ce login est deja employe
 
-                            $verif1 = search_ad($config, $cn, "user", $confg['dn']['people']);
-                            $verif2 = search_ad($config, $cn, "user", $confg['dn']['trash']);
+                            $verif1 = search_ad($config, $cn, "user", $config['dn']['people']);
+                            $verif2 = search_ad($config, $cn, "user", $config['dn']['trash']);
                             if (count($verif1) > 0) {
                                 // Le login propose est deja dans l'annuaire
                                 my_echo("Le login proposé <span style='color:red;'>$cn</span> est déjà dans l'annuaire (<i>branche People</i>).<br />\n");
@@ -2486,19 +2570,15 @@ if ((! isset($prof)) || (count($prof) == 0)) {} else {
                                     $password = $naissance;
                                     break;
                                 case 1: // semi-aleatoire
-                                    $out = array();
-                                    exec("/usr/share/se3/sbin/gen_pwd.sh -s", $out);
-                                    $password = $out[0];
+                                    $password = createRandomPassword(8, false);
                                     break;
                                 case 2: // aleatoire
-                                    $out = array();
-                                    exec("/usr/share/se3/sbin/gen_pwd.sh -a", $out);
-                                    $password = $out[0];
+                                    $password = createRandomPassword(8, true);
                                     break;
                             }
 
                             if ($simulation != "y") {
-                                if (create_user($config, $cn, $nom, $prenom, $sexe, $naissance, $password, "Profs", $employeeNumber)) {
+                                if (create_user($config, $cn, $prenom, $nom, $password, $naissance, $sexe, "Profs", $employeeNumber)) {
                                     my_echo("<font color='green'>SUCCES</font>");
                                     $tab_nouveaux_comptes[] = $cn;
                                     $listing[$nouveaux_comptes]['nom'] = "$nom";
@@ -2544,20 +2624,16 @@ if ((! isset($prof)) || (count($prof) == 0)) {} else {
                                     $password = $naissance;
                                     break;
                                 case 1: // semi-aleatoire
-                                    $out = array();
-                                    exec("/usr/share/se3/sbin/gen_pwd.sh -s", $out);
-                                    $password = $out[0];
+                                    $password = createRandomPassword(8, false);
                                     break;
                                 case 2: // aleatoire
-                                    $out = array();
-                                    exec("/usr/share/se3/sbin/gen_pwd.sh -a", $out);
-                                    $password = $out[0];
+                                    $password = createRandomPassword(8, true);
                                     break;
                             }
                             my_echo("Ajout du professeur $prenom $nom (<i>$cn</i>): ");
 
                             if ($simulation != "y") {
-                                if (create_user($config, $cn, $nom, $prenom, $sexe, $naissance, $password, "Profs", $employeeNumber)) {
+                                if (create_user($config, $cn, $prenom, $nom, $password, $naissance, $sexe, "Profs", $employeeNumber)) {
                                     my_echo("<font color='green'>SUCCES</font>");
                                     $tab_nouveaux_comptes[] = $cn;
                                     $listing[$nouveaux_comptes]['nom'] = "$nom";
@@ -2660,7 +2736,7 @@ for ($k = 0; $k < count($tabnumero); $k ++) {
     // La classe existe-t-elle?
     $div = $eleve[$numero]["division"];
     $div = apostrophes_espaces_2_underscore(remplace_accents($div));
-    $cn_classe = search_ad($config, "groups", $prefix . $div, "classe");
+    $cn_classe = search_ad($config, $prefix . $div, "classe");
     if (count($cn_classe) == 0) {
         // La classe n'existe pas dans l'annuaire.
 
@@ -2769,8 +2845,8 @@ for ($k = 0; $k < count($tabnumero); $k ++) {
 
             if ($simulation != "y") {
                 $attributs = array();
-                $attributs["employeeNumber"] = $employeeNumber;
-                if (modify_ad($config, $cn, $attributs, "add")) {
+                $attributs["title"] = $employeeNumber;
+                if (modify_ad($config, $cn, "user", $attributs, "add")) {
                     my_echo("<font color='green'>SUCCES</font>");
                     $comptes_avec_employeeNumber_mis_a_jour ++;
                     $tab_comptes_avec_employeeNumber_mis_a_jour[] = $cn;
@@ -2835,20 +2911,16 @@ for ($k = 0; $k < count($tabnumero); $k ++) {
                             $password = $naissance;
                             break;
                         case 1: // semi-aleatoire
-                            $out = array();
-                            exec("/usr/share/se3/sbin/gen_pwd.sh -s", $out);
-                            $password = $out[0];
+                            $password = createRandomPassword(8, false);
                             break;
                         case 2: // aleatoire
-                            $out = array();
-                            exec("/usr/share/se3/sbin/gen_pwd.sh -a", $out);
-                            $password = $out[0];
+                            $password = createRandomPassword(8, true);
                             break;
                     }
 
                     if ($simulation != "y") {
                         // DBG system ("echo 'add_suser : $cn,$nom,$prenom,$sexe,$naissance,$password,$employeeNumber' >> /tmp/comptes.log");
-                        if (create_user($config, $cn, $nom, $prenom, $sexe, $naissance, $password, "Eleves", $employeeNumber)) {
+                        if (create_user($config, $cn, $prenom, $nom, $password, $naissance, $sexe, "Eleves", $employeeNumber)) {
                             my_echo("<font color='green'>SUCCES</font>");
                             $tab_nouveaux_comptes[] = $cn;
                             $listing[$nouveaux_comptes]['nom'] = "$nom";
@@ -2890,14 +2962,10 @@ for ($k = 0; $k < count($tabnumero); $k ++) {
                             $password = $naissance;
                             break;
                         case 1: // semi-aleatoire
-                            $out = array();
-                            exec("/usr/share/se3/sbin/gen_pwd.sh -s", $out);
-                            $password = $out[0];
+                            $password = createRandomPassword(8, false);
                             break;
                         case 2: // aleatoire
-                            $out = array();
-                            exec("/usr/share/se3/sbin/gen_pwd.sh -a", $out);
-                            $password = $out[0];
+                            $password = createRandomPassword(8, true);
                             break;
                     }
 
@@ -2912,7 +2980,7 @@ for ($k = 0; $k < count($tabnumero); $k ++) {
                          * }
                          */
 
-                        if (create_user($config, $cn, $nom, $prenom, $sexe, $naissance, $password, "Eleves", $employeeNumber)) {
+                        if (create_user($config, $cn, $prenom, $nom, $password, $naissance, $sexe, "Eleves", $employeeNumber)) {
                             my_echo("<font color='green'>SUCCES</font>");
                             $tab_nouveaux_comptes[] = $cn;
                             $listing[$nouveaux_comptes]['nom'] = "$nom";
@@ -2955,7 +3023,7 @@ for ($k = 0; $k < count($tabnumero); $k ++) {
         if ($ind_classe != - 1) {
             $tab_classe[$ind_classe]["eleves"][] = $cn;
         }
-        if ($simulation != "y") {
+        if (($simulation != "y")() {
             if (add_user_group($config, $prefix . $div, $cn)) {
                 my_echo("<font color='green'>SUCCES</font>");
             } else {
@@ -3084,31 +3152,11 @@ if ($simulation == "y") {
     my_echo($chaine);
 
     // Envoi par mail de $chaine et $echo_http_file
-    if ($servertype == "SE3") {
-        // Recuperer les adresses,... dans le /etc/ssmtp/ssmtp.conf
-        unset($tabssmtp);
-        $tabssmtp = lireSSMTP();
-        // Controler les champs affectes...
-        if (isset($tabssmtp["root"])) {
-            $adressedestination = $tabssmtp["root"];
-            $sujet = "[$domain] Rapport de ";
-            if ($simulation == "y") {
-                $sujet .= "simulation de ";
-            }
-            $sujet .= "création de comptes";
-            $message = "Import du $debut_import\n";
-            $message .= "$chaine\n";
-            $message .= "\n";
-            $message .= "Vous pouvez consulter le rapport détaillé à l'adresse $echo_http_file\n";
-            $entete = "From: " . $tabssmtp["root"];
-            mail("$adressedestination", "$sujet", "$message", "$entete") or my_echo("<p style='color:red;'><b>ERREUR</b> lors de l'envoi du rapport par mail.</p>\n");
-        } else {
-            my_echo("<p style='color:red;'><b>MAIL:</b> La configuration mail ne permet pas d'expédier le rapport.<br />Consultez/renseignez le menu Informations système/Actions sur le serveur/Configurer l'expédition des mails.</p>\n");
-        }
-    } else {
-        // Cas du LCS
-        $adressedestination = "admin@$domain";
-        $sujet = "[$domain] Rapport de ";
+    // Envoi par mail de $chaine et $echo_http_file
+    // Controler les champs affectes...
+    if (isset($config["admin_mail"])) {
+        $adressedestination = $config["admin_mail"];
+        $sujet = $config['domain']. " Rapport de ";
         if ($simulation == "y") {
             $sujet .= "simulation de ";
         }
@@ -3116,11 +3164,24 @@ if ($simulation == "y") {
         $message = "Import du $debut_import\n";
         $message .= "$chaine\n";
         $message .= "\n";
+        
+        if ($rafraichir_classes == "y") {
+            if ($nouveaux_comptes > 0) {
+                $message .= "Rafraichissement des classes lancé/effectué.\n";
+            } else {
+                $message .= "Pas de nouveau compte, donc pas de rafraichissement des classes lancé.\n";
+            }
+        } else {
+            $message .= "Pas de rafraichissement des classes demandé.\n";
+        }
+        $message .= "\n";
+        
         $message .= "Vous pouvez consulter le rapport détaillé à l'adresse $echo_http_file\n";
-        $entete = "From: root@$domain";
+        $entete = "From: " . $config["admin_mail"];
         mail("$adressedestination", "$sujet", "$message", "$entete") or my_echo("<p style='color:red;'><b>ERREUR</b> lors de l'envoi du rapport par mail.</p>\n");
-    }
-
+    } else
+        my_echo("<p style='color:red;'><b>MAIL:</b> La configuration mail ne permet pas d'expédier le rapport.<br />Consultez/renseignez le menu Informations système/Actions sur le serveur/Configurer l'expédition des mails.</p>\n");
+        
     if ($chrono == 'y') {
         my_echo("<p>Fin de l'opération: " . date_et_heure() . "</p>\n");
     }
@@ -3341,7 +3402,7 @@ if ($creer_matieres == 'y') {
             // Faudrait-il enlever d'autres caracteres?
 
             // Le groupe Matiere existe-t-il?
-            $tabtmp = search_ad($config, "cn=Matiere_" . $prefix . "$mat", "groups");
+            $tabtmp = search_ad($config, "Matiere_" . $prefix . "$mat", "group");
             if (count($tabtmp) == 0) {
                 $cn = "Matiere_" . $prefix . "$mat";
 
@@ -3451,9 +3512,9 @@ if ($chrono == 'y') {
 if ($creer_cours == 'y') {
 
     my_echo("</h3>\n");
-    my_echo("<script type='text/javascript'>
-		document.getElementById('id_creer_cours').style.display='';
-</script>");
+    my_echo("<script type='text/javascript'>\n");
+    my_echo("document.getElementById('id_creer_cours').style.display='';\n");
+    my_echo("</script>\n");
     my_echo("<blockquote>\n");
     // Le, il faudrait faire un traitement different selon que l'import eleve se fait par CSV ou XML
 
@@ -3988,7 +4049,7 @@ if ($creer_cours == 'y') {
                     if ($temoin_groupe_apparaissant_dans_Eleves_xml != "oui") {
                         for ($k = 0; $k < count($tab_division[$ind_div]["option"][$ind_mat]["eleve"]); $k ++) {
                             // my_echo("Recherche: get_tab_attribut(\"groups\", \"cn=Classe_".$prefix."$div\", $attribut)<br />");
-                            $tabtmp = search_ad($config, $tab_division[$ind_div]["option"][$ind_mat]["eleve"][$k], "employeenumber=");
+                            $tabtmp = search_ad($config, $tab_division[$ind_div]["option"][$ind_mat]["eleve"][$k], "employeenumber");
 
                             if (count($tabtmp) != 0) {
                                 if (! in_array($tabtmp[0]['cn'], $tab_eleve_cn)) {
@@ -4010,13 +4071,14 @@ if ($creer_cours == 'y') {
                             if ($groupes[$i]["code"] == $nom_groupe_a_debugger) {
                                 my_echo_double_sortie("\$tab_groups_member[apostrophes_espaces_2_underscore(remplace_accents(\$groupes[$i]['code']))][$k]=\$tab_groups_member[apostrophes_espaces_2_underscore(remplace_accents(" . $groupes[$i]['code'] . "))][$k]=\$tab_groups_member[" . apostrophes_espaces_2_underscore(remplace_accents($groupes[$i]['code'])) . "][$k]=" . $tab_groups_member[apostrophes_espaces_2_underscore(remplace_accents($groupes[$i]['code']))][$k]);
                             }
-                            $tabtmp = search_ad($config, $tab_groups_member[apostrophes_espaces_2_underscore(remplace_accents($groupes[$i]["code"]))][$k], "employeenumber=");
-                            
+                            $tabtmp = search_ad($config, $tab_groups_member[apostrophes_espaces_2_underscore(remplace_accents($groupes[$i]["code"]))][$k], "employeenumber");
+
                             if (count($tabtmp) != 0) {
                                 if (! in_array($tabtmp[0]['cn'], $tab_eleve_cn)) {
                                     // my_echo("Ajout a \$tab_eleve_cn<br />");
                                     $tab_eleve_cn[] = $tabtmp[0]['cn'];
-                             }
+                                }
+                            }
                         }
                     }
                     //
@@ -4129,12 +4191,12 @@ if ($alimenter_groupe_pp == 'y') {
     // Initialisation des membres du groupe Professeurs_Principaux
     $tab_mem_pp = array();
 
-    $tabtmp = search_ad($config, $nom_groupe_pp, "groups");
+    $tabtmp = search_ad($config, $nom_groupe_pp, "group");
     if (count($tabtmp) == 0) {
         $description = "Professeurs Principaux";
 
         my_echo("<p>Création du groupe $nom_groupe_pp: ");
-        if (groupadd($config, $nom_groupe_pp, $description, $config['groupsrdn'])) {
+        if (groupadd($config, $nom_groupe_pp, $description, $config['groups_rdn'])) {
             my_echo("<font color='green'>SUCCES</font>");
         } else {
             my_echo("<font color='red'>ECHEC</font>");
@@ -4357,16 +4419,7 @@ my_echo($chaine);
 // my_echo("<p>Avant maj params.</p>");
 
 // Renseignement du temoin de mise a jour terminee.
-$sql = "SELECT value FROM params WHERE name='imprt_cmpts_en_cours'";
-$res1 = mysql_query($sql);
-if (mysql_num_rows($res1) == 0) {
-    $sql = "INSERT INTO params SET name='imprt_cmpts_en_cours',value='n'";
-    $res0 = mysql_query($sql);
-} else {
-    $sql = "UPDATE params SET value='n' WHERE name='imprt_cmpts_en_cours'";
-    $res0 = mysql_query($sql);
-}
-
+set_param($config, "imprt_cmpts_en_cours", "n");
 // my_echo("<p>Apres maj params.</p>");
 
 if ($chrono == 'y') {
@@ -4438,14 +4491,10 @@ if ($rafraichir_classes == "y") {
 }
 
 // Envoi par mail de $chaine et $echo_http_file
-if ($servertype == "SE3") {
-    // Recuperer les adresses,... dans le /etc/ssmtp/ssmtp.conf
-    unset($tabssmtp);
-    $tabssmtp = lireSSMTP();
     // Controler les champs affectes...
-    if (isset($tabssmtp["root"])) {
-        $adressedestination = $tabssmtp["root"];
-        $sujet = "[$domain] Rapport de ";
+    if (isset($config["admin_mail"])) {
+        $adressedestination = $config["admin_mail"];
+        $sujet = $config['domain']. " Rapport de ";
         if ($simulation == "y") {
             $sujet .= "simulation de ";
         }
@@ -4466,24 +4515,11 @@ if ($servertype == "SE3") {
         $message .= "\n";
 
         $message .= "Vous pouvez consulter le rapport détaillé à l'adresse $echo_http_file\n";
-        $entete = "From: " . $tabssmtp["root"];
+        $entete = "From: " . $config["admin_mail"];
         mail("$adressedestination", "$sujet", "$message", "$entete") or my_echo("<p style='color:red;'><b>ERREUR</b> lors de l'envoi du rapport par mail.</p>\n");
     } else
         my_echo("<p style='color:red;'><b>MAIL:</b> La configuration mail ne permet pas d'expédier le rapport.<br />Consultez/renseignez le menu Informations système/Actions sur le serveur/Configurer l'expédition des mails.</p>\n");
-} elseif ($servertype == "LCS") {
-    $adressedestination = "admin@$domain";
-    $sujet = "[$domain] Rapport de ";
-    if ($simulation == "y") {
-        $sujet .= "simulation de ";
-    }
-    $sujet .= "création de comptes";
-    $message = "Import du $debut_import\n";
-    $message .= "$chaine\n";
-    $message .= "\n";
-    $message .= "Vous pouvez consulter le rapport détaillé à l'adresse $echo_http_file\n";
-    $entete = "From: root@$domain";
-    mail("$adressedestination", "$sujet", "$message", "$entete") or my_echo("<p style='color:red;'><b>ERREUR</b> lors de l'envoi du rapport par mail.</p>\n");
-}
+
 
 my_echo("</body>\n</html>\n");
 
