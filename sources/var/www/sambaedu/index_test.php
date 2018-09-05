@@ -68,7 +68,7 @@ var_dump(list_classes($config, "eleve.test"));
 //var_dump(list_pp($config, "prof.test"));
 //cn = creer_cn($config, "test", "eleve10");
 //var_dump($config, "denis.bonnenfant", "user");
-$password = createRandomPassword(8, 1);
+/*$password = createRandomPassword(8, 1);
 //create_user($config, $cn, "eleve10", "test", $password, "01012001", "F", "Profs", "P4075");
 //$cn = verif_nom_prenom($config, "l obry", "bernadette");
 //echo $cn;
@@ -76,5 +76,10 @@ $user = search_user($config, "denis.bonnenfant");
 $en = $user['employeenumber'];
 $attr = array( 'title'=>"")
 $res = modify_ad($config)
+*/
+$commande = "exec /usr/bin/php /usr/share/sambaedu/scripts/update_classe.php -c CIM1 &";
+//my_echo_debug($commande);
+$res = system($commande);
+echo $res;
 
 ?>

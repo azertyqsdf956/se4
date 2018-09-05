@@ -3023,7 +3023,7 @@ for ($k = 0; $k < count($tabnumero); $k ++) {
         if ($ind_classe != - 1) {
             $tab_classe[$ind_classe]["eleves"][] = $cn;
         }
-        if (($simulation != "y")() {
+        if (($simulation != "y")){
             if (add_user_group($config, $prefix . $div, $cn)) {
                 my_echo("<font color='green'>SUCCES</font>");
             } else {

@@ -65,10 +65,10 @@ if ((have_right($config, "se3_is_admin")) or ( have_right($config, "annu_is_admi
             // On fait le test avant le updateClasses.pl parce qu'updateClasses.pl fait sauter les droits Profs
             $commande = "cd /var/sambaedu/Classes; /usr/bin/getfacl . | grep default:group:Profs >/dev/null && echo 1";
             my_echo_debug("Test: $commande");
-            $acl_group_profs_classes = exec($commande);
+            //$acl_group_profs_classes = exec($commande);
             my_echo_debug("\$acl_group_profs_classe=$acl_group_profs_classes");
 
-            $commande = "/usr/bin/sudo /usr/share/sambaedu/scripts/updateClasses.pl -c $Niveau";
+            $commande = "exec /usr/bin/php /usr/share/sambaedu/scripts/update_classe.php -c $Niveau &";
             my_echo_debug("<p>Creation du dossier de classe $Niveau : " . $commande);
             system($commande);
             $rep_niveau = "/var/sambaedu/Classes/Classe_" . $Niveau;
@@ -79,7 +79,7 @@ if ((have_right($config, "se3_is_admin")) or ( have_right($config, "annu_is_admi
 
                 echo "Attribution des droits au groupe Profs.<br />";
                 $commande = "/usr/bin/sudo /usr/share/sambaedu/scripts/sambaedu_droits_profs_sur_classes.sh";
-                my_echo_debug($commande);
+                //my_echo_debug($commande);
                 system($commande);
             }
 
@@ -98,7 +98,7 @@ if ((have_right($config, "se3_is_admin")) or ( have_right($config, "annu_is_admi
         $old_RessourcesClasses = $_POST['old_RessourcesClasses'];
         for ($loop = 0; $loop < count($old_RessourcesClasses); $loop++) {
             list($Classe, $Niveau) = preg_split("/Classe_/", $old_RessourcesClasses[$loop]);
-            system("/usr/bin/sudo /usr/share/sambaedu/scripts/deleteClasses.sh $Niveau");
+            //system("exec /usr/bin/sudo /usr/share/sambaedu/scripts/deleteClasses.sh $Niveau &");
             $rep_niveau = "/var/sambaedu/Classes/Classe_" . $Niveau;
 
             if (!is_dir("$rep_niveau")) {
@@ -119,7 +119,7 @@ if ((have_right($config, "se3_is_admin")) or ( have_right($config, "annu_is_admi
                 $RessourcesClasses[$indice] = $Entry;
                 list($Classe, $Niveau) = preg_split("/Classe_/", $RessourcesClasses[$indice]);
                 //echo "Rafraichissement du r&#233;pertoire classe ".$Niveau."<br />\n";
-                $commande = "/usr/bin/sudo /usr/share/sambaedu/scripts/updateClasses.pl -c $Niveau";
+                $commande = "exec /usr/bin/php /usr/share/sambaedu/scripts/update_classe.php -c $Niveau &";
                 my_echo_debug($commande);
                 system($commande);
                 $indice++;
@@ -128,13 +128,13 @@ if ((have_right($config, "se3_is_admin")) or ( have_right($config, "annu_is_admi
 
         // Dans le cas ou on donne le droit a tous les profs sur les repertoires classes
         if ($_POST['acl_group_profs']) {
-            $commande = "/usr/bin/sudo /usr/share/sambaedu/scripts/sambaedu_droits_profs_sur_classes.sh";
+            //$commande = "/usr/bin/sudo /usr/share/sambaedu/scripts/sambaedu_droits_profs_sur_classes.sh";
             my_echo_debug($commande);
             system($commande);
         }
         else {
             // Effacement du droit Profs sur les fichiers et dossiers existants
-            $commande = "/usr/bin/sudo /usr/share/sambaedu/scripts/sambaedu_droits_profs_sur_classes.sh droits=n";
+            //$commande = "/usr/bin/sudo /usr/share/sambaedu/scripts/sambaedu_droits_profs_sur_classes.sh droits=n";
             my_echo_debug($commande);
             system($commande);
         }
@@ -150,24 +150,25 @@ if ((have_right($config, "se3_is_admin")) or ( have_right($config, "annu_is_admi
         $refresh_RessourcesClasses = (isset($_POST['old_RessourcesClasses'])?$_POST['old_RessourcesClasses']:array());
         if (count($refresh_RessourcesClasses) > 0) {
             for ($loop = 0; $loop < count($refresh_RessourcesClasses); $loop++) {
-                list($Classe, $Niveau) = preg_split("/Classe_/", $refresh_RessourcesClasses[$loop]);
+                $Niveau  = $refresh_RessourcesClasses[$loop];
+                //list($Classe, $Niveau) = preg_split("/Classe_/", $refresh_RessourcesClasses[$loop]);
                 if (isset($_POST['refresh_classes'])) {
 
                     // On fait le test avant le updateClasses.pl parce qu'updateClasses.pl fait sauter les droits Profs
-                    $commande = "cd /var/sambaedu/Classes/$refresh_RessourcesClasses[$loop]; /usr/bin/getfacl . | grep default:group:Profs >/dev/null && echo 1";
+                    $commande = "cd /var/sambaedu/Classes/Classes_" .$Niveau. "; /usr/bin/getfacl . | grep default:group:Profs >/dev/null && echo 1";
                     my_echo_debug("Test: $commande");
-                    $acl_group_profs_classe = exec($commande);
+                    //$acl_group_profs_classe = exec($commande);
                     my_echo_debug("\$acl_group_profs_classe=$acl_group_profs_classe");
 
                     // Rafraichissement de la classe:
                     //echo "<b>rafraichissement de la classe : $Niveau</b><br />\n";
-                    $commande = "/usr/bin/sudo /usr/share/sambaedu/scripts/updateClasses.pl -c $Niveau ";
+                    $commande = "exec /usr/bin/php /usr/share/sambaedu/scripts/update_classe.php -c ".$Niveau." &";
                     my_echo_debug($commande);
                     system($commande);
 
                     // Dans le cas ou on donne le droit a tous les profs sur les repertoires classes
                     if (isset($_POST['acl_group_profs'])) {
-                        $commande = "/usr/bin/sudo /usr/share/sambaedu/scripts/sambaedu_droits_profs_sur_classes.sh classe=" . $refresh_RessourcesClasses[$loop];
+                        $commande = "/usr/bin/sudo /usr/share/sambaedu/scripts/sambaedu_droits_profs_sur_classes.sh classe=" . $Niveau;
                         my_echo_debug($commande);
                         system($commande);
                     }
@@ -176,14 +177,14 @@ if ((have_right($config, "se3_is_admin")) or ( have_right($config, "annu_is_admi
 
                             echo "<b>Rafraichissement de la classe : " . $refresh_RessourcesClasses[$loop] . "</b><br />\n";
 
-                            $commande = "/usr/bin/sudo /usr/share/sambaedu/scripts/sambaedu_droits_profs_sur_classes.sh classe=" . $refresh_RessourcesClasses[$loop] . " droits=n";
+                            $commande = "/usr/bin/sh /usr/share/sambaedu/scripts/sambaedu_droits_profs_sur_classes.sh classe=" . $Niveau . " droits=n";
                             my_echo_debug($commande);
                             system($commande);
                             echo "Suppression des droits pour le groupe Profs (<em>seuls les profs de l'equipe ont encore les droits</em>).<br />\n";
                         }
                         else {
                             // V�rification au cas ou le script updateClasses.pl serait modifie entre temps
-                            $commande = "cd /var/sambaedu/Classes/$refresh_RessourcesClasses[$loop]; /usr/bin/getfacl . | grep default:group:Profs >/dev/null && echo 1";
+                            $commande = "cd /var/sambaedu/Classes/Classes_".$Niveau."; /usr/bin/getfacl . | grep default:group:Profs >/dev/null && echo 1";
                             my_echo_debug("Test: $commande");
                             $acl_group_profs_classe = exec($commande);
                             my_echo_debug("\$acl_group_profs_classe=$acl_group_profs_classe");
@@ -228,7 +229,7 @@ if ((have_right($config, "se3_is_admin")) or ( have_right($config, "annu_is_admi
     }
     else $RessourcesClasses=array();
 
-
+    $list_new_classes = array();
     // Creation d'un tableau des nouvelles ressources a cr&#233;er  par
     // elimination des ressources deja existantes
     $k = 0;

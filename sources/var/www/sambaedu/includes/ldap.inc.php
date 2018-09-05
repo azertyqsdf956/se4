@@ -1460,7 +1460,7 @@ function add_user_group(array $config, string $classe, string $user, bool $updat
                     groupdelmember($config, $user, $oldclasse);
                 }
             if ($update) {
-                $res = update_classe($config, $user);
+                $res = update_eleve($config, $user);
             }
         } elseif (is_prof($config, $user)) {
             $pp = $update;
@@ -1538,8 +1538,10 @@ function delete_group($config, $name)
 }
 
 // ----------Gestion des partages--------------------------
-function update_classe($config, $user)
-{}
+function update_classe($config, $classe)
+{
+    $res = exec("exec /usr/bin/php /usr/share/sambaedu/scripts/update_classe.php -c ".$classe . "&");
+}
 
 function create_share($config, $name, $type = "file")
 {}
