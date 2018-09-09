@@ -108,7 +108,9 @@ fi
 
 # reservations
 if [ -e /var/www/sambaedu/dhcp/make_reservations.php ]; then 
-    su www-admin -c "php /var/www/sambaedu/dhcp/make_reservations.php"
+    if [ -e /etc/php/7.0/cli/conf.d/30-sambaedu.ini ]; then
+        su www-admin -c "php /var/www/sambaedu/dhcp/make_reservations.php"
+	fi
 fi
 if [ -e /etc/sambaedu/reservations.inc ] ; then
     echo "include \"/etc/sambaedu/reservations.inc\";" >> $conf

@@ -136,4 +136,109 @@ function update_eleve($config, $login)
     }
     return true;
 }
+
+function update_classes(array $config, string $classes = "*")
+{
+    $res = list_classes($config, $classes);
+    if (count($res) > 0) {
+        // Au moins une classe a ete trouvee
+        foreach ($res as $Classe) {
+            $cnClasse = "Classe_" . $Classe;
+            print "<b>Mise &#224; jour du partage de la classe : $Classe</b><br>\n";
+
+            if (! is_dir("/var/sambaedu/Classes/$cnClasse")) {
+                if (is_dir("/var/sambaedu/Classes/.$cnClasse")) {
+                    print("<b> restauration du repertoire de la classe $Classe</b><br>\n");
+                    system("sudo /bin/mv /var/sambaedu/Classes/.$cnClasse /var/sambaedu/Classes/$cnClasse");
+                } else {
+                    print("<b> Cr&#233;ation du repertoire de la  classe $Classe</b><br>\n");
+                    system("sudo /bin/mkdir /var/sambaedu/Classes/$cnClasse");
+                }
+            }
+            if (is_dir("/var/sambaedu/Classes/$cnClasse")) {
+
+                // test dossier echange
+                if (is_dir("/var/sambaedu/Classes/$cnClasse/_echange")) {
+                    $etat = system("getfacl /var/sambaedu/Classes/" . $cnClasse . "/_echange 2>/dev/null | grep \'^group:" . $cnClasse . ":rwx\$\' >/dev/null");
+                } else {
+                    $etat = 1;
+                }
+
+                system("sudo setfacl -R -P --set user::rwx,group::---,group:Equipe_$Classe:rwx,group:domain\ admins:rwx,mask::rwx,other::---,default:user::rwx,default:group::---,default:group:Equipe_$Classe:rwx,default:group:domain\ admins:rwx,default:mask::rwx,default:other::--- /var/sambaedu/Classes/$cnClasse");
+
+                if ($etat == 0) {
+                    //@TODO
+                    system("sudo /usr/share/se3/scripts/echange_classes.sh $cnClasse actif");
+                }
+
+                // Modifie le groupe par defaut
+                system("sudo chgrp domain\ admins /var/sambaedu/Classes/$cnClasse");
+                system("sudo chown www-admin /var/sambaedu/Classes/$cnClasse");
+
+                print "  $cnClasse/_travail<br>\n";
+                if (! is_dir("/var/sambaedu/Classes/$cnClasse/_travail")) {
+                    system("sudo /bin/mkdir /var/sambaedu/Classes/$cnClasse/_travail");
+                }
+                if (is_dir("/var/sambaedu/Classes/$cnClasse/_travail")) {
+
+                    system("sudo /usr/bin/setfacl -R -P -m group:Classe_$Classe:rx,default:group:$cnClasse:rx /var/sambaedu/Classes/$cnClasse/_travail");
+
+                    // Modifie le groupe par defaut
+                    system("sudo chgrp domain\ admins /var/sambaedu/Classes/$cnClasse/_travail");
+                    system("sudo chown www-admin /var/sambaedu/Classes/$cnClasse/_travail");
+                }
+                print "  $cnClasse/_profs<br>\n";
+                if (! is_dir("/var/sambaedu/Classes/$cnClasse/_profs")) {
+                    system("sudo /bin/mkdir /var/sambaedu/Classes/$cnClasse/_profs");
+                }
+                // Modifie le groupe par defaut
+                system("sudo chgrp domain\ admins /var/sambaedu/Classes/$cnClasse/_profs");
+                system("sudo chown www-admin /var/sambaedu/Classes/$cnClasse/_profs");
+                // premiere passe : on analyse les repertoires
+                $out = 0;
+                $res = array();
+                @exec("sudo ls -d1 /var/sambaedu/Classes/" . $cnClasse . "/* 2>/dev/null", $res, $out);
+                if ($out == 0) {
+                    foreach ($res as $oldeleve) {
+                        if (! preg_match("!^/var/sambaedu/Classes/$cnClasse/_!", $oldeleve)) {
+                            // On met à jour les anciens eleves de la classe
+                            $oldeleve = preg_replace("!^/var/sambaedu/Classes/$cnClasse/!", "", $oldeleve);
+                            $login = invert_login($config, $oldeleve);
+                            update_eleve($config, $login);
+                            // Modifie le groupe par defaut
+                            if (is_dir("/var/sambaedu/Classes/$cnClasse/$login")) {
+                                system("sudo chgrp domain\ admins /var/sambaedu/Classes/$cnClasse/$login");
+                                system("sudo chown www-admin /var/sambaedu/Classes/$cnClasse/$login");
+                            }
+                        }
+                    }
+                }
+                // deuxieme passe : on cherche dans l'annuaire
+                $members = list_eleves($config, $Classe);
+                foreach ($members as $member) {
+                    // D.B. On met met a jour les eleves actuels de la classe pas encore faits
+                    $eleve = invert_login($config, ldap_dn2cn($member));
+                    if (! is_dir("/var/sambaedu/Classes/$cnClasse/$eleve")) {
+                        update_eleve($config, ldap_dn2cn($member));
+                        // Modifie le groupe par defaut
+                        if (is_dir("/var/sambaedu/Classes/$cnClasse/$eleve")) {
+                            system("sudo chgrp domain\ admins /var/sambaedu/Classes/$cnClasse/$eleve");
+                            system("sudo chown www-admin /var/sambaedu/Classes/$cnClasse/$eleve");
+                        }
+                    }
+                }
+                // Retrait du droit w &#224; Equipe_$CLASSE et ajout de rx au groupe $cnClasse (Classe_ ) sur le dossier /var/se3/Classes/$cnClasse
+                system("sudo /usr/bin/setfacl -m group:Equipe_$Classe:rx,group:$cnClasse:rx /var/sambaedu/Classes/$cnClasse");
+            }
+        }
+    } elseif (is_dir("/var/sambaedu/Classes/Classe_$Classe")) {
+        if (preg_match("/grp_/", $Classe)) {
+            print "Ancien groupe '$Classe' ignor&#233;e. utilisez le menu groupe<br>\n";
+        } else {
+            // le répertoire existe, mais la classe non : on renomme en .Classe_truc, au cas ou
+            print("Le groupe n'existe plus : Renommage de la classe $Classe. en .Classe_$Classe<br>\n");
+            system("sudo /bin/mv /var/sambaedu/Classes/Classe_$Classe /var/sambaedu/Classes/.Classe_$Classe");
+        }
+    }
+}
 ?>

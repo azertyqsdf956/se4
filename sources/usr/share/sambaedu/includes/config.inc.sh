@@ -3,10 +3,11 @@
 # fichier à inclure au début de tout script devant accéder à la conf 
 #
 # assignation des variables de conf
-function get_config() {
-
+get_config() {
 	for conf in $(find /etc/sambaedu/sambaedu.conf* -name "*.conf" -type f); do
-    	for ligne in $(sed -E "/^#.*$/d;s|^(\S+)\s*=\s*\"(.*)\"$|config_\1='\2'|g" $conf); do
+    	IFS='
+'
+	for ligne in $(sed -E "/^#.*$/d;s|^(\S+)\s*=\s*\"(.*)\"$|config_\1='\2'|g" $conf); do
         	eval $ligne
     	done
 	done
@@ -14,7 +15,7 @@ function get_config() {
 
 # fonction permettant l'écriture des parametres
 # set_config module param [value]
-function set_config() {
+set_config() {
     if [ "$1" == "sambaedu" ]; then
 	    conf="/etc/sambaedu/sambaedu.conf"
     else
@@ -43,7 +44,7 @@ function set_config() {
 # fonction permettant le renommage d'un parametre
 # mv_config module old_param new_param [value]
 # si pas de valeur on garde l'existante.
-function mv_config() {
+mv_config() {
     if [ -n "$4" ]; then
         set_config $1 $3 "$4"
     else
@@ -56,7 +57,7 @@ function mv_config() {
 # fonction pour écrire un parametre dans un fichier de conf
 # usage : write_param fichier config_param
 # remplace ###_PARAM_### par la valeur de $config_param dans le fichier
-function write_param() {
+write_param() {
     param=${2/config_/}
     param=${param^^}
     valeur=$2
@@ -67,7 +68,7 @@ function write_param() {
 # usage : update_conf fichier field param
 # field[ ]= valeur : remplace valeur par $config_param
 
-function update_conf() {
+update_conf() {
     conf=$1
     field=$2
     param=$3

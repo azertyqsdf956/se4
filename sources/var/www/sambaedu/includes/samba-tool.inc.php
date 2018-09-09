@@ -81,14 +81,18 @@ function useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $cate
     if (! isset($userpwd)) {
         $userpwd = $naissance;
     }
+    $userpwd = escapeshellarg($userpwd);
+    $prenom = escapeshellarg(ucfirst($prenom));
+    $nom = escapeshellarg(ucfirst($nom));
+    
 
     if (empty($employeeNumber)) {
         // Pas de champ job-title pour employeeNumber dans ce cas
-        $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@" . $config['domain'] . "' --physical-delivery-office='$office'";
+        $command = "user create '$cn' $userpwd --use-username-as-cn --given-name=$prenom --surname=$nom --mail-address='$cn@" . $config['domain'] . "' --physical-delivery-office='$office'";
         if ($categorie != '')
             $command = $command . " --userou='ou=$categorie,". $config['people_rdn']."'";
     } else {
-        $command = "user create '$cn' '$userpwd' --use-username-as-cn --given-name='$prenom' --surname='$nom' --mail-address='$cn@" . $config['domain'] . "' --job-title='$employeeNumber' --physical-delivery-office='$office'";
+        $command = "user create '$cn' $userpwd --use-username-as-cn --given-name=$prenom --surname=$nom --mail-address='$cn@" . $config['domain'] . "' --job-title='$employeeNumber' --physical-delivery-office='$office'";
         if ($categorie != '')
             $command = $command . " --userou='ou=$categorie,". $config['people_rdn']."'";
     }

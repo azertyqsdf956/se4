@@ -3,6 +3,8 @@
     require ("config.inc.php");
 require_once ("samba-tool.inc.php");
 require_once ("ldap.inc.php");
+require_once ("partages.inc.php");
+require_once ("siecle.inc.php");
 
 //require_once ("functions.inc.php");
 $config['login'] = "admin";
@@ -66,20 +68,49 @@ var_dump(list_classes($config, "eleve.test"));
 
 //print 'list_pp($config, "prof.tes")';
 //var_dump(list_pp($config, "prof.test"));
-//cn = creer_cn($config, "test", "eleve10");
+$prenom = "ilyes";
+$nom = "m'silini";
+$prenom = remplace_accents(traite_espaces($prenom));
+$nom = remplace_accents(traite_espaces($nom));
+$cn = verif_nom_prenom($config, $nom, $prenom);
+if ($cn){
+verif_et_corrige_user($config, $cn, "12101998", "M", "n");
+verif_et_corrige_nom($config, $cn, $prenom, "n");
+verif_et_corrige_pseudo($config, $cn, $nom, $prenom, "y", "n");
+}
+    
+$cn = creer_cn($config, $nom, $prenom);
 //var_dump($config, "denis.bonnenfant", "user");
-/*$password = createRandomPassword(8, 1);
-//create_user($config, $cn, "eleve10", "test", $password, "01012001", "F", "Profs", "P4075");
+$password = createRandomPassword(8, 1);
+create_user($config, $cn, $prenom, $nom, $password, "12101998", "M", "eleves", "12858");
 //$cn = verif_nom_prenom($config, "l obry", "bernadette");
 //echo $cn;
-$user = search_user($config, "denis.bonnenfant");
+/*$user = search_user($config, "denis.bonnenfant");
 $en = $user['employeenumber'];
 $attr = array( 'title'=>"")
 $res = modify_ad($config)
 */
-$commande = "exec /usr/bin/php /usr/share/sambaedu/scripts/update_classe.php -c CIM1 &";
-//my_echo_debug($commande);
-$res = system($commande);
+/*$args = array(
+    'xml',
+    '/var/www/sambaedu/tmp/fichier_eleves',
+    '/var/www/sambaedu/tmp/fichier_sts',
+    '',
+    'n',
+    'n',
+    '0.39990900_1536320029',
+    '766078603',
+    'non',
+    'n',
+    'n',
+    'n',
+    'y',
+    'n',
+    'n',
+    'y',
+    'n'
+);
+create_echo_file($args[6]);
+$res = import_comptes($config, $args);
 echo $res;
-
+*/
 ?>

@@ -153,7 +153,6 @@ function bind_ad_gssapi($config)
      */
     $error = 0;
     $url = "ldap://" . $config['se4ad_name'] . "." . $config['domain'];
-    $url = "ldap://se4ad.diderot.org";
     $ds = ldap_connect($url, '389');
     if ($ds) {
         ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -1537,12 +1536,4 @@ function delete_group($config, $name)
     return $res;
 }
 
-// ----------Gestion des partages--------------------------
-function update_classe($config, $classe)
-{
-    $res = exec("exec /usr/bin/php /usr/share/sambaedu/scripts/update_classe.php -c ".$classe . "&");
-}
-
-function create_share($config, $name, $type = "file")
-{}
 ?>

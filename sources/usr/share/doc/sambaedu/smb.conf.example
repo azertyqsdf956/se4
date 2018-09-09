@@ -19,4 +19,40 @@
        template homedir = /home/%U
        template shell = /bin/bash
        username map = /etc/samba/user.map
+       winbind use default domain = yes
+       
+# imprimantes
+       rpc_server:spoolss = external
+       rpc_daemon:spoolssd = fork
+       spoolss: architecture = Windows x64
+       printing = CUPS
+[printers]
+       path = /var/spool/samba/
+       printable = yes
+
+# partages
+[install]
+       path = /var/sambaedu/unattended/install
+       read only = no
+[profiles]
+       comment = Users profiles
+       path = /home/profiles/
+       browseable = No
+       read only = No
+       force create mode = 0600
+       force directory mode = 0700
+       csc policy = disable
+       store dos attributes = yes
+       vfs objects = acl_xattr
+[users]
+       path = /home/
+       read only = no
+       force create mode = 0600
+       force directory mode = 0700
+[progs]
+       path = /var/sambaedu/Progs
+       read only = no
+[classes]
+       path = /var/sambaedu/Classes
+       read only = no
 

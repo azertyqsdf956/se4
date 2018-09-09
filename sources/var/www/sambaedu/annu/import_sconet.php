@@ -127,7 +127,7 @@ if (have_right($config, "Annu_is_admin")) {
             echo "<p><b>ATTENTION:</b> Il semble qu'un import soit d&#233;j&#224; en cours";
             if (isset($config['dernier_import'])) {
                 $ligtmp = $config['dernier_import'];
-                echo ":<br />\n<a href='http://admin.".$config['domain']."/tmp/result." . $ligtmp->value . ".html' target='_blank'>http://admin.".$config['domain']."/tmp/result." . $ligtmp->value . ".html</a>";
+                echo ":<br />\n<a href='http://admin." . $config['domain'] . "/tmp/result." . $ligtmp->value . ".html' target='_blank'>http://admin." . $config['domain'] . "/tmp/result." . $ligtmp->value . ".html</a>";
             }
 
             echo "<br />\n";
@@ -353,12 +353,12 @@ if (have_right($config, "Annu_is_admin")) {
             echo "<p><b>ATTENTION:</b> Il semble qu'un import soit d&#233;j&#224; en cours";
             if (isset($config['dernier_import'])) {
                 $ligtmp = $config['dernier_import'];
-                echo ":<br />\n<a href='http://admin.".$config['domain']."/tmp/result." . $ligtmp->value . ".html' target='_blank'>http://admin.".$config['domain']."/tmp/result." . $ligtmp->value . ".html</a>";
+                echo ":<br />\n<a href='http://admin." . $config['domain'] . "/tmp/result." . $ligtmp->value . ".html' target='_blank'>http://admin." . $config['domain'] . "/tmp/result." . $ligtmp->value . ".html</a>";
             }
-            
+
             echo "<br />\n";
             echo "Si vous &#234;tes certain que ce n'est pas le cas, vous pouvez faire sauter le verrou.<br />Sinon, il vaut mieux patienter quelques minutes.</p>\n";
-            
+
             echo "<p><a href='" . $_SERVER['PHP_SELF'] . "?deverrouiller=y'>Faire sauter le verrou</a>.</p>\n";
             include $pathlcsorse3 . "pdp.inc.php";
             exit();
@@ -379,7 +379,7 @@ if (have_right($config, "Annu_is_admin")) {
                 echo ("<p>Un import est déjà en cours");
 
                 if ($config['dernier_import']) {
-                    echo ": <a href='http://admin.".$config['domain']."/tmp/result." . $config['dernier_import'] . ".html' target='_blank'>http://admin.".$config['domain']."/tmp/result." . $config['dernier_import'] . ".html</a>";
+                    echo ": <a href='http://admin." . $config['domain'] . "/tmp/result." . $config['dernier_import'] . ".html' target='_blank'>http://admin." . $config['domain'] . "/tmp/result." . $config['dernier_import'] . ".html</a>";
                 } else {
                     echo ".";
                 }
@@ -451,55 +451,54 @@ if (have_right($config, "Annu_is_admin")) {
             if (($extension_fichier_emis == ".zip") || ($_FILES['eleves_file']['type'] == "application/zip")) {
 
                 // if(!file_exists($racine_www."/includes/pclzip.lib.php")) {
-                 // $unzipped_max_filesize=getSettingValue('unzipped_max_filesize')*1024*1024;
+                // $unzipped_max_filesize=getSettingValue('unzipped_max_filesize')*1024*1024;
 
-                    // On consid&#232;re un XML &#233;l&#232;ve de 20Mo maxi
-                    $unzipped_max_filesize = 20 * 1024 * 1024;
+                // On consid&#232;re un XML &#233;l&#232;ve de 20Mo maxi
+                $unzipped_max_filesize = 20 * 1024 * 1024;
 
-                    // $unzipped_max_filesize = 0 pas de limite de taille pour les fichiers extraits
-                    // $unzipped_max_filesize < 0 extraction zip d&#233;sactiv&#233;e
-                    if ($unzipped_max_filesize >= 0) {
-                        // require_once('../lib/pclzip.lib.php');
-                        require_once ('pclzip.lib.php');
-                        $archive = new PclZip($dest_file);
+                // $unzipped_max_filesize = 0 pas de limite de taille pour les fichiers extraits
+                // $unzipped_max_filesize < 0 extraction zip d&#233;sactiv&#233;e
+                if ($unzipped_max_filesize >= 0) {
+                    // require_once('../lib/pclzip.lib.php');
+                    require_once ('pclzip.lib.php');
+                    $archive = new PclZip($dest_file);
 
-                        if (($list_file_zip = $archive->listContent()) == 0) {
-                            echo "<p style='color:red;'>Erreur : " . $archive->errorInfo(true) . "</p>\n";
-                            require "pdp.inc.php";
-                            die();
-                        }
-
-                        if (sizeof($list_file_zip) != 1) {
-                            echo "<p style='color:red;'>Erreur : L'archive contient plus d'un fichier.</p>\n";
-                            require "pdp.inc.php";
-                            die();
-                        }
-
-                        /*
-                         * echo "<p>\$list_file_zip[0]['filename']=".$list_file_zip[0]['filename']."<br />\n";
-                         * echo "\$list_file_zip[0]['size']=".$list_file_zip[0]['size']."<br />\n";
-                         * echo "\$list_file_zip[0]['compressed_size']=".$list_file_zip[0]['compressed_size']."</p>\n";
-                         */
-                        // echo "<p>\$unzipped_max_filesize=".$unzipped_max_filesize."</p>\n";
-
-                        if (($list_file_zip[0]['size'] > $unzipped_max_filesize) && ($unzipped_max_filesize > 0)) {
-                            echo "<p style='color:red;'>Erreur : La taille du fichier extrait (<i>" . $list_file_zip[0]['size'] . " octets</i>) d&#233;passe la limite param&#232;tr&#233;e (<i>$unzipped_max_filesize octets</i>).</p>\n";
-                            require "pdp.inc.php";
-                            die();
-                        }
-
-                        $res_extract = $archive->extract(PCLZIP_OPT_PATH, "$dossier_tmp_import_comptes/");
-                        if ($res_extract != 0) {
-                            echo "<p>Le fichier upload&#233; a &#233;t&#233; d&#233;zipp&#233;.</p>\n";
-                            $fichier_extrait = $res_extract[0]['filename'];
-                            $res_copy = rename("$fichier_extrait", "$dest_file");
-                        } else {
-                            echo "<p style='color:red'>Echec de l'extraction de l'archive ZIP.</p>\n";
-                            require "pdp.inc.php";
-                            die();
-                        }
+                    if (($list_file_zip = $archive->listContent()) == 0) {
+                        echo "<p style='color:red;'>Erreur : " . $archive->errorInfo(true) . "</p>\n";
+                        require "pdp.inc.php";
+                        die();
                     }
-                
+
+                    if (sizeof($list_file_zip) != 1) {
+                        echo "<p style='color:red;'>Erreur : L'archive contient plus d'un fichier.</p>\n";
+                        require "pdp.inc.php";
+                        die();
+                    }
+
+                    /*
+                     * echo "<p>\$list_file_zip[0]['filename']=".$list_file_zip[0]['filename']."<br />\n";
+                     * echo "\$list_file_zip[0]['size']=".$list_file_zip[0]['size']."<br />\n";
+                     * echo "\$list_file_zip[0]['compressed_size']=".$list_file_zip[0]['compressed_size']."</p>\n";
+                     */
+                    // echo "<p>\$unzipped_max_filesize=".$unzipped_max_filesize."</p>\n";
+
+                    if (($list_file_zip[0]['size'] > $unzipped_max_filesize) && ($unzipped_max_filesize > 0)) {
+                        echo "<p style='color:red;'>Erreur : La taille du fichier extrait (<i>" . $list_file_zip[0]['size'] . " octets</i>) d&#233;passe la limite param&#232;tr&#233;e (<i>$unzipped_max_filesize octets</i>).</p>\n";
+                        require "pdp.inc.php";
+                        die();
+                    }
+
+                    $res_extract = $archive->extract(PCLZIP_OPT_PATH, "$dossier_tmp_import_comptes/");
+                    if ($res_extract != 0) {
+                        echo "<p>Le fichier upload&#233; a &#233;t&#233; d&#233;zipp&#233;.</p>\n";
+                        $fichier_extrait = $res_extract[0]['filename'];
+                        $res_copy = rename("$fichier_extrait", "$dest_file");
+                    } else {
+                        echo "<p style='color:red'>Echec de l'extraction de l'archive ZIP.</p>\n";
+                        require "pdp.inc.php";
+                        die();
+                    }
+                }
             }
         }
 
@@ -558,63 +557,9 @@ if (have_right($config, "Annu_is_admin")) {
 
             $temoin_f_cn = "y";
         }
-
-        // $timestamp=preg_replace("/ /","_",microtime());
         $echo_file = "$racine_www/tmp/result.$timestamp.html";
         $dest_mode = "file";
-        $fich = fopen("$echo_file", "w+");
-        fwrite($fich, "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">
-<html>
-<head>
-<style type='text/css'>
-body{
-    background: url($background) ghostwhite bottom right no-repeat fixed;
-}
-</style>
-<!--head-->
-<title>Import de comptes</title>
-<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
-<!--meta http-equiv='Refresh' CONTENT='120;URL=result.$timestamp.html#menu' /-->
-<link type='text/css' rel='stylesheet' href='$stylecss' />
-<body>
-<h1 style='text-align:center;'>Import de comptes</h1>
-
-<div id='decompte' style='float: right; border: 1px solid black;'></div>
-
-<script type='text/javascript'>
-cpt=120;
-compte_a_rebours='y';
-
-
-/**
-* Decompte le temps mis pour l'import sconet
-* @language Javascript
-* @Parametres
-* @return le decompte qui s'affiche
-*/
-
-
-function decompte(cpt){
-	if(compte_a_rebours=='y'){
-		document.getElementById('decompte').innerHTML=cpt;
-		if(cpt>0){
-			cpt--;
-		}
-		else{
-			document.location='result.$timestamp.html';
-		}
-
-		setTimeout(\"decompte(\"+cpt+\")\",1000);
-	}
-	else{
-		document.getElementById('decompte').style.display='none';
-	}
-}
-
-decompte(cpt);
-</script>\n");
-        fclose($fich);
-
+        create_echo_file($timestamp);
         $chrono = isset($_POST['chrono']) ? $_POST['chrono'] : "n";
 
         // ===========================================================
@@ -658,7 +603,7 @@ decompte(cpt);
         $minute_aujourdhui = sprintf("%02d", $aujourdhui['minutes']);
         $seconde_aujourdhui = sprintf("%02d", $aujourdhui['seconds']);
 
-        my_echo("<p>Import du $jour_aujourdhui/$mois_aujourdhui/$annee_aujourdhui &#224; $heure_aujourdhui:$minute_aujourdhui:$seconde_aujourdhui<br />\n(<i>l'op&#233;ration d&#233;marre 2min apr&#232;s; vous pouvez alors commencer &#224; jouer avec la touche F5 pour suivre le traitement</i>)</p>\n");
+        my_echo("<p>Import du $jour_aujourdhui/$mois_aujourdhui/$annee_aujourdhui &#224; $heure_aujourdhui:$minute_aujourdhui:$seconde_aujourdhui<br />\n(<i>l'opération démarre, vous pouvez  commencer à jouer avec la touche F5 pour suivre le traitement</i>)</p>\n");
 
         // Importation annuelle
         $annuelle = isset($_POST['annuelle']) ? $_POST['annuelle'] : "n";
@@ -716,8 +661,8 @@ decompte(cpt);
         // $resultat=exec("/usr/bin/at -f $dossier_tmp_import_comptes/import_comptes.sh $heure_aujourdhui:$d_minute_aujourdhui",$retour);
         // sudo
         // echo "DBG >>/usr/bin/sudo $chemin/run_import_comptes.sh $dossier_tmp_import_comptes<br />";
-        $retour =array();
-        exec("/bin/bash ".$dossier_tmp_import_comptes."/import_comptes.sh 2>".$dossier_tmp_import_comptes."/import.err >/dev/null &", $retour);
+        $retour = array();
+        exec("/bin/bash " . $dossier_tmp_import_comptes . "/import_comptes.sh 2>" . $dossier_tmp_import_comptes . "/import.err >/dev/null &", $retour);
 
         if (count($retour) > 0) {
             echo "<p>Il semble que la programmation ait &#233;chou&#233;...";
@@ -751,7 +696,7 @@ decompte(cpt);
 
         include "pdp.inc.php";
         flush();
-      }
+    }
 }
 
 ?>
