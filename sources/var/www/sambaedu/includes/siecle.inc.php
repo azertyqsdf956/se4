@@ -764,7 +764,7 @@ function verif_et_corrige_pseudo($config, $cn, $nom, $prenom, $annuelle = "y", $
     $prenom = preg_replace("/[^a-z_-]/", "", strtolower("$prenom"));
 
     $tab = search_user($config, $cn);
-    $tmp_pseudo = trtoupper(substr($prenom, 0, 1)) . "." . strtoupper(substr($nom, 0, 1));
+    $tmp_pseudo = strtoupper(substr($prenom, 0, 1)) . "." . strtoupper(substr($nom, 0, 1));
     if (count($tab) > 0) {
         // Si le pseudo existe déjà, on ne réinitialise le pseudo que lors d'un import annuel
         if ($annuelle == "y") {
@@ -3882,7 +3882,7 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                         $prenom = remplace_accents(traite_espaces($eleve[$numero]["prenom"]));
                         $sexe = $eleve[$numero]["sexe"];
                         $naissance = $eleve[$numero]["date"];
-                        verif_et_corrige_gecos($config, $cn, $naissance, $sexe, $simulation);
+                        verif_et_corrige_user($config, $cn, $naissance, $sexe, $simulation);
                     }
                     // ================================
 
