@@ -684,6 +684,45 @@ function verif_et_corrige_user($config, $cn, $naissance, $sexe, $simulation = "N
     }
     return $ret;
 }
+// ================================================
+
+/**
+ *
+ * Verifie et corrige le mail
+ *
+ * @Parametres
+ *
+ * @return
+ *
+ */
+function verif_et_corrige_mail($config, $cn, $simulation = "N")
+{
+    $ret = true;
+    $tab = search_user($config, $cn);
+    if (count($tab) > 0) {
+        if (! isset($tab['email'])) {
+  
+            $attributs = array();
+            $attributs["mail"] = $cn."@".$config['domain'];
+            my_echo("Correction des attributs: ");
+            
+            my_echo("Correction  de l'email de <b>$cn</b>");
+            
+            if ($simulation != 'y') {
+                if (modify_ad($config, $cn, "user", $attributs, "replace")) {
+                    my_echo("<font color='green'>SUCCES</font>");
+                } else {
+                    my_echo("<font color='red'>ECHEC</font>");
+                    $ret = false;
+                }
+            } else {
+                my_echo("<font color='blue'>SIMULATION</font>");
+            }
+            my_echo("<br />\n");
+        }
+    }
+    return $ret;
+}
 
 /**
  *

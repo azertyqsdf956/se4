@@ -229,7 +229,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
         case "filter": // user ou group
             $filter = $name;
             $ldap_attrs = array(
-                "cn" // 
+                "cn" //
             );
             if ($branch == "all") {
                 $branch = $config['ldap_base_dn'];
@@ -642,6 +642,26 @@ function search_machine($config, $cn, $ip = false)
         }
     }
     return $ret;
+}
+
+function create_machine($config, $name, $ou)
+{
+    if (! search_ad($config, $name, "machine")) {
+        // Prépare les données
+        $info["cn"] = "$name";
+        $info["objectclass"] = array(
+            "top",
+            "computer"
+        );
+        $info["samaccountname"] = $name . "$";
+        $info["description"] = "reservation dhcp uniquement";
+        // Ajout
+        list ($ds, $r, $error) = bind_ad_gssapi($config);
+        $ret = ldap_add($ds, "cn=" . $name . "," . $ou . "," . $config['ldap_base_dn'], $info);
+        ldap_close($ds);
+
+        return $ret;
+    }
 }
 
 /**
@@ -1086,7 +1106,7 @@ function set_dhcp_reservation($config, $machine, $reservation)
  */
 function import_dhcp_reservations($config)
 {
-    $contents = file_get_contents("/etc/sambaedu/reservations.inc");
+    $contents = file_get_contents("/etc/sambaedu/reservations.inc.se3");
     $contents = explode("\n", $contents);
     $index = 0;
     $data = array();
@@ -1118,7 +1138,7 @@ function export_dhcp_reservations($config)
 {
     $reservations = "/etc/sambaedu/reservations.inc";
     $content = "# reservations exportees autmatiquement de l'annuaire AD\n";
-    $content .= "# le ". date(DATE_RSS)."\n";
+    $content .= "# le " . date(DATE_RSS) . "\n";
     $machines = search_ad($config, "*", "machine", "all");
     foreach ($machines as $machine) {
 
