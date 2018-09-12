@@ -207,7 +207,7 @@ if ($config['registred'] > 1) {
 	echo "</u>\n";
 	echo "</TD></TR>\n";
 	echo "<TR><TD align=\"center\">";
-	echo "$nom.$domain";
+	echo $nom.".".$config['domain'];
 	echo "</TD></TR>\n";
 
 	echo "<TR><TD align=\"center\">";

@@ -22,7 +22,7 @@
    */
 
 include_once "config.inc.php";
-include "ldap.inc.php";
+include_once "ldap.inc.php";
 
     // Fin Recherche de la nature mono ou multi serveur de la plateforme SE3
     //smono_srv= mono_srv();

@@ -5,6 +5,7 @@
 $_SESSION["pageaide"]="Table_des_mati&#232;res";
 
 require_once("config.inc.php");
+require_once("ldap.inc.php");
 require_once ("functions.inc.php");
 
 require_once ("lang.inc.php");

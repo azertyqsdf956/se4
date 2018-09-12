@@ -513,16 +513,63 @@ function move_ad($config, $name, $new_dn, $type)
      */
     $res = search_ad($config, $name, $type);
     if ($res) {
-        $dn = $res[0][dn];
-        $new_dn_elements = preg_split('/,/', $new_dn, 1);
+        $dn = $res[0]['dn'];
+        $new_dn_elements = preg_split('/,/', $new_dn, 2);
         list ($ds, $r, $ret) = bind_ad_gssapi($config);
         if ($r) {
-            $ret = ldap_rename($ds, $dn, $new_dn_elements[0], $new_dn_elements[1], 1);
+            $ret = ldap_rename($ds, $dn, $new_dn_elements[0], $new_dn_elements[1], true);
             @ldap_close($ds);
             return $ret;
         }
     }
     return false;
+}
+
+function trash_user($config, $user)
+{
+    $type = type_user($config, $user);
+    if (!empty($type)){
+        $ou = "ou=" . $type . ",";
+        groupdelmember($config, $user, $type);
+    }
+    $ret = move_ad($config, $user, "cn=" . $user . "," . $ou . $config['dn']['trash'], "user");
+    $attrs = array();
+    $attrs['useraccountcontrol'] = 512;
+    modify_ad($config, $user, "user", $attrs);
+    return $ret;
+}
+
+function recup_user($config, $user)
+{
+    $categorie = type_user($config, $user);
+    $ret = move_ad($config, $user, "cn=" . $user . ",ou=" . $categorie . "," . $config['dn']['people'], "user");
+    $attrs = array();
+    $attrs['useraccountcontrol'] = 514;
+    modify_ad($config, $user, "user", $attrs);
+    groupaddmember($config, $user, $categorie);
+    return $ret;
+}
+
+function trash_users($config)
+{
+    $users = search_ad($config, "*", "user", $config['dn']['people']);
+    $ret = true;
+    foreach ($users as $user) {
+        $trash = true;
+        if (have_right($config, "no_trash_user", $user['cn'])) {
+            $trash = false;
+        } else {
+            foreach ($user['memberof'] as $groupdn) {
+                if (preg_match("/cn=(Classe_|Equipe_|Cours_|Administratifs|Domain Admins).*/i", $groupdn))
+                    $trash = false;
+            }
+        }
+        if ($trash) {
+            print "trash : " . $user['cn'] . "<br>\n";
+            $ret = trash_user($config, $user['cn']);
+        }
+    }
+    return $ret;
 }
 
 /*
@@ -674,14 +721,16 @@ function create_machine($config, $name, $ou)
 function type_user(array $config, string $user)
 {
     $res = search_user($config, $user);
-    if (in_array("cn=Eleves," . $config['dn']['groups'], $res['memberof']))
-        return "eleve";
-    elseif (in_array("cn=Profs," . $config['dn']['groups'], $res['memberof']))
-        return "prof";
-    elseif (in_array("cn=Administratifs," . $config['dn']['groups'], $res['memberof']))
-        return "administratif";
-    else
-        return "";
+    $match = array();
+    foreach ($res['memberof'] as $groupdn) {
+        if (preg_match("/cn=(Eleves|Profs|Administratifs).*/i", $groupdn, $match)) {
+            return $match[1];
+        }
+    }
+    if (preg_match("/ou=(Eleves|Profs|Administratifs).*/i", $res['dn'], $match)) {
+        return $match[1];
+    }
+    return "";
 }
 
 /**
@@ -738,7 +787,7 @@ function list_rights($config, $name, $inverse = false)
             }
         }
         if (count($rights) == 0)
-            return false;
+            return array();
         if ($inverse) {
             $not_rights = array();
             foreach (list_rights($config, "all") as $r) {

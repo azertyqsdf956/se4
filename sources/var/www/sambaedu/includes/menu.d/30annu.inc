@@ -23,7 +23,6 @@
   
 
 	require_once("lang.inc.php");
-	require_once("lang.inc.php");
 	bindtextdomain('se3-core',"/var/www/se3/locale");
 	textdomain ('se3-core');
 
@@ -36,7 +35,7 @@
         gettext("Voir ma fiche"),"annu/me.php","",1,
         gettext("Mon espace personnel"),"individuel.php","",1,
 	gettext("Administration LDAP"),"annu/indexannu.php","se3_is_admin",3,
-	gettext("Nettoyage des comptes"),"annu/ldap_cleaner.php","se3_is_admin",3,
+	gettext("Nettoyage des comptes"),"annu/ldap_cleaner.php","se3_is_admin",1,
         ));
 	$liens=array_merge($liens,$liens1);
 ?>

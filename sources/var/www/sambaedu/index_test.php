@@ -1,6 +1,6 @@
 <?php
 
-    require ("config.inc.php");
+require ("config.inc.php");
 require_once ("samba-tool.inc.php");
 require_once ("ldap.inc.php");
 require_once ("partages.inc.php");
@@ -19,6 +19,8 @@ $config['login'] = "admin";
 //var_dump(list_members_parc($config, "salle_b8"));
 //var_dump(list_parc($config, "*"));
 
+/*
+
 $ret = create_machine($config, "machine-test2", "ou=printers");
 
  
@@ -36,6 +38,7 @@ foreach($res as $host){
         ob_flush();
     }
 }
+*/
 
 /*var_dump(search_ad($config, "tm-a23-len2", "machine"));
 var_dump(get_dhcp_reservation($config, "tm-a23-len2"));
@@ -133,6 +136,16 @@ echo $res;
 $users = search_ad($config, "*", "user");
 foreach ($users as $user){
     verif_et_corrige_mail($config, $user['cn']);
+}
+*/
+
+$users = search_ad($config,"*", "user", $config['dn']['trash']);
+print count($users);
+/*
+foreach ($users as $user){
+    $type = type_user($config, $user['cn']);
+    move_ad($config, $user['cn'], "cn=".$user['cn'].",ou=".$type.",".$config['dn']['trash'], "user" );
+    groupdelmember($config, $user['cn'], $type);
 }
 */
 ?>
