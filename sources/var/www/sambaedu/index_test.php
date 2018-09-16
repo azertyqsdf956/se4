@@ -83,8 +83,8 @@ var_dump(list_classes($config, "eleve.test"));
 //var_dump(list_pp($config, "prof.test"));
 
 /*
-$prenom = "ilyes";
-$nom = "m'silini";
+$prenom = "Aurelien";
+$nom = "Sezettre";
 $prenom = remplace_accents(traite_espaces($prenom));
 $nom = remplace_accents(traite_espaces($nom));
 $cn = verif_nom_prenom($config, $nom, $prenom);
@@ -95,8 +95,9 @@ verif_et_corrige_pseudo($config, $cn, $nom, $prenom, "y", "n");
 }
 $cn = creer_cn($config, $nom, $prenom);
 //var_dump($config, "denis.bonnenfant", "user");
-$password = createRandomPassword(8, 1);
-create_user($config, $cn, $prenom, $nom, $password, "12101998", "M", "eleves", "12858");
+//$password = createRandomPassword(8, 1);
+//create_user($config, $cn, $prenom, $nom, $password, "12101998", "M", "eleves", "12858");
+
 */
 
 //$cn = verif_nom_prenom($config, "l obry", "bernadette");
@@ -108,13 +109,15 @@ $attr = array( 'title'=>"")
 $res = modify_ad($config)
 */
 
-/*$args = array(
+/*
+
+$args = array(
     'xml',
     '/var/www/sambaedu/tmp/fichier_eleves',
     '/var/www/sambaedu/tmp/fichier_sts',
     '',
     'n',
-    'n',
+    'y',
     '0.39990900_1536320029',
     '766078603',
     'non',
@@ -130,6 +133,7 @@ $res = modify_ad($config)
 create_echo_file($args[6]);
 $res = import_comptes($config, $args);
 echo $res;
+
 */
 
 /*
@@ -139,8 +143,8 @@ foreach ($users as $user){
 }
 */
 
-$users = search_ad($config,"*", "user", $config['dn']['trash']);
-print count($users);
+//$users = search_ad($config,"*", "user", $config['dn']['trash']);
+//print count($users);
 /*
 foreach ($users as $user){
     $type = type_user($config, $user['cn']);
@@ -148,4 +152,16 @@ foreach ($users as $user){
     groupdelmember($config, $user['cn'], $type);
 }
 */
+
+$users =search_ad($config, "*", "user", $config['dn']['people'], array('whencreated'));
+$i = 0;
+foreach($users as $user){
+    $date = preg_replace("/\.0Z/", "", $user['whencreated']);
+    if ($date > 20180711150050){
+        print $user['prenom'].",".$user['nom'].",".$user['email'].",".createRandomPassword(8, 1)."<br>";
+        $i++;
+    }
+}
+
+
 ?>

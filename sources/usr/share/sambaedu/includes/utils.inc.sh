@@ -1,12 +1,12 @@
 # fichier bash à sourcer
-#
+# incompatible sh /dash !!!
 # fonctions utiles pour générer les configurations des services sambaedu
 # 
 # Denis Bonnenfant
 #
 # licence GPL
 
-function cdr2mask()
+cdr2mask()
 {
    # Number of args to shift, 255..255, first non-255 byte, zeroes
    set -- $(( 5 - ($1 / 8) )) 255 255 255 255 $(( (255 << (8 - ($1 % 8))) & 255 )) 0 0 0
@@ -18,7 +18,7 @@ function cdr2mask()
 # 
 # 
 
-function my_network() {
+my_network() {
 
 
 read my_gateway my_interface<<<$(ip -o -f inet route show default 0.0.0.0/0 | cut -d ' ' -f3,5)

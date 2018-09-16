@@ -171,7 +171,7 @@ function bind_ad_gssapi($config)
     );
 }
 
-function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = array())
+function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array())
 {
 
     /**
@@ -376,6 +376,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $ldap_attrs = 
                 $branch = $config['ldap_base_dn'];
             }
     }
+    $ldap_attrs = array_merge($ldap_attrs, $attrs);
     $ret = array();
     list ($ds, $r, $error) = bind_ad_gssapi($config);
     if ($r) {
@@ -528,13 +529,13 @@ function move_ad($config, $name, $new_dn, $type)
 function trash_user($config, $user)
 {
     $type = type_user($config, $user);
-    if (!empty($type)){
+    if (! empty($type)) {
         $ou = "ou=" . $type . ",";
         groupdelmember($config, $user, $type);
     }
     $ret = move_ad($config, $user, "cn=" . $user . "," . $ou . $config['dn']['trash'], "user");
     $attrs = array();
-    $attrs['useraccountcontrol'] = 512;
+    $attrs['useraccountcontrol'] = 514;
     modify_ad($config, $user, "user", $attrs);
     return $ret;
 }
@@ -543,10 +544,12 @@ function recup_user($config, $user)
 {
     $categorie = type_user($config, $user);
     $ret = move_ad($config, $user, "cn=" . $user . ",ou=" . $categorie . "," . $config['dn']['people'], "user");
-    $attrs = array();
-    $attrs['useraccountcontrol'] = 514;
-    modify_ad($config, $user, "user", $attrs);
-    groupaddmember($config, $user, $categorie);
+    if ($ret) {
+        $attrs = array();
+        $attrs['useraccountcontrol'] = 512;
+        modify_ad($config, $user, "user", $attrs);
+        groupaddmember($config, $user, $categorie);
+    }
     return $ret;
 }
 
@@ -655,7 +658,8 @@ function create_user(array $config, string $cn, string $prenom, string $nom, str
         // Si $cn existe déja dans l'AD (doublon) il faut en fabriquer un autre
         if ($cn == "")
             $cn = creer_cn($config, $nom, $prenom);
-        $res = useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $categorie, $employeenumber);
+        if (!recup_user($config, $cn))
+            $res = useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $categorie, $employeenumber);
         return $res;
     }
     return false;

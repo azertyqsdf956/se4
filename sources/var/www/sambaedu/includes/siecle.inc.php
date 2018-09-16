@@ -549,7 +549,7 @@ function creer_cn($config, $nom, $prenom)
 
         $cpt = 2;
         while ((! $ok_cn) && ($cpt < 100)) {
-            if (count(search_ad($config, $cn, "user", $config['dn']['people']))) {
+            if (count(search_ad($config, $cn, "user", $config['dn']['people'])) > 0) {
                 $cn = substr($cn_souche, 0, strlen($cn_souche) - strlen($cpt)) . $cpt;
                 if ($cn == "adminse3") {
                     $cn = "adminse4";
@@ -559,15 +559,13 @@ function creer_cn($config, $nom, $prenom)
             }
 
             // Vérification que l'cn n'était pas en Trash
-            if (count(search_ad($config, $cn, "user", $config['dn']['trash']))) {
-                $ok_cn = false;
-                $error = "L'cn <b style='color:red;'>$cn</b> existe dans la branche Trash.";
-            } else {
-                $ok_cn = true;
+            if (count(search_ad($config, $cn, "user", $config['dn']['trash'])) > 0) {
+                my_echo("L'cn <b style='color:red;'>$cn</b> existe dans la branche Trash.");
+                return $cn;
             }
+            $ok_cn = true;
         }
     }
-
     if ($error != "") {
         echo "error=$error<br />\n";
         fich_debug("\$error=$error\n");
@@ -684,6 +682,7 @@ function verif_et_corrige_user($config, $cn, $naissance, $sexe, $simulation = "N
     }
     return $ret;
 }
+
 // ================================================
 
 /**
@@ -701,13 +700,13 @@ function verif_et_corrige_mail($config, $cn, $simulation = "N")
     $tab = search_user($config, $cn);
     if (count($tab) > 0) {
         if (! isset($tab['email'])) {
-  
+
             $attributs = array();
-            $attributs["mail"] = $cn."@".$config['domain'];
+            $attributs["mail"] = $cn . "@" . $config['domain'];
             my_echo("Correction des attributs: ");
-            
+
             my_echo("Correction  de l'email de <b>$cn</b>");
-            
+
             if ($simulation != 'y') {
                 if (modify_ad($config, $cn, "user", $attributs, "replace")) {
                     my_echo("<font color='green'>SUCCES</font>");
@@ -4150,7 +4149,7 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                 if ($ind_classe != - 1) {
                     $tab_classe[$ind_classe]["eleves"][] = $cn;
                 }
-                if (($simulation != "y")) {
+/*                if (($simulation != "y")) {
                     if (add_user_group($config, $prefix . $div, $cn)) {
                         my_echo("<font color='green'>SUCCES</font>");
                     } else {
@@ -4160,7 +4159,7 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                 } else {
                     my_echo("<font color='blue'>SIMULATION</font>");
                 }
-                my_echo(".<br />\n");
+*/                my_echo(".<br />\n");
             }
             my_echo("</p>\n");
         }
