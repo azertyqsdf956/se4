@@ -23,7 +23,7 @@
    */
 
 
-include "ldap.inc.php";
+include_once "ldap.inc.php";
         
 // Ajout traitement HTMLPurifier
 require_once ("traitement_data.inc.php");  

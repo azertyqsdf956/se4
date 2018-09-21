@@ -126,6 +126,20 @@ function userdel($config, $cn)
         return false;
 }
 
+function usersetpassword($config, $cn, $password)
+{
+    /*
+     * Return true if password succes false if userdel fail
+     */
+    if (userexist($config, $cn)) {
+        $command = "user setpassword " . escapeshellarg($cn) . "--newpassword=" . escapeshellarg($password);
+        $RES = sambatool($config, $command);
+        return true;
+    } else
+        return false;
+}
+
+
 function ouempty($config, $ou)
 {
 

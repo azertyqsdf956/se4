@@ -20,10 +20,11 @@ cdr2mask()
 
 my_network() {
 
-
+IFS=" "
 read my_gateway my_interface<<<$(ip -o -f inet route show default 0.0.0.0/0 | cut -d ' ' -f3,5)
 read my_address my_cdr my_broadcast<<<$(ip -o -f inet addr show dev "$my_interface" | awk '{sub("/", " ", $4); print $4, $6}')
 my_mask=$(cdr2mask $my_cdr)
+IFS=
 my_network=$(ip -o -f inet route show dev $my_interface  src $my_address | cut -d/ -f1)
 my_hostname=$(hostname -s 2>/dev/null)
 my_domain=$(hostname -d 2>/dev/null) || true

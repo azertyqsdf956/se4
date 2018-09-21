@@ -229,7 +229,8 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
         case "filter": // user ou group
             $filter = $name;
             $ldap_attrs = array(
-                "cn" //
+                "cn",
+                "displayname"//
             );
             if ($branch == "all") {
                 $branch = $config['ldap_base_dn'];

@@ -153,6 +153,7 @@ foreach ($users as $user){
 }
 */
 
+/*
 $users =search_ad($config, "*", "user", $config['dn']['people'], array('whencreated'));
 $i = 0;
 foreach($users as $user){
@@ -162,6 +163,8 @@ foreach($users as $user){
         $i++;
     }
 }
-
+*/
+$res = user_valid_passwd($config, "admin", "oT0redid");
+var_dump($res);
 
 ?>

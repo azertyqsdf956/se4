@@ -7,9 +7,10 @@ get_config() {
 	for conf in $(find /etc/sambaedu/sambaedu.conf* -name "*.conf" -type f); do
     	IFS='
 '
-	for ligne in $(sed -E "/^#.*$/d;s|^(\S+)\s*=\s*\"(.*)\"$|config_\1='\2'|g" $conf); do
+		for ligne in $(sed -E "/^#.*$/d;s|^(\S+)\s*=\s*\"(.*)\"$|config_\1='\2'|g" $conf); do
         	eval $ligne
     	done
+    	IFS=
 	done
 }
 

@@ -29,7 +29,7 @@
 	require ("config.inc.php");
 	include "functions.inc.php";
 	include "ihm.inc.php";
-	include "ldap.inc.php";
+	include_once "ldap.inc.php";
         
         // HTMLPurifier
         require_once ("traitement_data.inc.php");

@@ -23,7 +23,7 @@
  */
 include "config.inc.php";
 include "entete.inc.php";
-include "ldap.inc.php";
+include_once "ldap.inc.php";
 include "ihm.inc.php";
 include "printers.inc.php";
 include "fonc_parc.inc.php";
@@ -257,7 +257,7 @@ if (have_right($config, "computers_is_admin")) {
                             if ($suisje_printer == "yes") {
                                 // je suis une imprimante
                                 echo gettext("Suppression de l'imprimante") . " $computer " . gettext("du parc") . " <U>$parc</U><BR>\n";
-                                $cDn = "cn=" . $computer . "," . $printersRdn . "," . $ldap_base_dn;
+                                $cDn = "cn=" . $computer . "," . $equipementsRdn . "," . $ldap_base_dn;
                             } else {
                                 // je suis un ordinateur
                                 echo gettext("Suppression de l'ordinateur") . " $computer " . gettext("du parc") . " <U>$parc</U><BR>\n";

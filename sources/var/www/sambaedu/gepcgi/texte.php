@@ -25,7 +25,7 @@
 
 
 include "entete.inc.php";
-include "ldap.inc.php";
+include_once "ldap.inc.php";
 include "ihm.inc.php";
 
 require_once ("lang.inc.php");
@@ -104,7 +104,7 @@ if (is_admin("Annu_is_admin",$login)=="Y") {
     </ul>
 
     <a name="footnote"><p><span style="font-size: large; font-weight: bold">Note * :</span> Si vous ne pouvez pas -- ou choisissez de ne pas -- fournir de num&#233;ro unique aux &#233;l&#232;ves et/ou enseignants, le suivi des comptes d'une ann&#233;e &#224; l'autre sera plus d&#233;licat, la v&#233;rification des doublons s'effectuant alors sur le pr&#233;nom et le nom, informations modifiables par les utilisateurs.</p>
-    <p>D'autre part, en ce qui concerne le num&#233;ro unique affect&#233; aux professeurs, celui-ci sert &#233;galement &#224; renseigner le r&#244;le de professeur principal dans les groupes « &#233;quipes p&#233;dagogiques » et de professeur enseignant dans les groupes « Cours ».  En l'absence de num&#233;ro unique, ces informations devront &#234;tre ins&#233;r&#233;es manuellement dans l'annuaire.</p>
+    <p>D'autre part, en ce qui concerne le num&#233;ro unique affect&#233; aux professeurs, celui-ci sert &#233;galement &#224; renseigner le r&#244;le de professeur principal dans les groupes ï¿½ &#233;quipes p&#233;dagogiques ï¿½ et de professeur enseignant dans les groupes ï¿½ Cours ï¿½.  En l'absence de num&#233;ro unique, ces informations devront &#234;tre ins&#233;r&#233;es manuellement dans l'annuaire.</p>
     </a>
 
     <h2>Importation</h2>
@@ -122,19 +122,19 @@ if (is_admin("Annu_is_admin",$login)=="Y") {
       </table>
       <h3>Fichiers :</h3>
       <table><tbody>
-	  <tr><th align="left">Fichier « El&#232;ves » (<em>ele</em>)</th>
+	  <tr><th align="left">Fichier ï¿½ El&#232;ves ï¿½ (<em>ele</em>)</th>
 	    <td><input type="file" name="f_ele" ></td></tr>
-	  <!-- tr><th align="left">Fichier « Divisions par module d'enseignement » (<em>eag</em>)</th>
+	  <!-- tr><th align="left">Fichier ï¿½ Divisions par module d'enseignement ï¿½ (<em>eag</em>)</th>
 	    <td><input type="file" name="f_eag"></td></tr>
-	  <tr><th align="left">Fichier « Groupes » (<em>gro</em>)</th>
+	  <tr><th align="left">Fichier ï¿½ Groupes ï¿½ (<em>gro</em>)</th>
 	    <td><input type="file" name="f_gro"></td></tr -->
-	  <tr><th align="left">Fichier « Classes » (<em>div</em>)</th>
+	  <tr><th align="left">Fichier ï¿½ Classes ï¿½ (<em>div</em>)</th>
 	    <td><input type="file" name="f_div"></td></tr>
-	  <tr><th align="left">Fichier « Modules d'enseignement » (<em>men</em>)</th>
+	  <tr><th align="left">Fichier ï¿½ Modules d'enseignement ï¿½ (<em>men</em>)</th>
 	    <td><input type="file" name="f_men"></td></tr>
-	  <!-- tr><th align="left">Fichier « Mati&#232;res » (<em>tmt</em>)</th>
+	  <!-- tr><th align="left">Fichier ï¿½ Mati&#232;res ï¿½ (<em>tmt</em>)</th>
 	    <td><input type="file" name="f_tmt"></td></tr -->
-	  <tr><th align="left">Fichier « Professeurs » (<em>wind</em>)</th>
+	  <tr><th align="left">Fichier ï¿½ Professeurs ï¿½ (<em>wind</em>)</th>
 	    <td><input type="file" name="f_wind"></td></tr>
 	</tbody></table>
       <!-- h3>Politique des mots de passe :</h3>

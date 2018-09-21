@@ -32,17 +32,16 @@ if (!session_status()) {
 	require_once "ihm.inc.php";
 
 
-        // HTMLPurifier
-        require_once ("traitement_data.inc.php");
+    // HTMLPurifier
+    require_once ("traitement_data.inc.php");
         
 	$login=isauth();
-]
 	if (!have_right($config, "Annu_is_admin")) {
 		// dégage crétin
 		echo "dégage...";
 	} else {
 		$listing = unserialize(rawurldecode($_POST['hiddeninput']));
-
+	}
 // Tri du listing par classe/nom/prénom
 function trieleve($a,$b)
 {

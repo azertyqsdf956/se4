@@ -23,7 +23,7 @@
  * file: delete_right.php
  */
 include "entete.inc.php";
-include "ldap.inc.php";
+include_once "ldap.inc.php";
 include "ihm.inc.php";
 
 require_once ("lang.inc.php");

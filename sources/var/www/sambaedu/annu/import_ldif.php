@@ -29,7 +29,7 @@
 
 require "entete.inc.php";
 include "ihm.inc.php";
-include "ldap.inc.php";
+include_once "ldap.inc.php";
 
 require_once ("lang.inc.php");
 bindtextdomain('se3-annu',"/var/www/se3/locale");
