@@ -61,13 +61,11 @@ if (! isset($cn)) {
 // debug_var();
 
 $user_entry = isset($_POST['user_entry']) ? $_POST['user_entry'] : '';
-$telephone = isset($_POST['telephone']) ? $_POST['telephone'] : '';
 $nom = isset($_POST['nom']) ? $_POST['nom'] : '';
 $prenom = isset($_POST['prenom']) ? $_POST['prenom'] : '';
 $description = isset($_POST['description']) ? $_POST['description'] : '';
 $userpwd = isset($_POST['userpwd']) ? $_POST['userpwd'] : '';
 $mail = isset($_POST['mail']) ? $_POST['mail'] : '';
-$shell = isset($_POST['shell']) ? $_POST['shell'] : '';
 $password = isset($_POST['password']) ? $_POST['password'] : '';
 $string_auth = isset($_POST['string_auth']) ? $_POST['string_auth'] : '';
 
@@ -84,29 +82,6 @@ if (have_right($config, "se3 is_admin") or ((is_my_eleve($config, $login, $cn)) 
         exec("/usr/bin/python /var/www/sambaedu/includes/decode.py '" . $string_auth . " '", $Res);
         $userpwd = $Res[0];
     }
-    // Modification des entrees
-    // if (!isset($user_entry) || !verifTel($telephone) || !verifEntree($nom) || !verifEntree($prenom) || !verifDescription($description) || ($userpwd && !verifPwd($userpwd)) ) {
-    /*
-     * if (!verifTel($telephone)) {
-     * echo "ERREUR tel<br />";
-     * }
-     * if (!verifEntree($nom)) {
-     * echo "ERREUR nom<br />";
-     * }
-     * if (!verifEntree($prenom)) {
-     * echo "ERREUR prenom<br />";
-     * }
-     * if (!verifDescription($description)) {
-     * echo "ERREUR description<br />";
-     * }
-     * if (!verifDateNaissance($naissance)) {
-     * echo "ERREUR naissance<br />";
-     * }
-     * if (!verifPwd($userpwd)) {
-     * echo "ERREUR pwd<br />";
-     * }
-     */
-
     $info_employeeNumber = "";
     if ($employeeNumber != '') {
         $tmp_tab = verif_employeeNumber($config, $employeeNumber);
@@ -157,8 +132,8 @@ if (have_right($config, "se3 is_admin") or ((is_my_eleve($config, $login, $cn)) 
                 $naissance = "";
             }
 
-            if (isset($user["employeeNumber"])) {
-                $employeeNumber = $user["employeeNumber"];
+            if (isset($user["employeenumber"])) {
+                $employeeNumber = $user["employeenumber"];
             }
             ?>
 
@@ -182,27 +157,6 @@ if (have_right($config, "se3 is_admin") or ((is_my_eleve($config, $login, $cn)) 
 					value="<?php echo $user["email"]?>" size="20"></td>
 			</tr>
 
-			<tr>
-				<td><em>Shell&nbsp;</em> :&nbsp;</td>
-				<td><select name="shell">
-						<option
-							<?php if ($user["shell"] == "/bin/bash") echo "selected" ?>>/bin/bash</option>
-						<option
-							<?php if ($user["shell"] == "/bin/true") echo "selected" ?>>/bin/true</option>
-				</select></td>
-				<td><font color="orange"> <u><?php echo gettext("Attention"); ?></u> :<?php echo gettext(" Si vous choisissez /bin/bash,&nbsp;cet utilisateur disposera d'un shell sur le serveur."); ?>
-					</font></td>
-			</tr>
-			<tr>
-				<td valign="center"><?php echo gettext("Profil"); ?> :&nbsp;</td>
-				<td valign="bottom" colspan="2"><textarea name="description"
-						rows="2" cols="40"><?php echo $user["description"]; ?></textarea></td>
-			</tr>
-			<tr>
-				<td><?php echo gettext("T&#233;l&#233;phone"); ?> :&nbsp;</td>
-				<td colspan="2"><input type="text" name="telephone"
-					value="<?php echo $user["tel"] ?>" size="10"></td>
-			</tr>
 				<?php } ?>
 			<tr>
 				<td><?php echo gettext("Mot de passe"); ?>:&nbsp;</td>
@@ -233,11 +187,6 @@ if (have_right($config, "se3 is_admin") or ((is_my_eleve($config, $login, $cn)) 
             if ($description && ! verifDescription($description)) {
                 echo "<div class=\"error_msg\">" . gettext("Veuillez reformuler le champ description.") . "</div><br />\n";
             }
-            // tel
-            if ($telephone && ! verifTel($telephone)) {
-                echo "<div class=\"error_msg\">" . gettext("Le num&#233;ro de t&#233;l&#233;phone que vous avez saisi, n'est pas conforme.") . "</div><br />\n";
-            }
-
             // Date de naissance
             if ($naissance != '' && ! verifDateNaissance($naissance)) {
                 echo "<div class=\"error_msg\">" . gettext("La date de naissance que vous avez saisie, n'est pas conforme.") . "</div><br />\n";
@@ -268,57 +217,25 @@ if (have_right($config, "se3 is_admin") or ((is_my_eleve($config, $login, $cn)) 
         $entry["displayname"] = stripslashes(ucfirst(strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), "'ÂÄÀÁÃÄÅÇÊËÈÉÎÏÌÍÑÔÖÒÓÕ¦ÛÜÙÚÝ¾´áàâäãåçéèêëîïìíñôöðòóõ¨ûüùúýÿ¸", "_AAAAAAACEEEEIIIINOOOOOSUUUUYYZaaaaaaceeeeiiiinoooooosuuuuyyz"))) . " " . ucfirst(strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$nom")))), "'ÂÄÀÁÃÄÅÇÊËÈÉÎÏÌÍÑÔÖÒÓÕ¦ÛÜÙÚÝ¾´áàâäãåçéèêëîïìíñôöðòóõ¨ûüùúýÿ¸", "_AAAAAAACEEEEIIIINOOOOOSUUUUYYZaaaaaaceeeeiiiinoooooosuuuuyyz"))));
 
         // ======================================
-        // Correction du gecos:
-        // echo "\$user[0][\"gecos\"]=".$user[0]["gecos"]."<br />";
-        if ($user["naissance"] != "") {
-            $entry["naissance"] = ucfirst(strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), "'ÂÄÀÁÃÄÅÇÊËÈÉÎÏÌÍÑÔÖÒÓÕ¦ÛÜÙÚÝ¾´áàâäãåçéèêëîïìíñôöðòóõ¨ûüùúýÿ¸", "_AAAAAAACEEEEIIIINOOOOOSUUUUYYZaaaaaaceeeeiiiinoooooosuuuuyyz"))) . " " . ucfirst(strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$nom")))), "'ÂÄÀÁÃÄÅÇÊËÈÉÎÏÌÍÑÔÖÒÓÕ¦ÛÜÙÚÝ¾´áàâäãåçéèêëîïìíñôöðòóõ¨ûüùúýÿ¸", "_AAAAAAACEEEEIIIINOOOOOSUUUUYYZaaaaaaceeeeiiiinoooooosuuuuyyz"))) . "," . $tab_gecos[1] . "," . $tab_gecos[2] . "," . $tab_gecos[3];
-        }
-
         if ($corriger_givenname_si_diff == "y") {
-            // Ajout: crob 20080611
-            // Variable initialisée dans includes/ldap.inc.php: $corriger_givenname_si_diff
-            // placée pour permettre de désactiver temporairement cette partie
-
             // Le givenName est destiné à prendre pour valeur le Prenom de l'utilisateur
-            // $entry["givenName"] = ucfirst(strtolower(strtr(preg_replace("/Æ/","AE",preg_replace("/æ/","ae",preg_replace("/¼/","OE",preg_replace("/½/","oe","$prenom"))))," 'ÂÄÀÁÃÄÅÇÊËÈÉÎÏÌÍÑÔÖÒÓÕ¦ÛÜÙÚÝ¾´áàâäãåçéèêëîïìíñôöðòóõ¨ûüùúýÿ¸","__AAAAAAACEEEEIIIINOOOOOSUUUUYYZaaaaaaceeeeiiiinoooooosuuuuyyz")));
             $entry["givenname"] = ucfirst(strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), "'ÂÄÀÁÃÄÅÇÊËÈÉÎÏÌÍÑÔÖÒÓÕ¦ÛÜÙÚÝ¾´áàâäãåçéèêëîïìíñôöðòóõ¨ûüùúýÿ¸", "_AAAAAAACEEEEIIIINOOOOOSUUUUYYZaaaaaaceeeeiiiinoooooosuuuuyyz")));
         }
 
-        // Il faudrait aussi corriger le gecos et pour cela récupérer le sexe et la date de naissance
-        // On ne les trouve que dans le gecos ici.
-        // Et le gecos n'est pas récupéré avec $user=people_get_variables ($cn, false);
-        // Et on récupère un $user[0][pseudo] <- givenName
-        /*
-         * echo "<p>Valeur des attributs avant modification: <br />";
-         * foreach($user[0] as $key => $value) {
-         * echo "\$user[0][$key]=$value<br />";
-         * }
-         */
-        // La fonction search_user($config, ) est utilisée dans pas mal de pages modifier le retour si givenName prend pour valeur Prenom va être lourd.
-        // ======================================
-
         if ($isadmin == "Y") {
-            $entry["loginshell"] = $shell;
-            // Modification du homeDirectory
-            if ($shell == "/usr/lib/sftp-server")
-                $entry["homedirectory"] = "/home/" . $user[0]["cn"] . "/./";
-            else
-                $entry["homedirectory"] = "/home/" . $user[0]["cn"];
             if ($mail != "")
                 $entry["mail"] = $mail;
-            if ($telephone && verifTel($telephone))
-                $entry["telephonenumber"] = $telephone;
             if ($description && verifDescription($description))
                 $entry["description"] = utf8_encode(stripslashes($description));
 
             if ($naissance != '' && verifDateNaissance($naissance)) {
                 if (isset($user["sexe"])) {
-                    $entry['physicaldeliveryoffice'] = $naissance.",".$user['sexe'];
+                    $entry['physicaldeliveryofficename'] = $naissance . "," . $user['sexe'];
                 }
             }
 
             if ($employeeNumber != "") {
-                $entry["employeeNumber"] = $employeeNumber;
+                $entry["title"] = $employeeNumber;
             }
         }
         // Modification des entrees

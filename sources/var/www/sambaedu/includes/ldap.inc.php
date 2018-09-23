@@ -780,7 +780,8 @@ function list_rights($config, $name, $inverse = false)
     }
     $user = search_user($config, $name);
     $ret = search_ad($config, $name, "right");
-    foreach ($user['memberof'] as $groupdn) {
+    $groups = $user['memberof'];
+    foreach ($groups as $groupdn) {
         $ret1 = search_ad($config, $groupdn, "right");
         $ret = array_merge($ret1, $ret);
         if ($ret) {

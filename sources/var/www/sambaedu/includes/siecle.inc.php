@@ -508,7 +508,7 @@ function creer_cn($config, $nom, $prenom)
     }
 
     // Pour faire disparaitre les caracteres speciaux restants:
-    $cn = strtolower(preg_replace("/[^a-z_.-]/", "", $cn));
+    $cn = strtolower(preg_replace("/[^a-z0-9_.-]/", "", $cn));
 
     // Pour eviter les _ en fin d'UID... pb avec des connexions machine de M$7
     $cn = preg_replace("/_*$/", "", $cn);
@@ -622,7 +622,6 @@ function verif_nom_prenom($config, $nom, $prenom)
 {
     // Tester si un cn existe ou non dans l'annuaire pour $nom et $prenom sans employeeNumber...
     // ... ce qui correspondrait a un compte cree a la main.
-    $trouve = 0;
 
     // On fait une recherche avec éventuellement les accents dans les nom/prénom... et on en fait si nécessaire une deuxième sans les accents
     $tab = array();
@@ -632,12 +631,16 @@ function verif_nom_prenom($config, $nom, $prenom)
     $nom2 = supprime_espaces(preg_replace("/'/", "", $nom));
     $prenom2 = supprime_espaces(preg_replace("/'/", "", $prenom));
 
-    $tab = search_ad($config, "(&(objectclass=user)(|(displayname=" . $prenom . " " . $nom . ")(displayname=" . $prenom1 . " " . $nom1 . ")(displayname=" . $prenom2 . " " . $nom2 . ")))", "filter", $config['dn']['people']);
-
-    if (count($tab) == 1) {
-        return $tab[0]['cn'];
-        return false;
+    $tab = search_ad($config, "(&(objectclass=user)(|(displayname=" . $prenom . " " . $nom . ")(displayname=" . $prenom1 . " " . $nom1 . ")(displayname=" . $prenom2 . " " . $nom2 . ")))", "filter", $config['ldap_base_dn']);
+    if (count($tab) > 0) {
+        foreach ($tab as $key => $user) {
+            if (preg_match("/" . $config['trash_rdn'] . "/i", $user['dn']))
+                $tab[$key]['trash'] = true;
+            else
+                $tab[key]['trash'] = false;
+        }
     }
+    return $tab;
 }
 
 // ================================================
@@ -875,26 +878,7 @@ function get_cn_from_f_cn_file($employeeNumber)
 // Les temps sont durs, il faut faire les poubelles pour en recuperer des choses...
 function recup_from_trash($config, $cn)
 {
-    $user = search_ad($config, $cn, "user", $config['dn']['trash']);
-
-    $recup = false;
-    $f = fopen("/tmp/recup_from_trash.txt", "a+");
-    foreach ($user[0] as $key => $value) {
-        fwrite($f, "\$user[0]['$key']=$value\n");
-    }
-    fwrite($f, "=======================\n");
-    fclose($f);
-    // Ajout dans la branche people
-    if (move_ad($config, $user[0]['cn'], "cn=" . $user[0]['cn'] . "," . $config['dn']['people'], "user")) {
-        $f = fopen("/tmp/recup_from_trash.txt", "a+");
-        fwrite($f, "\ldap_add OK\n");
-        fwrite($f, "=======================\n");
-        $recup = true;
-    } else {
-        $recup = false;
-    }
-
-    return $recup;
+    return recup_user($config, $cn);
 }
 
 // ====================================================
@@ -4149,17 +4133,19 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                 if ($ind_classe != - 1) {
                     $tab_classe[$ind_classe]["eleves"][] = $cn;
                 }
-/*                if (($simulation != "y")) {
-                    if (add_user_group($config, $prefix . $div, $cn)) {
-                        my_echo("<font color='green'>SUCCES</font>");
-                    } else {
-                        my_echo("<font color='red'>ECHEC</font>");
-                        $nb_echecs ++;
-                    }
-                } else {
-                    my_echo("<font color='blue'>SIMULATION</font>");
-                }
-*/                my_echo(".<br />\n");
+                /*
+                 * if (($simulation != "y")) {
+                 * if (add_user_group($config, $prefix . $div, $cn)) {
+                 * my_echo("<font color='green'>SUCCES</font>");
+                 * } else {
+                 * my_echo("<font color='red'>ECHEC</font>");
+                 * $nb_echecs ++;
+                 * }
+                 * } else {
+                 * my_echo("<font color='blue'>SIMULATION</font>");
+                 * }
+                 */
+                my_echo(".<br />\n");
             }
             my_echo("</p>\n");
         }

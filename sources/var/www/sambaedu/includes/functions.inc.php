@@ -33,11 +33,8 @@ function user_valid_passwd($config, $login, $password)
   //  return true;
     $url = "ldaps://" . $config['domain'];
     $ret = false;
-    if (($login == $config['ldap_admin_name']) || ($login == "admin")) {
-        $login_dn = "cn=" . $login . "," . $config['admin_rdn'] . "," . $config['ldap_base_dn'];
-    } else {
-        $login_dn = "cn=" . $login . "," . $config['dn']['people'];
-    }
+    $user = search_user($config, $login);
+    $login_dn = $user['dn'];
     $ds = @ldap_connect($url, $config['ldap_port']);
     if ($ds) {
         $r = @ldap_bind($ds, $login_dn, $password);
@@ -157,8 +154,8 @@ function menuprint($config, $login)
                 $afftest = 1 == 1;
             else {
                 // if ($ldapright["$rightname"]=="") $ldapright["$rightname"]=ldap_get_right($config, $rightname,$login);
-                if ((! isset($ldapright["$rightname"])) || ($ldapright["$rightname"])) {
-                    $ldapright["$rightname"] = have_right($config, $rightname);
+                if ((! isset($ldapright[$rightname])) || ($ldapright[$rightname])) {
+                    $ldapright[$rightname] = have_right($config, $rightname);
                 }
                 $afftest = $ldapright["$rightname"];
             }
@@ -183,8 +180,8 @@ function menuprint($config, $login)
                         if (($rightname == "") or ($afftest))
                             $afftest = 1 == 1;
                         else {
-                            if ((! isset($ldapright["$rightname"])) || ($ldapright["$rightname"])) {
-                                $ldapright["$rightname"] = have_right($config, $rightname);
+                            if ((! isset($ldapright[$rightname])) || ($ldapright[$rightname])) {
+                                $ldapright[$rightname] = have_right($config, $rightname);
                             }
                             $afftest = $ldapright[$rightname];
                         }

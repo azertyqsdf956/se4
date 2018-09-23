@@ -164,7 +164,8 @@ foreach($users as $user){
     }
 }
 */
-$res = user_valid_passwd($config, "admin", "oT0redid");
+$res = have_right($config, "annu_can_read", "prof.test" );
 var_dump($res);
+
 
 ?>

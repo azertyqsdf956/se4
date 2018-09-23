@@ -23,13 +23,13 @@
   
 
 	require_once("lang.inc.php");
-	bindtextdomain('se3-core',"/var/www/se3/locale");
+	bindtextdomain('se3-core',"/var/www/sambaedu/locale");
 	textdomain ('se3-core');
 
 
     $liens1=array(array(
         gettext("Annuaire"),"",1,
-        gettext("Acc&#232;s &#224; l'annuaire"),"annu/annu.php","annu_can_read|Annu_is_admin",1,
+        gettext("Acc&#232;s &#224; l'annuaire"),"annu/annu.php","annu_can_read|annu_is_admin",1,
         gettext("Modifier mon compte"),"annu/mod_entry.php","",1,
         gettext("Mon mot de passe"),"annu/mod_pwd.php","",1,
         gettext("Voir ma fiche"),"annu/me.php","",1,
