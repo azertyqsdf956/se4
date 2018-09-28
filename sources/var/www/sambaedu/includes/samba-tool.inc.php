@@ -21,24 +21,34 @@
 // Ensemble de fonctions destinées à remplacer les scripts sudo perl
 // pour les opérations d'écritures dans l'AD SambaEdu
 
+
 /*
- * function useradd ($prenom, $nom, $userpwd, $naissance, $sexe, $categorie, $employeeNumber) : Return $cn if succes.
+ * 
+ * function sambatool($config, $command)
+ * 
+ * function useradd useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $categorie, $employeeNumber) : Return $cn if succes.
  *
- * function userdel ($cn) : Return true if userdel succes false if userdel fail
+ * function userdel($config, $cn) : Return true if userdel succes false if userdel fail
  *
- * function groupadd ($cn, $inou, $description) : Return true if group is create false in other cases
+ * function groupadd($config, $cn, $inou, $description) : Return true if group is create false in other cases
  *
- * function groupdel ($cn) : Return true if group is delete false in other cases
+ * function groupdel($config, $cn) : Return true if group is delete false in other cases
  *
- * function groupaddmember ( $cn, $ingroup) : Return true if cn is add in ingroup false in other cases
+ * function groupaddmember($config, $cn, $ingroup) : Return true if cn is add in ingroup false in other cases
  *
- * function groupdelmember ($cn, $ingroup) : Return true if cn is remove of ingroup false in other cases
+ * function groupdelmember($config, $cn, $ingroup) : Return true if cn is remove of ingroup false in other cases
  *
  * A faire si nécessaire :
  * function grouplist ($filter)
  * function groupaddlistmembers ( $cnlist, $ingroup)
+ * 
+ * Gestion des OU
+ * function ouexist($config, $ou, $ouparent) : return true if ou exist false in other case
+ * function ouadd($config, $ou, $ouparent) : return true if ou is add false in other case
+ * function oudel($config, $ou, $dn_parent) : return true if ou is del false in other case
  *
  */
+
 require_once ("siecle.inc.php");
 
 /*
