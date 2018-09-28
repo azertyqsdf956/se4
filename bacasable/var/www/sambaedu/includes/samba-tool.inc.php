@@ -38,6 +38,11 @@
  * function grouplist ($filter) 
  * function groupaddlistmembers ( $cnlist, $ingroup) 
  * 
+ * Gestion des OU
+ * function ouexist($config, $ou, $ouparent) : return true if ou exist false in other case
+ * function ouadd($config, $ou, $ouparent) : return true if ou is add false in other case
+ * function oudel($config, $ou, $dn_parent) : return true if ou is del false in other case
+ * 
  */
 
 //require_once ("crob_ldap_functions.php");
