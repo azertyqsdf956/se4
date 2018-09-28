@@ -2,16 +2,10 @@
 
    * Page qui teste les differents services
    * @Version $Id: tests.js 3002 2008-05-30 12:58:43Z keyser $
-   *
-   * @Projet LCS / SambaEdu
-   * @auteurs Philippe Chadefaux  MrT
-   * @Licence Distribue selon les termes de la licence GPL
-   * @note
-   * Modifications proposees par Sebastien Tack (MrT)
-   * Optimisation du lancement des scripts bash par la technologie asynchrone Ajax.
-   * Modification du systeme d'infos bulles.(Nouvelle version de wz-tooltip Fonctions Tip('msg') TagToTip() UnTip() ) Ancienne version incompatible avec ajax
-   * Externalisation des messages contenus dans les infos-bulles.
-   * Nouvelle organisation de l'arborescence.
+      * @Projet LCS / SambaEdu
+   * @Auteurs Equipe Sambaedu
+   * @Licence Distribue sous la licence GPLlancement des scripts bash par la technologie asynchrone Ajax.
+
 
 
    */
