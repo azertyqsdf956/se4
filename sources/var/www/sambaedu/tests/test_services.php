@@ -6,12 +6,8 @@
    * Test les services qui tournent :onduleur, samba ...
    * @Version $Id$
    * @Projet LCS / SambaEdu
-   * @auteurs Philippe Chadefaux  MrT
-   * @Licence Distribue selon les termes de la licence GPL
-   * @note
-   * Modifications proposees par Sebastien Tack (MrT)
-   * Optimisation du lancement des scripts bash par la technologie asynchrone Ajax.
-
+   * @Auteurs Equipe Sambaedu
+   * @Licence Distribue sous la licence GPLlancement des scripts bash par la technologie asynchrone Ajax.
 
    */
 
@@ -29,6 +25,7 @@ require_once('entete_ajax.inc.php');
 //######################## CONTROLE LES SERVICES ##################################//
 // Controle le temps de la machine
 $la=date("G:i:s d/m/Y");
+$okmail="0";
 // Controle si le fichier ssmtp a ete configure
 $ssmtp = exec("dpkg -l | grep ssmtp > /dev/null && echo 1");
 if ($ssmtp == "1") {
@@ -39,7 +36,7 @@ if ($ssmtp == "1") {
 	}
 }
 // Test le serveur smb
-  $domaine = exec('cat /etc/samba/smb.conf | grep workgroup | cut -d" " -f 3');
+  $domaine = exec('cat /etc/samba/smb.conf | grep workgroup | cut -d"=" -f 2');
   $smb = exec("smbclient -L localhost -N | grep -i $domaine >/dev/null && echo 1");
 
    if ($smb == "1") {

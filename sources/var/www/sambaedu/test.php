@@ -1,23 +1,14 @@
 <?php
-
 /**
- 
+
  * Page qui teste les differents services
  * @Version $Id$
- * @Projet LCS / SambaEdu
- * @auteurs Philippe Chadefaux  MrT
- * @Licence Distribue selon les termes de la licence GPL
- * @note
- * Modifications proposées par Sébastien Tack (MrT)
- * Optimisation du lancement des scripts bash par la technologie asynchrone Ajax.
- * Modification du systéme d'infos bulles.(Nouvelle version de wz-tooltip) Ancienne version incompatible avec ajax
- * Externalisation des messages contenus dans les infos-bulles
- * Fonctions Tip('msg') et UnTip();
- * Nouvelle organisation de l'arborescence.
- * Migration des messages dans un script php
- 
- */
+    * @Projet LCS / SambaEdu
+   * @Auteurs Equipe Sambaedu
+   * @Licence Distribue sous la licence GPLlancement des scripts bash par la technologie asynchrone Ajax.
 
+
+ */
 /**
  *
  * @Repertoire: /
@@ -85,7 +76,6 @@ if ((isset($action)) && ($action == "mail_test")) {
     mail($dc_root, $subject, $message);
     unset($action);
 }
-
 ?>
 <script type="text/javascript" src="/elements/js/wz_tooltip_new.js"></script>
 <script type="text/javascript" src="/tests/js/tests_messages_ajax.php"></script>
@@ -103,7 +93,6 @@ $phpv = $phpv2 - 0;
 /**
  * ****************************************************
  */
-
 // =======================================
 // Affichage d'un lien de rafraichissement du cadre.
 if (file_exists('/etc/sambaedu/temoin_test_refresh.txt')) {
@@ -112,41 +101,40 @@ if (file_exists('/etc/sambaedu/temoin_test_refresh.txt')) {
     echo "</div>\n";
 }
 // =======================================
-
-// Verifie la connexion a internet si ligne_internet = 0% alors on a internet
-$PING_INTERNET = "195.98.246.50";
-if ($phpv >= 4.2) {
-    $PING = "ping -c 1 -w 1 $PING_INTERNET | awk '/packet/ {print $6}'";
-} else {
-    $PING = "ping -c 1 $PING_INTERNET | awk '/packet/ {print $7}'";
-}
-
-$ligne_internet = exec("$PING", $test, $testretour);
-if ($ligne_internet != "0%") { // on teste sur un autre serveur
-    $PING_INTERNET = "www.free.fr";
-    if ($phpv >= 4.2) {
-        $PING = "ping -c 1 -w 1 $PING_INTERNET | awk '/packet/ {print $6}'";
-    } else {
-        $PING = "ping -c 1 $PING_INTERNET | awk '/packet/ {print $7}'";
-    }
-    $ligne_internet = exec("$PING", $test, $testretour);
-}
-
-// leb 30sept2007
-if ($ligne_internet != "0%") { // test acces http
-                               // $http=exec("cd /tmp; wget -q ---tries=1 --connect-timeout=1 http://wawadeb.crdp.ac-caen.fr && echo \$? | rm -f /tmp/index.html.1*",$out,$retour);
-    $http = exec("cd /tmp; wget -q --tries=1 --timeout=2 http://wawadeb.crdp.ac-caen.fr && echo \$? | rm -f /tmp/index.html.1*", $out, $retour);
-    if ($retour == "0") {
-        $ligne_internet = "0%";
-    }
-}
-// fin-leb 30sept2007
-// Verifie si proxy defini
-$proxy = exec("cat /etc/profile | grep http_proxy= | cut -d= -f2");
-if ($proxy != "") {
-    preg_match("/http:\/\/(.*)\"/i", $proxy, $rest);
-    putenv("http_proxy=$rest[1]");
-}
+//// Verifie la connexion a internet si ligne_internet = 0% alors on a internet
+//$PING_INTERNET = "195.98.246.50";
+//if ($phpv >= 4.2) {
+//    $PING = "ping -c 1 -w 1 $PING_INTERNET | awk '/packet/ {print $6}'";
+//} else {
+//    $PING = "ping -c 1 $PING_INTERNET | awk '/packet/ {print $7}'";
+//}
+//
+//$ligne_internet = exec("$PING", $test, $testretour);
+//if ($ligne_internet != "0%") { // on teste sur un autre serveur
+//    $PING_INTERNET = "www.free.fr";
+//    if ($phpv >= 4.2) {
+//        $PING = "ping -c 1 -w 1 $PING_INTERNET | awk '/packet/ {print $6}'";
+//    } else {
+//        $PING = "ping -c 1 $PING_INTERNET | awk '/packet/ {print $7}'";
+//    }
+//    $ligne_internet = exec("$PING", $test, $testretour);
+//}
+//
+//// leb 30sept2007
+//if ($ligne_internet != "0%") { // test acces http
+//                               // $http=exec("cd /tmp; wget -q ---tries=1 --connect-timeout=1 http://wawadeb.crdp.ac-caen.fr && echo \$? | rm -f /tmp/index.html.1*",$out,$retour);
+//    $http = exec("cd /tmp; wget -q --tries=1 --timeout=2 http://wawadeb.crdp.ac-caen.fr && echo \$? | rm -f /tmp/index.html.1*", $out, $retour);
+//    if ($retour == "0") {
+//        $ligne_internet = "0%";
+//    }
+//}
+//// fin-leb 30sept2007
+//// Verifie si proxy defini
+//$proxy = exec("cat /etc/profile | grep http_proxy= | cut -d= -f2");
+//if ($proxy != "") {
+//    preg_match("/http:\/\/(.*)\"/i", $proxy, $rest);
+//    putenv("http_proxy=$rest[1]");
+//}
 
 $os = exec("cat /etc/debian_version | cut -d. -f1-2");
 $vers = exec("dpkg -s sambaedu-web-common|grep Version|cut -d ' ' -f2");
@@ -154,252 +142,254 @@ $samba_version = exec("dpkg -s samba|grep Version|cut -d ':' -f3|cut -d '+' -f1"
 ?>
 
 <center>
-	<TABLE border="1" width="80%">
-		<TR>
-			<TD colspan="3" align="center" class="menuheader">Version SambaEdu</TD>
-		</TR>
-		<TR>
-			<TD>Version OS</TD>
-			<TD align="center" colspan="2">
+    <TABLE border="1" width="80%">
+        <TR>
+            <TD colspan="3" align="center" class="menuheader">Version SambaEdu</TD>
+        </TR>
+        <TR>
+            <TD>Version OS</TD>
+            <TD align="center" colspan="2">
 <?php
 if ($os < "10.0") {
     echo "Stretch";
-} else {
+}
+else {
     echo "unstable";
 }
 echo "<I> <img src=\"../elements/images/debian.png\">($os)</I></TD></TR>\n";
 ?>
-	</TD>
-		</TR>
-		<TR>
-			<TD>Version de Samba</TD>
-			<TD align="center" colspan="2">
-			<?php echo $samba_version; ?>
-		</TD>
-		</TR>
-		<TR>
-			<TD>Mise &#224; jour de votre serveur SambaEdu <I>(Version actuelle <?php echo $vers; ?>)</I></TD>
-			<TD align="center"><a id=link_maj href="#"><IMG id="check_maj"
-					style="border: 0px solid;" SRC="../elements/images/info.png"></a></TD>
-			<TD align="center"><a id="help_maj_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></a></TD>
-		</TR>
+            </TD>
+        </TR>
+        <TR>
+            <TD>Version de Samba</TD>
+            <TD align="center" colspan="2">
+<?php echo $samba_version; ?>
+            </TD>
+        </TR>
+        <TR>
+            <TD>Mise &#224; jour de votre serveur SambaEdu <I>(Version actuelle <?php echo $vers; ?>)</I></TD>
+            <TD align="center"><a id=link_maj href="#"><IMG id="check_maj"
+                                                            style="border: 0px solid;" SRC="../elements/images/info.png"></a></TD>
+            <TD align="center"><a id="help_maj_se3"><img name="action_image2"
+                                                         src="../elements/images/system-help.png"></a></TD>
+        </TR>
 
-        <?php
-        if (isset($config['clonage'])) {
-            echo '<TR>';
-        } else {
-            echo '<TR id="ligne_clonage" style="display: none;">';
-        }
-        ?>
-                    <TD>Contr&#244;le des mise a jour des dispositifs de
-			Se3-clonage</TD>
-		<TD align="center"><a id=link_clonage href="#"><IMG id="check_clonage"
-				style="border: 0px solid;" SRC="../elements/images/info.png" /></a>
-		</TD>
-		<TD align="center"><A id="help_clonage_se3"><img name="action_image2"
-				src="../elements/images/system-help.png"></A></TD>
-		</TR>
-		<TR>
-			<TD colspan="3" align="center" class="menuheader">Vérification
-				des connexions</TD>
-		</TR>
-		<TR>
-			<TD>V&#233;rifie la connexion &#224; la passerelle <I>(
-	<?php
+<?php
+if (isset($config['clonage'])) {
+    echo '<TR>';
+}
+else {
+    echo '<TR id="ligne_clonage" style="display: none;">';
+}
+?>
+        <TD>Contr&#244;le des mise a jour des dispositifs de
+            Se3-clonage</TD>
+        <TD align="center"><a id=link_clonage href="#"><IMG id="check_clonage"
+                                                            style="border: 0px solid;" SRC="../elements/images/info.png" /></a>
+        </TD>
+        <TD align="center"><A id="help_clonage_se3"><img name="action_image2"
+                                                         src="../elements/images/system-help.png"></A></TD>
+        </TR>
+        <TR>
+            <TD colspan="3" align="center" class="menuheader">Vérification
+                des connexions</TD>
+        </TR>
+        <TR>
+            <TD>V&#233;rifie la connexion &#224; la passerelle <I>(
+<?php
 // Ping passerelle
 $PING_ROUTEUR = `cat /etc/network/interfaces | grep gateway | grep -v broadcast | cut -d" " -f 2`;
 $PING_ROUTEUR = trim($PING_ROUTEUR);
 echo $PING_ROUTEUR;
 ?>
-	)</I>
-			</TD>
-			<TD align="center"><IMG id="check_gateway" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><a id="help_gateway_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></a></TD>
-		</TR>
+                    )</I>
+            </TD>
+            <TD align="center"><IMG id="check_gateway" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><a id="help_gateway_se3"><img name="action_image2"
+                                                             src="../elements/images/system-help.png"></a></TD>
+        </TR>
 
-		<TR>
-			<TD>V&#233;rification de la connexion &#224; internet</TD>
-			<TD align="center"><IMG id="check_internet"
-				style="border: 0px solid;" SRC="../elements/images/info.png"></TD>
-			<TD align="center"><a id="help_net_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></a></TD>
-		</TR>
-		<TR>
-			<TD>V&#233;rification de la r&#233;solution de nom (DNS)</TD>
-			<TD align="center"><IMG id="check_dns" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><a id="help_dns_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></a></TD>
-		</TR>
-		<TR>
-			<TD>V&#233;rification du nom DNS du serveur Sambaedu <span
-				id="urlsambaedu" style="font-style: italic;">(<?php echo "admin".$config['domain'] ?>)</span></TD>
-			<TD align="center"><IMG id="check_dns_se3" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><a id="help_dns2_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></a></TD>
-		</TR>
+        <TR>
+            <TD>V&#233;rification de la connexion &#224; internet</TD>
+            <TD align="center"><IMG id="check_internet"
+                                    style="border: 0px solid;" SRC="../elements/images/info.png"></TD>
+            <TD align="center"><a id="help_net_se3"><img name="action_image2"
+                                                         src="../elements/images/system-help.png"></a></TD>
+        </TR>
+        <TR>
+            <TD>V&#233;rification de la r&#233;solution de nom (DNS)</TD>
+            <TD align="center"><IMG id="check_dns" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><a id="help_dns_se3"><img name="action_image2"
+                                                         src="../elements/images/system-help.png"></a></TD>
+        </TR>
+        <TR>
+            <TD>V&#233;rification du nom DNS du serveur Sambaedu <span
+                    id="urlsambaedu" style="font-style: italic;">(<?php echo "admin." . $config['domain'] ?>)</span></TD>
+            <TD align="center"><IMG id="check_dns_se3" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><a id="help_dns2_se3"><img name="action_image2"
+                                                          src="../elements/images/system-help.png"></a></TD>
+        </TR>
 
-		<TR>
-			<TD>V&#233;rifie l'acc&#232;s au web</TD>
-			<TD align="center"><IMG id="check_web" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><a id="help_web_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></a></TD>
-		</TR>
-		<TR>
-			<TD>V&#233;rifie la connexion au serveur de temps</TD>
-			<TD align="center"><IMG id="check_ntp" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><a id="help_ntp_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></a></TD>
-		</TR>
+        <TR>
+            <TD>V&#233;rifie l'acc&#232;s au web</TD>
+            <TD align="center"><IMG id="check_web" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><a id="help_web_se3"><img name="action_image2"
+                                                         src="../elements/images/system-help.png"></a></TD>
+        </TR>
+<!--        <TR>
+            <TD>V&#233;rifie la connexion au serveur de temps</TD>
+            <TD align="center"><IMG id="check_ntp" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><a id="help_ntp_se3"><img name="action_image2"
+                                                         src="../elements/images/system-help.png"></a></TD>
+        </TR>-->
 
-		<TR>
-			<TD colspan="3" align="center" class="menuheader">Contr&#244;le des
-				services</TD>
-		</TR>
+        <TR>
+            <TD colspan="3" align="center" class="menuheader">Contr&#244;le des
+                services</TD>
+        </TR>
 
-	<?php
+<?php
 $la = date("G:i:s d/m/Y");
 ?>
-	<TR id="ligne_date" style="display: none;">
-			<TD>Contr&#244;le la date et l'heure du serveur <I>(date actuelle <?php echo $la; ?>)</I></TD>
-			<TD align="center"><A id="link_time"><img id="check_time"
-					style="border: 0px solid;" SRC="../elements/images/info.png"></A></TD>
-			<TD align="center"><A id="help_time_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></A></TD>
-		</TR>
+        <TR id="ligne_date" style="display: none;">
+            <TD>Contr&#244;le la date et l'heure du serveur <I>(date actuelle <?php echo $la; ?>)</I></TD>
+            <TD align="center"><A id="link_time"><img id="check_time"
+                                                      style="border: 0px solid;" SRC="../elements/images/info.png"></A></TD>
+            <TD align="center"><A id="help_time_se3"><img name="action_image2"
+                                                          src="../elements/images/system-help.png"></A></TD>
+        </TR>
 
 
-		<TR>
-			<TD>Configuration de l'exp&#233;dition des mails</TD>
-			<TD align="center"><IMG id="check_mail" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><A id="help_mail_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></A></TD>
-		</TR>
-		<TR>
-			<TD>Etat du serveur Samba Version: <span id="smb_version"
-				style="font-style: italic;">(<?php echo $samba_version ?>)</span></TD>
-			<TD align="center"><a id="link_samba" href="#"><IMG id="check_smb"
-					style="border: 0px solid;" SRC="../elements/images/info.png"></a></TD>
-			<TD align="center"><a id="help_samba_se3"><img
-					src="../elements/images/system-help.png"></a></TD>
-		</TR>
+        <TR>
+            <TD>Configuration de l'exp&#233;dition des mails</TD>
+            <TD align="center"><IMG id="check_mail" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><A id="help_mail_se3"><img name="action_image2"
+                                                          src="../elements/images/system-help.png"></A></TD>
+        </TR>
+        <TR>
+            <TD>Etat du serveur Samba Version: <span id="smb_version"
+                                                     style="font-style: italic;">(<?php echo $samba_version ?>)</span></TD>
+            <TD align="center"><a id="link_samba" href="#"><IMG id="check_smb"
+                                                                style="border: 0px solid;" SRC="../elements/images/info.png"></a></TD>
+            <TD align="center"><a id="help_samba_se3"><img
+                        src="../elements/images/system-help.png"></a></TD>
+        </TR>
 
-		<TR>
-			<TD>Controle du SID samba</TD>
-			<TD align="center"><IMG id="check_sid" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><A id="help_sid_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></A></TD>
-		</TR>
-		<TR>
-			<TD>Etat de la base MySQL</TD>
-			<TD align="center"><IMG id="check_mysql" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><A id="help_mysql_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></A></TD>
-		</TR>
+        <TR>
+            <TD>Controle du SID samba</TD>
+            <TD align="center"><IMG id="check_sid" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><A id="help_sid_se3"><img name="action_image2"
+                                                         src="../elements/images/system-help.png"></A></TD>
+        </TR>
+        <TR>
+            <TD>Etat de la base MySQL</TD>
+            <TD align="center"><IMG id="check_mysql" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><A id="help_mysql_se3"><img name="action_image2"
+                                                           src="../elements/images/system-help.png"></A></TD>
+        </TR>
 
-		<TR id="ligne_dhcp" style="display: none;">
+        <TR id="ligne_dhcp" style="display: none;">
 
-			<TD>Etat du serveur DHCP</TD>
-			<TD align="center"><IMG id="check_dhcp" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><A id="help_dhcp_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></A></TD>
-		</TR>
+            <TD>Etat du serveur DHCP</TD>
+            <TD align="center"><IMG id="check_dhcp" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><A id="help_dhcp_se3"><img name="action_image2"
+                                                          src="../elements/images/system-help.png"></A></TD>
+        </TR>
 
 
-		<TR>
-			<TD>Onduleur</TD>
-			<TD align="center"><A id="link_ondul"><IMG id="check_ondul"
-					style="border: 0px solid;" SRC="../elements/images/info.png"></A></TD>
-			<TD align="center"><A id="help_ondul_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></A></TD>
-		</TR>
-		<TR>
-			<TD colspan="3" align="center" class="menuheader">Etat des disques</TD>
-		</TR>
+        <TR>
+            <TD>Onduleur</TD>
+            <TD align="center"><A id="link_ondul"><IMG id="check_ondul"
+                                                       style="border: 0px solid;" SRC="../elements/images/info.png"></A></TD>
+            <TD align="center"><A id="help_ondul_se3"><img name="action_image2"
+                                                           src="../elements/images/system-help.png"></A></TD>
+        </TR>
+        <TR>
+            <TD colspan="3" align="center" class="menuheader">Etat des disques</TD>
+        </TR>
 
-		<TR>
-			<TD>Partition : / <span id="space_disk1"></span><br></TD>
-			<TD align="center"><IMG id="check_disk1" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><A id="help_disk1"><img
-					src="../elements/images/system-help.png" /></A></TD>
-		</TR>
-		<TR>
-			<TD>Partition : /var/sambaedu <span id="space_disk2"></span></TD>
-			<TD align="center"><IMG id="check_disk2" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><A id="help_disk2"><img
-					src="../elements/images/system-help.png"></A></TD>
-		</TR>
-		<TR>
-			<TD>Partition : /home <span id="space_disk3"></span><br></TD>
-			<TD align="center"><IMG id="check_disk3" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><A id="help_disk3"><img
-					src="../elements/images/system-help.png"></A></TD>
-		</TR>
-		<TR>
-			<TD>Partition : /var <span id="space_disk4"></span><br></TD>
-			<TD align="center"><IMG id="check_disk4" style="border: 0px solid;"
-				SRC="../elements/images/info.png"></TD>
-			<TD align="center"><A id="help_disk4"><img
-					src="../elements/images/system-help.png"></A></TD>
-		</TR>
+        <TR>
+            <TD>Partition : / <span id="space_disk1"></span><br></TD>
+            <TD align="center"><IMG id="check_disk1" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><A id="help_disk1"><img
+                        src="../elements/images/system-help.png" /></A></TD>
+        </TR>
+        <TR>
+            <TD>Partition : /var/sambaedu <span id="space_disk2"></span></TD>
+            <TD align="center"><IMG id="check_disk2" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><A id="help_disk2"><img
+                        src="../elements/images/system-help.png"></A></TD>
+        </TR>
+        <TR>
+            <TD>Partition : /home <span id="space_disk3"></span><br></TD>
+            <TD align="center"><IMG id="check_disk3" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><A id="help_disk3"><img
+                        src="../elements/images/system-help.png"></A></TD>
+        </TR>
+        <TR>
+            <TD>Partition : /var <span id="space_disk4"></span><br></TD>
+            <TD align="center"><IMG id="check_disk4" style="border: 0px solid;"
+                                    SRC="../elements/images/info.png"></TD>
+            <TD align="center"><A id="help_disk4"><img
+                        src="../elements/images/system-help.png"></A></TD>
+        </TR>
 
-		<TR>
-			<TD colspan="3" align="center" class="menuheader">S&#233;curit&#233;</TD>
-		</TR>
-		<TR>
-			<TD>Mises &#224; jour de s&#233;curit&#233; Debian</TD>
-			<TD align="center"><A id="link_secu"><IMG id="check_secu"
-					style="border: 0px solid;" SRC="../elements/images/info.png"></A></TD>
-			<TD align="center"><A id="help_secu_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></A></TD>
-		</TR>
-		<TR>
-			<TD colspan="3" align="center" class="menuheader">Clients</TD>
-		</TR>
-		<TR>
-			<TD>V&#233;rifie le compte d'int&#233;gration des clients</TD>
-			<TD align="center"><A id="link_client"><IMG id="check_client"
-					style="border: 0px solid;" SRC="../elements/images/info.png"></A></TD>
-			<TD align="center"><A id="help_client_se3"><img name="action_image2"
-					src="../elements/images/system-help.png"></A></TD>
-		</TR>
+        <TR>
+            <TD colspan="3" align="center" class="menuheader">S&#233;curit&#233;</TD>
+        </TR>
+        <TR>
+            <TD>Mises &#224; jour de s&#233;curit&#233; Debian</TD>
+            <TD align="center"><A id="link_secu"><IMG id="check_secu"
+                                                      style="border: 0px solid;" SRC="../elements/images/info.png"></A></TD>
+            <TD align="center"><A id="help_secu_se3"><img name="action_image2"
+                                                          src="../elements/images/system-help.png"></A></TD>
+        </TR>
+        <TR>
+            <TD colspan="3" align="center" class="menuheader">Clients</TD>
+        </TR>
+        <TR>
+            <TD>V&#233;rifie le compte d'int&#233;gration des clients</TD>
+            <TD align="center"><A id="link_client"><IMG id="check_client"
+                                                        style="border: 0px solid;" SRC="../elements/images/info.png"></A></TD>
+            <TD align="center"><A id="help_client_se3"><img name="action_image2"
+                                                            src="../elements/images/system-help.png"></A></TD>
+        </TR>
 
-	</TABLE>
+    </TABLE>
 </center>
 
 
 <!-- //Menu pour mail. -->
 <div id="mail_menu" style="width: 100%; display: none;">
-	<table width=100%>
-		<tr>
-			<td colspan=2 align=center bgcolor=#6699CC><font face=Verdana size=-1
-				color=#000000><b>Menu</b></font></td>
-		</tr>
-		<tr>
-			<td><IMG width=15 height=15 SRC=../elements/temp/command.png></td>
-			<td onmouseover=chng(this,0) onmouseout=chng(this,1)><a
-				href=conf_smtp.php><font face=Verdana size=-1 color=#000000>Tester
-						envoi</font></a></td>
-		</tr>
-		<tr>
-			<td><IMG width=15 height=15 SRC=../elements/temp/comment.gif></td>
-			<td onmouseover=chng(this,0) onmouseout=chng(this,1)><a
-				href=../conf_smtp.php><font face=Verdana size=-1 color=#000000>Configurer</font></a></td>
-		</tr>
-	</table>
+    <table width=100%>
+        <tr>
+            <td colspan=2 align=center bgcolor=#6699CC><font face=Verdana size=-1
+                                                             color=#000000><b>Menu</b></font></td>
+        </tr>
+        <tr>
+            <td><IMG width=15 height=15 SRC=../elements/images/command.png></td>
+            <td onmouseover=chng(this, 0) onmouseout=chng(this, 1)><a
+                    href=conf_smtp.php><font face=Verdana size=-1 color=#000000>Tester
+                    envoi</font></a></td>
+        </tr>
+        <tr>
+            <td><IMG width=15 height=15 SRC=../elements/images/comment.gif></td>
+            <td onmouseover=chng(this, 0) onmouseout=chng(this, 1)><a
+                    href=../conf_smtp.php><font face=Verdana size=-1 color=#000000>Configurer</font></a></td>
+        </tr>
+    </table>
 </div>
 
 
@@ -407,5 +397,4 @@ $la = date("G:i:s d/m/Y");
 echo "</center>";
 require ("pdp2.inc.php");
 // } // fin de pas se3_is_admin
-
 ?>

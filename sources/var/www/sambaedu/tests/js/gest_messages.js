@@ -1,25 +1,19 @@
 /**
-  
+
  * Page qui teste les differents services
- * @Version $Id: gest_messages.js 3002 2008-05-30 12:58:43Z keyser $ 
- * 
- * @Projet LCS / SambaEdu 
- * @auteurs Philippe Chadefaux  MrT
- * @Licence Distribue selon les termes de la licence GPL
- * @note 
- * Modifications proposees par Sebastien Tack (MrT)
- * Optimisation du lancement des scripts bash par la technologie asynchrone Ajax.
- * Modification du systeme d'infos bulles.(Nouvelle version de wz-tooltip) Ancienne version incompatible avec ajax
- * Externalisation des messages contenus dans les infos-bulles
- * Fonctions Tip('msg') et UnTip();
- * Nouvelle organisation de l'arborescence.
-  
+ * @Version $Id: gest_messages.js 3002 2008-05-30 12:58:43Z keyser $
+ *
+   * @Projet LCS / SambaEdu
+   * @Auteurs Equipe Sambaedu
+   * @Licence Distribue sous la licence GPLlancement des scripts bash par la technologie asynchrone Ajax.
+
+
  * Ce script affecte les messages par defaut au chargement de la page
  * Le contenu des info-bulles sont modifiees ensuite  dans le script tests.js en fonction du resultat du test
  */
 
 /**
- * 
+ *
  * @Repertoire: /tests/js/ file: gest_messages.js
  */
 
@@ -197,13 +191,13 @@ function init_default_msg() {
 			UnTip();
 		}
 	}
-	$('check_ntp').onmouseover = function() {
-		UnTip();
-		Tip(msg_ntp_nocx, WIDTH, 250, SHADOW, true, DURATION, duration);
-		this.onmouseout = function() {
-			UnTip();
-		}
-	}
+//	$('check_ntp').onmouseover = function() {
+//		UnTip();
+//		Tip(msg_ntp_nocx, WIDTH, 250, SHADOW, true, DURATION, duration);
+//		this.onmouseout = function() {
+//			UnTip();
+//		}
+//	}
 	$('check_dns').onmouseover = function() {
 		UnTip();
 		Tip(msg_dns_nocx, WIDTH, 250, SHADOW, true, DURATION, duration);
