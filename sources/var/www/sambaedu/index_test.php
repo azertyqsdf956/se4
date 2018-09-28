@@ -164,8 +164,25 @@ foreach($users as $user){
     }
 }
 */
-$res = have_right($config, "annu_can_read", "prof.test" );
-var_dump($res);
-
-
+$employeeNumber = 11384;
+$prenom = remplace_accents(traite_espaces("aurelien"));
+$nom = remplace_accents(traite_espaces("SEZETTRE"));
+$tab_cn = verif_nom_prenom($config, $nom, $prenom);
+if (count($tab_cn) > 0) {
+    $cn = $tab_cn[0]['cn'];
+    my_echo("$nom $prenom est dans l'annuaire sans employeeNumber: $cn<br />\n");
+    my_echo("Mise à jour avec l'employeeNumber $employeeNumber: \n");
+    // $comptes_avec_employeeNumber_mis_a_jour++;
+    
+//    if ($simulation != "y") {
+        $attributs = array();
+        $attributs["title"] = $employeeNumber;
+        if (modify_ad($config, $cn, "user", $attributs, "replace")) {
+            my_echo("<font color='green'>SUCCES</font>");
+        } else {
+            my_echo("<font color='red'>ECHEC</font>");
+            $nb_echecs ++;
+        }
+        my_echo(".<br />\n");
+ }
 ?>

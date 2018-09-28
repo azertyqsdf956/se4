@@ -228,7 +228,7 @@ function getintlevel()
     /* Lis le niveau d'interface dans la table session */
     session_name("Sambaedu");
     @session_start();
-    $ret = (isset($_SESSION['level']) ? $_SESSION['level'] : 1);
+    $ret = (isset($_SESSION['level']) ? $_SESSION['level'] : 4);
     return $ret;
 }
 

@@ -56,7 +56,7 @@ if ((have_right($config, "annu_can_read")) || (have_right($config, "Annu_is_admi
         $nom = $info["nom"];
         $date_naiss = $info["naissance"];
 
- //       echo "<a href='people.php?cn=" . $cn_init . "' title=\"Retour à la fiche de l'utilisateur" . $nom . " " . $prenom . "\">" . $nom . " " . $prenom . "</a>: ";
+        echo "<a href='people.php?cn=" . $cn_init . "' title=\"Retour à la fiche de l'utilisateur" . $nom . " " . $prenom . "\">" . $nom . " " . $prenom . "</a>: ";
 
         switch ($config['pwdPolicy']) {
             case 0: // date de naissance
@@ -73,8 +73,8 @@ if ((have_right($config, "annu_can_read")) || (have_right($config, "Annu_is_admi
                 echo gettext("Mot de passe r&#233;initialis&#233; &#224; : ");
         }
 
-        echo $userpwd . "<br><br>";
-        usersetpassword($config, $info['cn'], $userpwd);
+        echo "<h2>" . $userpwd . "</h2><br> Il devra être changé à la prochaine connexion<br>";
+        usersetpassword($config, $info['cn'], $userpwd, true);
 
         // ajouter vérification de doublon en cas de modifs successives pour un même cn.
         $doublon = false;
@@ -96,10 +96,22 @@ if ((have_right($config, "annu_can_read")) || (have_right($config, "Annu_is_admi
         }
         $doublon = false;
     } else {
-        $error = gettext("Erreur de connection au serveur LDAP");
+        $error = gettext("Pas de compte ?");
     }
+    // Lien pour la récupération du mailing
+    if (count($_SESSION['comptes_crees'], COUNT_RECURSIVE) > 1) {
+        $serial_listing = serialize($_SESSION['comptes_crees']);
 
-    include ("listing.inc.php");
+        $lien = "<a href=\"#\" onclick=\"document.getElementById('postlisting').submit(); return false;\" target=\"_blank\">T&#233;l&#233;charger le listing des mots de passe modifi&#233;s...</a>";
+
+        echo ("<table><tr><td><img src='../elements/images/pdffile.png'></td><td>");
+        echo ($lien);
+        echo ("<form id='postlisting' action='../annu/listing.php' method='post''>");
+        echo ("<input type='hidden' name='hiddeninput' value='$serial_listing' />");
+        echo ("<input type='checkbox' name='purge_csv_data' value='y' checked='checked' /> Purger le fichier temporaire apr&#232;s t&#233;l&#233;chargement du fichier");
+        echo ("<br />Il n'est peut-&#234;tre pas tr&#232;s prudent de conserver inutilement ces donn&#233;es sur le serveur");
+        echo ("</form></td></tr></table>");
+    }
 }
 
 include ("pdp.inc.php");

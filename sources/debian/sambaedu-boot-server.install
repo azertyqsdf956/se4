@@ -2,3 +2,4 @@
 usr/share/sambaedu/sbin/make_dhcpd_conf.sh
 var/www/boot/boot.ipxe
 usr/share/doc/sambaedu/ipxe.conf.example
+var/lib/tftpboot/undionly.kpxe

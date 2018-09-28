@@ -594,6 +594,7 @@ function creer_cn($config, $nom, $prenom)
 function verif_employeeNumber($config, $employeeNumber)
 {
     // Tester si l'employeeNumber est dans l'annuaire ou non...
+    // @TODO a refaire selon le modele de verif nom premon
     $tab1 = search_ad($config, $employeeNumber, "employeenumber", $config['dn']['people']);
     $tab2 = search_ad($config, $employeeNumber, "employeenumber", $config['dn']['trash']);
 
@@ -604,7 +605,7 @@ function verif_employeeNumber($config, $employeeNumber)
         $tab1[0]['branch'] = "trash";
         return $tab2[0];
     } else {
-        return false;
+        return array();
     }
 }
 
@@ -637,10 +638,11 @@ function verif_nom_prenom($config, $nom, $prenom)
             if (preg_match("/" . $config['trash_rdn'] . "/i", $user['dn']))
                 $tab[$key]['trash'] = true;
             else
-                $tab[key]['trash'] = false;
+                $tab[$key]['trash'] = false;
         }
-    }
-    return $tab;
+        return $tab;
+    } else
+        return array();
 }
 
 // ================================================
@@ -2180,6 +2182,8 @@ function import_comptes(array $config, array $args)
                     } elseif (isset($eleves[$i]['nom_de_famille'])) {
                         $eleves[$i]['nom'] = $eleves[$i]['nom_de_famille'];
                     }
+                    if (! isset($eleves[$i]["code_sexe"]))
+                        $eleves[$i]["code_sexe"] = 1;
 
                     my_echo("<tr>\n");
                     // my_echo("<td style='color: blue;'>$cpt</td>\n");
@@ -3545,7 +3549,8 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                 $temoin_erreur_prof = "";
                 $date = str_replace("-", "", $prof[$cpt]["date_naissance"]);
                 $employeeNumber = "P" . $prof[$cpt]["id"];
-                if ($tab = verif_employeeNumber($config, $employeeNumber)) {
+                $tab = verif_employeeNumber($config, $employeeNumber);
+                if (count($tab) > 0) {
                     $cn = $tab['cn'];
                     my_echo("<p>cn existant pour employeeNumber=$employeeNumber: $cn<br />\n");
 
@@ -3604,7 +3609,9 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                     // $nom=remplace_accents(traite_espaces($prof[$cpt]["nom_usage"]));
                     $prenom = remplace_accents(traite_espaces($prof[$cpt]["prenom"]));
                     $nom = remplace_accents(traite_espaces($prof[$cpt]["nom_usage"]));
-                    if ($cn = verif_nom_prenom($config, $nom, $prenom)) {
+                    $tab_cn = verif_nom_prenom($config, $nom, $prenom);
+                    if (count($tab_cn) > 0) {
+                        $cn = $tab_cn[0]['cn'];
                         my_echo("$nom $prenom est dans l'annuaire sans employeeNumber: $cn<br />\n");
                         my_echo("Mise à jour avec l'employeeNumber $employeeNumber: \n");
                         // $comptes_avec_employeeNumber_mis_a_jour++;
@@ -3612,7 +3619,7 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                         if ($simulation != "y") {
                             $attributs = array();
                             $attributs["title"] = $employeeNumber;
-                            if (modify_ad($config, $cn, "user", $attributs, "add")) {
+                            if (modify_ad($config, $cn, "user", $attributs, "replace")) {
                                 my_echo("<font color='green'>SUCCES</font>");
                                 $comptes_avec_employeeNumber_mis_a_jour ++;
                                 $tab_comptes_avec_employeeNumber_mis_a_jour[] = $cn;
@@ -3713,7 +3720,7 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                             // Creation d'un cn:
                             if (! $cn = creer_cn($config, $nom, $prenom)) {
                                 $temoin_erreur_prof = "o";
-                                my_echo("<font color='red'>ECHEC: Problème lors de la création de l'cn...</font><br />\n");
+                                my_echo("<font color='red'>ECHEC: Problème lors de la création du login...</font><br />\n");
                                 if ("$error" != "") {
                                     my_echo("<font color='red'>$error</font><br />\n");
                                 }
@@ -3892,7 +3899,7 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
             // Pour chaque eleve:
             $employeeNumber = $eleve[$numero]["numero"];
             $tab = verif_employeeNumber($config, $employeeNumber);
-            if ($tab) {
+            if (count($tab) > 0) {
                 $cn = $tab['cn'];
                 my_echo("<p>cn existant pour employeeNumber=$employeeNumber: $cn<br />\n");
 
@@ -3948,7 +3955,9 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                 // $nom=remplace_accents(traite_espaces($eleve[$numero]["nom"]));
                 $prenom = remplace_accents(traite_espaces($eleve[$numero]["prenom"]));
                 $nom = remplace_accents(traite_espaces($eleve[$numero]["nom"]));
-                if ($cn = verif_nom_prenom($config, $nom, $prenom)) {
+                $tab_cn = verif_nom_prenom($config, $nom, $prenom);
+                if (count($tab_cn) > 0) {
+                    $cn = $tab_cn[0]['cn'];
                     my_echo("$nom $prenom est dans l'annuaire sans employeeNumber: $cn<br />\n");
                     my_echo("Mise à jour avec l'employeeNumber $employeeNumber: \n");
                     // $comptes_avec_employeeNumber_mis_a_jour++;

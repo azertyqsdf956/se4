@@ -28,7 +28,7 @@ require ("entete.inc.php");
 require ("ihm.inc.php");
 
 require_once("config.inc.php");
-require("ldap.inc.php");
+require_once("ldap.inc.php");
 
 require_once ("lang.inc.php");
 bindtextdomain('se3-infos',"/var/www/se3/locale");
@@ -38,7 +38,7 @@ textdomain ('se3-infos');
 $_SESSION["pageaide"]="Annuaire";
 
 
-if (have_right($config, "annu_is_admin",$login)!="Y") {
+if (!have_right($config, "annu_is_admin")) {
 	die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 }
 

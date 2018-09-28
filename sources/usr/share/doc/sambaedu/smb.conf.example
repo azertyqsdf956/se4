@@ -6,6 +6,9 @@
        log file = /var/log/samba/%m.log
        log level = 1
 
+# performances
+       socket options = SO_KEEPALIVE TCP_KEEPIDLE=300 TCP_KEEPINTVL=10 TCP_KEEPCNT=5
+
 # utilisateurs locaux
 
        idmap config * : backend = tdb
@@ -22,15 +25,26 @@
        winbind use default domain = yes
        
 # imprimantes
-       rpc_server:spoolss = external
-       rpc_daemon:spoolssd = fork
-       spoolss: architecture = Windows x64
-       printing = CUPS
+
+        rpc_server:spoolss = external
+        rpc_daemon:spoolssd = fork
+        spoolss: architecture = Windows x64
+        printing = CUPS
 [printers]
-       path = /var/spool/samba/
-       printable = yes
+	    path = /var/spool/samba/
+        printable = yes
+[print$]
+        comment = Driver imprimantes
+        path = /var/lib/samba/printers
+		force create mode = 0775
+		force directory mode = 2775 
+		writeable = Yes
+        read only = No
+		acl_xattr:ignore system acl = yes
+		write list =  admin, @"Domain Admins", @"Print Operators"
 
 # partages
+
 [install]
        path = /var/sambaedu/unattended/install
        read only = no

@@ -35,14 +35,14 @@ fi
 # boot ipxe
 echo "###       BOOT OPTIONS          ##############################################">>$conf
 echo "next-server  $config_dhcp_tftp_server;">>$conf
-# booter ipxe.lkrn, puis la conf ipxe :
-# script ipxe statique avent install de sambaedu-ipxe, puis page php
+# booter en tftp undionly.kpxe, puis la conf ipxe :
+# script ipxe statique avant install de sambaedu-ipxe, puis page php
 echo "if exists client-arch {
      if option client-arch = 00:00 {
          if exists user-class and option user-class = \"sambaedu\" {
              filename \"${config_ipxe_url}${config_ipxe_script}\"; 
          } else {
-             filename \"${config_ipxe_url}ipxe.lkrn\";
+             filename \"${config_ipxe_url}undionly.kpxe\";
          }
      } elsif option client-arch = 00:06 {
        filename \"bin-i386/ipxe.efi\";
