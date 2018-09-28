@@ -12,4 +12,3 @@ dhcp_default_lease="600"
 dhcp_domain_name=""
 dhcp_tftp_server=""
 ipxe_script="boot.ipxe"
-

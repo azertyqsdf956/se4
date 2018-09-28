@@ -65,7 +65,7 @@ case "$1" in
         a2ensite ipxe.conf
         apachectl restart
 
-        #conf statique ipxe
+        #conf statique ipxe, remplacé ensuite lors de l'installation du paquet ipxe
         write_param /var/www/boot/boot.ipxe config_ipxe_url
     ;;
 

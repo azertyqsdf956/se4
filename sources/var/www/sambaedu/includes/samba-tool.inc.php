@@ -136,15 +136,18 @@ function userdel($config, $cn)
         return false;
 }
 
-function usersetpassword($config, $cn, $password)
+function usersetpassword($config, $cn, $password, $change = false)
 {
     /*
      * Return true if password succes false if userdel fail
      */
     if (userexist($config, $cn)) {
-        $command = "user setpassword " . escapeshellarg($cn) . "--newpassword=" . escapeshellarg($password);
+        $command = "user setpassword " . escapeshellarg($cn) . " --newpassword=" . escapeshellarg($password);
+        if ($change)
+            $command .= " --must-change-at-next-login";
         $RES = sambatool($config, $command);
-        return true;
+        if (preg_match("/OK/", $RES))
+            return true;
     } else
         return false;
 }

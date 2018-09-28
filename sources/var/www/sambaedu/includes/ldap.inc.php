@@ -230,7 +230,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
             $filter = $name;
             $ldap_attrs = array(
                 "cn",
-                "displayname"//
+                "displayname" //
             );
             if ($branch == "all") {
                 $branch = $config['ldap_base_dn'];
@@ -351,7 +351,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
             $branch = $config['dn']['delegations'];
             break;
         case "right":
-            $filter = "(&(objectclass=group)(|(cn=" . $name . ")(member=cn=" . $name . "*)))";
+            $filter = "(&(objectclass=group)(|(cn=" . $name . ")(member=cn=" . $name . "*)(member=" . $name . ")))";
             $branch = $config['dn']['rights'];
             $ldap_attrs = array(
                 "cn",
@@ -459,7 +459,6 @@ function modify_ad(array $config, string $name, string $type, array $attrs, stri
     $res = search_ad($config, $name, $type);
     if (count($res) == 1) {
         $dn = $res[0]['dn'];
-        var_dump($dn);
         list ($ds, $r, $result) = bind_ad_gssapi($config);
         if ($r) {
             switch ($mode) {
@@ -648,18 +647,18 @@ function search_user($config, $cn)
     $ret = search_ad($config, $cn, "user");
     if (count($ret) > 0) {
         return $ret[0];
-    }
-    return $ret;
+    } else
+        return array();
 }
 
 function create_user(array $config, string $cn, string $prenom, string $nom, string $userpwd, string $naissance, string $sexe, string $categorie, string $employeenumber)
 {
-    if (! verif_employeenumber($config, $employeenumber)) {
+    if (count(verif_employeenumber($config, $employeenumber)) == 0) {
         // Il faut determiner le login (attribut cn : use-username-as-cn) en fonction du nom prenom de l'uidpolicy...
         // Si $cn existe déja dans l'AD (doublon) il faut en fabriquer un autre
         if ($cn == "")
             $cn = creer_cn($config, $nom, $prenom);
-        if (!recup_user($config, $cn))
+        if (! recup_user($config, $cn))
             $res = useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $categorie, $employeenumber);
         return $res;
     }
@@ -726,14 +725,17 @@ function create_machine($config, $name, $ou)
 function type_user(array $config, string $user)
 {
     $res = search_user($config, $user);
-    $match = array();
-    foreach ($res['memberof'] as $groupdn) {
-        if (preg_match("/cn=(Eleves|Profs|Administratifs).*/i", $groupdn, $match)) {
+    if (count($res) > 0) {
+        $match = array();
+        $groupsdn = $res['memberof'];
+        foreach ($groupsdn as $groupdn) {
+            if (preg_match("/cn=(Eleves|Profs|Administratifs).*/i", $groupdn, $match)) {
+                return $match[1];
+            }
+        }
+        if (preg_match("/ou=(Eleves|Profs|Administratifs).*/i", $res['dn'], $match)) {
             return $match[1];
         }
-    }
-    if (preg_match("/ou=(Eleves|Profs|Administratifs).*/i", $res['dn'], $match)) {
-        return $match[1];
     }
     return "";
 }
@@ -1042,8 +1044,6 @@ function list_delegations($config, $name = "login", $recurse = true)
         foreach ($user['memberof'] as $groupdn) {
             $ret1 = list_delegations($config, $groupdn, false);
             $ret = array_merge($ret1, $ret);
-            if (count($ret) == 0)
-                return false;
             return $ret;
         }
     } else {
@@ -1058,7 +1058,7 @@ function list_delegations($config, $name = "login", $recurse = true)
             }
             return $parc;
         }
-        return false;
+        return array();
     }
 }
 

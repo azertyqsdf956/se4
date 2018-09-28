@@ -16,12 +16,12 @@ choose --default ${menu-default} --timeout ${menu-timeout} selected && goto ${se
 :Se4AD
 kernel http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux
 initrd http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/initrd.gz
-initrd ###_URL_DICONF_###se4ad.preseed preseed.cfg
+initrd ###_IPXE_URL_###se4ad.preseed preseed.cfg
 boot
 :Se4FS
 kernel http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux
 initrd http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/initrd.gz
-initrd ###_URL_DICONF_###se4fs.preseed preseed.cfg
+initrd ###_IPXE_URL_###se4fs.preseed preseed.cfg
 boot
 :Debian
 kernel http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux
