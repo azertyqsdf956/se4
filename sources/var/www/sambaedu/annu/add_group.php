@@ -2,20 +2,12 @@
 
 
    /**
-   
-   * Ajoute des groupe dans l'annuaire
-   * @Version $Id$ 
-   
-   * @Projet LCS / SambaEdu 
-   
-   * @auteurs jLCF jean-luc.chretien@tice.ac-caen.fr
-   * @auteurs oluve olivier.le_monnier@crdp.ac-caen.fr
-   * @auteurs wawa  olivier.lecluse@crdp.ac-caen.fr
-   * @auteurs Equipe Tice academie de Caen
 
-   * @Licence Distribue selon les termes de la licence GPL
-   
-   * @note 
+   * Ajoute des groupe dans l'annuaire
+   * @Version $Id$
+   * @Projet LCS / SambaEdu
+   * @Auteurs Equipe Sambaedu
+   * @Licence Distribue sous la licence GPL
    */
 
    /**
@@ -23,13 +15,14 @@
    * @Repertoire: annu
    * file: add_group.php
 
-  */	
+  */
 
 
   include "entete.inc.php";
   include_once "ldap.inc.php";
   include "ihm.inc.php";
 
+$add_group="";
 foreach ($_POST as $cle=>$val) {
     $$cle = $val;
         }
@@ -41,7 +34,7 @@ foreach ($_POST as $cle=>$val) {
   echo "<h1>".gettext("Annuaire")."</h1>\n";
   $_SESSION["pageaide"]="Annuaire";
   aff_trailer ("6");
-  
+
 if (have_right($config, "Annu_is_admin")) {
   	// Ajout d'un groupe d'utilisateurs
 	if ( (!$add_group) ||( ($add_group) && ( (!$description || !verifDescription($description) ) ||(!$intitule || !verifIntituleGrp ($intitule)) ) ) ) {
@@ -84,8 +77,8 @@ if (have_right($config, "Annu_is_admin")) {
 	  	</tbody>
         	</table>
       		</form>
-      
-      
+
+
       		<?php
 		// Message d'erreurs de saisie
       		if ( $add_group && (!$intitule || !$description) ) {
@@ -100,34 +93,37 @@ if (have_right($config, "Annu_is_admin")) {
     		$intitule = enleveaccents($intitule);
       		// Construction du cn du nouveau groupe
       		if ($prefix) $prefix=$prefix."_";
-      		if ($categorie=="Autre") $categorie=""; else $categorie=$categorie."_";
+      		if ($categorie=="Autre") {
+                $categorie="";
+                $typeGroupe="other_group";
+            }
+            else {
+                $typeGroupe=strtolower($categorie);
+                $categorie=$categorie."_";
+            }
       		$cn= $categorie.$prefix.$intitule;
-      		
+
 		// Verification de l'existance du groupe
-      		$groups=filter_group("(cn=$cn)");
-      		
+      		$groups=filter_group($config,"(cn=$cn)");
+
 		if (count($groups)) {
 		        echo "<div class='error_msg'>".gettext("Attention le groupe")." <font color='#0080ff'> <a href='group.php?filter=$cn' style='color:#0080ff' target='_blank'>$cn</a></font>".gettext(" est d&#233;ja pr&#233;sent dans la base, veuillez choisir un autre nom !")."</div><BR>\n";
       		} else {
         		// Ajout du groupe
         		$description = stripslashes($description);
-        		// Test de la cat&#233;gorie
 
-        		// if ($categorie == "Equipe_" || $categorie == "Matiere_" ) $groupType = "2"; else $groupType = "1";
-			$groupType="1";
-        		exec ("/usr/share/se3/sbin/groupAdd.pl $groupType $cn \"$description\"",$AllOutPut,$ReturnValue);
-        		if ($ReturnValue == "0") {
-				if ($categorie=="Classe_") {
-					echo "<div class=error_msg>".gettext("Le groupe")." <a href='add_list_users_group.php?cn=$cn' title=\"Ajouter des membres au groupe\"> $cn </a> ".gettext(" a &#233;t&#233; ajout&#233; avec succ&#232;s.")."</div><br>\n";
-				}
-				else {
-					echo "<div class=error_msg>".gettext("Le groupe")." <a href='aj_ssgroup.php?cn=$cn' title=\"Ajouter des membres au groupe\"> $cn </a> ".gettext(" a &#233;t&#233; ajout&#233; avec succ&#232;s.")."</div><br>\n";
-				}
+        		if (create_group($config,$prefix.$intitule,$description,$typeGroupe)) {
+                    if ($categorie=="Classe_") {
+                        echo "<div class=error_msg>".gettext("Le groupe")." <a href='add_list_users_group.php?cn=$cn' title=\"Ajouter des membres au groupe\"> $cn </a> ".gettext(" a &#233;t&#233; ajout&#233; avec succ&#232;s.")."</div><br>\n";
+                    }
+                    else {
+                        echo "<div class=error_msg>".gettext("Le groupe")." <a href='aj_ssgroup.php?cn=$cn' title=\"Ajouter des membres au groupe\"> $cn </a> ".gettext(" a &#233;t&#233; ajout&#233; avec succ&#232;s.")."</div><br>\n";
+                    }
 
         		} else {
           			echo "<div class=error_msg>".gettext("Echec, le groupe")." <font color='#0080ff'>$cn</font>".gettext(" n'a pas &#233;t&#233; cr&#233;&#233; !")."\n";
-          			if ($ReturnValue) echo "(type d'erreur : $ReturnValue),&nbsp;";
-          			echo "&nbsp;".gettext("Veuillez contacter")."</div> <A HREF='mailto:$MelAdminLCS?subject=PB creation groupe'>".gettext("l'administrateur du syst&#232;me")."</A><BR>\n";
+
+          			echo "&nbsp;".gettext("Veuillez contacter")."</div> ".gettext("l'administrateur du syst&#232;me")."</A><BR>\n";
         		}
       		}
     	}
