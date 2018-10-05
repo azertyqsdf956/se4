@@ -276,7 +276,9 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
                 "description", // Description de la machine
                 "iphostnumber", // adresse ip reservée
                 "networkaddress", // adresse mac
-                "memberof" // appartenance aux groupes
+                "memberof", // appartenance aux groupes
+                "netbootinitialization", // action IPXE
+                "netbootmachinefilepath" // action programmée
             );
             $filter = "(&(objectclass=computer)(|(cn=" . $name . ")(iphostnumber=" . $name . ")(networkaddress=" . $name . ")(dn=" . $name . ")))";
             if ($branch == "all") {
@@ -1034,7 +1036,7 @@ function have_delegation($config, $parc, $right)
 function list_delegations($config, $name = "login", $recurse = true)
 {
     if ($name == "login")
-        $name = $config['login]'];
+        $name = $config['login'];
     $user = search_user($config, $name);
     $cn = $user['cn'];
 
@@ -1268,6 +1270,7 @@ function get_dhcp_lease($config, $name)
             return $data;
     }
 }
+
 
 // ----------- gestion des classes------------------------------
 function is_eleve($config, $name)

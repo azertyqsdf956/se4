@@ -30,25 +30,27 @@
  */
 function user_valid_passwd($config, $login, $password)
 {
-  //  return true;
+    // return true;
     $url = "ldaps://" . $config['domain'];
     $ret = false;
     $user = search_user($config, $login);
-    $login_dn = $user['dn'];
-    $ds = @ldap_connect($url, $config['ldap_port']);
-    if ($ds) {
-        $r = @ldap_bind($ds, $login_dn, $password);
-        if ($r) {
-            $ret = true;
+    if (count($user) > 0) {
+        $login_dn = $user['dn'];
+        $ds = @ldap_connect($url, $config['ldap_port']);
+        if ($ds) {
+            $r = @ldap_bind($ds, $login_dn, $password);
+            if ($r) {
+                $ret = true;
+            } else {
+                $ret = false;
+                print gettext("Echec de l'Authentification de $login_dn.");
+            }
+            @ldap_unbind($ds);
+            @ldap_close($ds);
         } else {
             $ret = false;
-            print gettext("Echec de l'Authentification de $login_dn.");
+            print $ret = gettext("Erreur de connection au serveur AD");
         }
-        @ldap_unbind($ds);
-        @ldap_close($ds);
-    } else {
-        $ret = false;
-        print $ret = gettext("Erreur de connection au serveur AD");
     }
     return $ret;
     // return true;
