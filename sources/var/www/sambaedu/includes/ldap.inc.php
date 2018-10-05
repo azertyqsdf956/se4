@@ -7,6 +7,8 @@
 
  * @Auteurs Equipe Sambaedu
 
+* @Version $Id: ldap.inc.php  05-10-2018 mrfi $
+
  * @Note: Ce fichier de fonction doit etre appele par un include
 
  * @Licence Distribue sous la licence GPL
@@ -23,6 +25,7 @@ textdomain('sambaedu-core');
 
 // pour utiliser bind_ad_gssapi
 include_once "functions.inc.php";
+require_once "samba-tool.inc.php";
 
 // Pour activer/desactiver la modification du givenname (Prenom) lors de la modification dans annu/mod_user_entry.php
 $corriger_givenname_si_diff = "n";
@@ -1498,6 +1501,15 @@ function create_group(array $config, string $name, string $description, string $
         $pp = "PP_" . $name;
         $ou = $config['equipes_rdn'] . "," . $config['groups_rdn'];
         $res = groupadd($config, $pp, $ou, "Profs principaux de " . $description);
+    } elseif ($type == "other_group") {
+        $classe = ucfirst($name);
+        $ou = $config[$type . "s_rdn"] . "," . $config['groups_rdn'];
+        // On crée l'OU si elle n'existe pas
+        $ouName= explode("=",$config[$type . "s_rdn"]);
+        if (! ouexist($config, $ouName[1],$config['dn']['groups'])) {
+            $res1 = ouadd($config,$ouName[1], $config['dn']['groups']);
+        }
+        $res = groupadd($config, $classe, $ou, $description);
     } else {
         $classe = ucfirst($type) . "_" . $name;
         $ou = $config[$type . "s_rdn"] . "," . $config['groups_rdn'];
