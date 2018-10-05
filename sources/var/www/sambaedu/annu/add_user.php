@@ -7,7 +7,7 @@
 
  * @Projet LCS / SambaEdu 
 
- * @auteurs jLCF jean-luc.chretien@tice.ac-caen.fr
+ * @auteurs jLCF jean-luc.chretien@.ac-caen.fr
  * @auteurs oluve olivier.le_monnier@crdp.ac-caen.fr
  * @auteurs wawa  olivier.lecluse@crdp.ac-caen.fr
  * @auteurs Equipe Tice academie de Caen
@@ -262,17 +262,16 @@ if (have_right($config, "Annu_is_admin")) {
                     $password = createRandomPassword(8, true);
                     break;
             }
-            $employeenumber = "0";
             // Creation du nouvel utilisateur
-            $ret = create_user($config, "", $prenom, $nom, $password, $naissance, $sexe, $categorie, $employeenumber);
+            $ret = create_user($config, "", $prenom, $nom, $password, $naissance, $sexe, $categorie, "");
             // Compte rendu de creation
             if ($ret) {
                 if ($sexe == "M") {
-                    echo gettext("L'utilisateur ") . " $prenom $nom " . gettext(" a &#233;t&#233; cr&#233;&#233; avec succ&#232;s.") . "<BR>";
+                    echo gettext("L'utilisateur ") . " <strong>$prenom $nom</strong> " . gettext(" a &#233;t&#233; cr&#233;&#233; avec succ&#232;s.") . "<BR>";
                 } else {
-                    echo gettext("L'utilisateur ") . " $prenom $nom " . gettext(" a &#233;t&#233; cr&#233;&#233;e avec succ&#232;s.") . "<BR>";
+                    echo gettext("L'utilisateur ") . " <strong>$prenom $nom</strong> " . gettext(" a &#233;t&#233; cr&#233;&#233;e avec succ&#232;s.") . "<BR>";
                 }
-                $users = search_ad($config, $cn, "user");
+                $users = search_ad($config, $ret, "user");
                 if (count($users)) {
                     echo gettext("Son identifiant est ") . "<STRONG><a href='people.php?cn=" . $users[0]["cn"] . "' title=\"Modifier le compte.\">" . $users[0]["cn"] . "</a></STRONG><BR>\n";
                     echo gettext("Son mot de passe est ") . "<STRONG>" . $password . "</STRONG><BR>\n";
@@ -304,7 +303,7 @@ if (have_right($config, "Annu_is_admin")) {
         }
     }
 
-    // include("listing.inc.php");
+    include("listing.inc.php");
 } else {
     echo "<div class=error_msg>" . gettext("Cette application, n&#233;cessite les droits d'administrateur du serveur SambaEdu !") . "</div>";
 }

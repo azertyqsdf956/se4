@@ -102,14 +102,8 @@ function useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $cate
     if (count($RES) == 1) {
         $newcn = explode("'", $RES[0]);
         // Ajout a un groupe principal
-        if ($categorie != '') {
-            if (groupaddmember($config, $newcn[1], $categorie)) {
-                echo "Succes de l ajout de " . $newcn[1] . " au groupe $categorie.<br />\n";
-            } else {
-                echo "Echec de l ajout de " . $newcn[1] . " au groupe $categorie.<br />\n";
-            }
-            return $newcn[1];
-        }
+        groupaddmember($config, $newcn[1], $categorie);
+        return $newcn[1];
     }
 }
 
