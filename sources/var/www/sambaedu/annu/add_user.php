@@ -262,7 +262,6 @@ if (have_right($config, "Annu_is_admin")) {
                     $password = createRandomPassword(8, true);
                     break;
             }
-            $employeenumber = "";
             // Creation du nouvel utilisateur
             $ret = create_user($config, "", $prenom, $nom, $password, $naissance, $sexe, $categorie, "");
             // Compte rendu de creation
