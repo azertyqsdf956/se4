@@ -50,10 +50,10 @@ case "$1" in
 		su www-admin -c "samba-tool dns add $config_se4ad_name $config_domain admin CNAME se4fs.$config_domain -k yes" || true
 		# creation de la zone inverse si besoin, cela peut servir.
 		read a b c d<<<${my_address//./ }
-        su www-admin -c "samba-tool dns zonecreate $config_se4ad_name $c.$b.$a.in-addr.arpa -k yes >/dev/null 2>&1" || true
-        su www-admin -c "samba-tool dns add ${config_se4ad_name} $c.$b.$a.in-addr.arpa $d PTR se4fs.${config_domain} -k yes >/dev/null 2>&1" || true
+        su www-admin -c "samba-tool dns zonecreate ${config_se4ad_name} ${c}.${b}.${a}.in-addr.arpa -k yes >/dev/null 2>&1" || true
+        su www-admin -c "samba-tool dns add ${config_se4ad_name} ${c}.${b}.${a}.in-addr.arpa $d PTR se4fs.${config_domain} -k yes >/dev/null 2>&1" || true
     	read a b c d<<<${config_se4ad_ip//./ }
-        su www-admin -c "samba-tool dns add ${config_se4ad_name} $c.$b.$a.in-addr.arpa $d PTR ${config_se4ad_name}.${config_domain} -k yes >/dev/null 2>&1" || true
+        su www-admin -c "samba-tool dns add ${config_se4ad_name} ${c}.${b}.${a}.in-addr.arpa $d PTR ${config_se4ad_name}.${config_domain} -k yes >/dev/null 2>&1" || true
 		
         # virtualhost admin.domaine
         chown -R www-admin /var/www/sambaedu

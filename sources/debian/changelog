@@ -1,4 +1,4 @@
-sambaedu (3.9.4~XP.34) UNRELEASED; urgency=medium
+sambaedu (3.9.4~XP.35) UNRELEASED; urgency=medium
 
   [ Denis Bonnenfant ]
   * paquets de developpement
@@ -13,7 +13,7 @@ sambaedu (3.9.4~XP.34) UNRELEASED; urgency=medium
 
   [ denis ]
 
- -- denis <denis@bureau>  Sat, 06 Oct 2018 16:17:30 +0200
+ -- denis <denis@bureau>  Sat, 06 Oct 2018 22:54:36 +0200
 
 sambaedu (3.9.3) se4XP; urgency=medium
 
