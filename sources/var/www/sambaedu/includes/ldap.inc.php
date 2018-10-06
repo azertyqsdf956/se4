@@ -700,7 +700,7 @@ function search_machine($config, $cn, $ip = false)
     return $ret;
 }
 
-function create_machine($config, $name, $ou)
+function create_machine($config, $name, $ou, $description = "reservation dhcp uniquement")
 {
     if (! search_ad($config, $name, "machine")) {
         // Prépare les données
@@ -710,10 +710,14 @@ function create_machine($config, $name, $ou)
             "computer"
         );
         $info["samaccountname"] = $name . "$";
-        $info["description"] = "reservation dhcp uniquement";
+//        $info["samaccounttype"] = 0x30000001;
+        $info["description"] = $description;
+        $info["useraccountcontrol"] = 0x1000;
+        
         // Ajout
         list ($ds, $r, $error) = bind_ad_gssapi($config);
         $ret = ldap_add($ds, "cn=" . $name . "," . $ou . "," . $config['ldap_base_dn'], $info);
+        $err = ldap_error($ds);
         ldap_close($ds);
 
         return $ret;

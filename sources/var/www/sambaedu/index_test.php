@@ -165,15 +165,17 @@ $config['login'] = "admin";
  * }
  * }
  */
-require "windows.inc.php";
+/*require "windows.inc.php";
 
   
  $res = update_xml_unattend($config, __DIR__ . "/ipxe/Win10/unattend.xml", "toto-pc");
 header("Content-type: text/plain");
 echo $res;
-/*
+*/
+$res = create_machine($config, "w10-samedi", $config['computers_rdn'], "test");
+
 $res = search_machine($config, "c2:19:88:2c:10:44", true);
 
 var_dump($res);
-*/
+
 ?>
