@@ -1165,6 +1165,22 @@ function set_dhcp_reservation($config, $machine, $reservation)
 }
 
 /*
+ * enregistre une reservation dhcp dans AD
+ * @parametres : $machine
+ * @parametres : $reservation - tableau {ip, mac}
+ * @return : true si ok
+ */
+function delete_dhcp_reservation($config, $machine)
+{
+    $reservation = get_dhcp_reservation($config, $machine);
+    $del['iphostnumber'] = $reservation['iphostnumber'];
+    $del['networkaddress'] = $reservation['networkaddress'];
+    
+    return modify_ad($config, $machine, "machine", $del , "delete");
+}
+
+
+/*
  * Importe le fichier des reservations /etc/sambaedu/reservations.inc vers l'AD
  * @return : array machine, ip, mac
  */

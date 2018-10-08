@@ -343,7 +343,7 @@ if (have_right($config, "computers_is_admin")) {
                                  * if(in_array('se3_dhcp',$tables)){
                                  * $dhcp_ok = 1;
                                  * }
-                                 * if ($dhcp_ok==1) {
+                                 * if ($config["dhcp_ok==1"]) {
                                  */
                                 if ($dhcp == "1") {
                                     echo "Suppression du dhcp";

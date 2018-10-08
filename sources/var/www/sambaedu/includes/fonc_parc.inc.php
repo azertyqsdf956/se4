@@ -23,12 +23,9 @@
  *
  */
 require_once ("lang.inc.php");
-bindtextdomain('se3-parcs', "/var/www/se3/locale");
+bindtextdomain('se3-parcs', "/var/www/sambaedu/locale");
 textdomain('se3-parcs');
 
-// *****************connexion bdd*******************
-$authlink = @($GLOBALS["___mysqli_ston"] = mysqli_connect(localhost, $config['dbuser'], $config['dbpass']));
-@((bool) mysqli_query($GLOBALS["___mysqli_ston"], "USE sambaedu")) or die("Impossible de se connecter &#224; la base sambaedu.");
 
 /**
  *

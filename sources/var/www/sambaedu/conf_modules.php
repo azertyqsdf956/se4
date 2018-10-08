@@ -94,7 +94,7 @@ if ($_GET['action'] == "change") {
 			if($_GET['valeur']=="1") { //si on veut l'activer
 				$STOP_START="start";
 				$dhcp_actif = exec("dpkg -s se3-dhcp | grep \"Status: install ok\" > /dev/null && echo 1");
-				if($dhcp_actif!="1") { //paquet pas installe on l'installe
+				if($config["dhcp_actif!="1""]) { //paquet pas installe on l'installe
 					system("/usr/bin/sudo -H /usr/share/se3/scripts/install_se3-module.sh -i se3-dhcp");
 				} else { //sinon on l'active
 					$update_query = "UPDATE params SET value='".$_GET['valeur']."' where name='dhcp_on_boot'";
@@ -686,8 +686,8 @@ if ("$dhcp_version_install" == "$dhcp_version_dispo") {
 }
 
 echo "<TD align=\"center\">";
-if (($dhcp!="1") || ($dhcp_actif!="1")) {
-	if($dhcp_actif!="1") {
+if (($dhcp!="1") || ($config["dhcp_actif!="1")"]) {
+	if($config["dhcp_actif!="1""]) {
 		$dhcp_message=gettext("<b>Attention :</b> le paquet se3-dhcp n\'est pas install&#233; sur ce serveur. Cliquer sur la croix rouge pour l\'installer");
 		$dhcp_install_alert="onClick=\"alert('Installation du packet se3-dhcp. Cela peut prendre un peu de temps. Vous devez avoir une connexion internet active')\"";
 	} else {

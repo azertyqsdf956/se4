@@ -175,7 +175,7 @@ function start_poste($action, $name)
             }
             elseif ($dhcp == 1 ) {
                 require_once ("dhcp/dhcpd.inc.php");
-                $reseau=get_vlan($ip);
+                $reseau=get_vlan($config, $ip);
                 echo "Mise en marche de la machine  <b>$name</b> : ";
                 system ( "/usr/bin/wakeonlan -i ".long2ip($reseau['broadcast'])." ".$mac );
                 echo "<br>";
