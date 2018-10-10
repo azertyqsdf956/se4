@@ -1338,10 +1338,10 @@ function get_free_ip($config, $ip)
     $begin_range = floatval(sprintf("%u", $reseau['begin_range']));
     $end_range = floatval(sprintf("%u", $reseau['end_range']));
 
-    if ((reservation($ip)) or ($ip == long2ip($reseau['gateway'])) or ($calcul_ip < $ipmin) or (($calcul_ip >= $begin_range) and ($calcul_ip <= $end_range))) {
+    if ((reservation($config, $ip)) or ($ip == long2ip($reseau['gateway'])) or ($calcul_ip < $ipmin) or (($calcul_ip >= $begin_range) and ($calcul_ip <= $end_range))) {
         $calcul_free = $reseau['ipmin'];
         while (floatval(sprintf("%u", $calcul_free)) <= $ipmax) {
-            if ((fping(long2ip($calcul_free)) == 1) or (reservation(long2ip($calcul_free)) or ($calcul_free == $reseau['gateway']))) {
+            if ((fping(long2ip($calcul_free)) == 1) or (reservation($config, long2ip($calcul_free)) or ($calcul_free == $reseau['gateway']))) {
                 $calcul_free ++;
             } elseif ($calcul_free == $reseau['begin_range']) {
                 $calcul_free = $reseau['end_range'] + 1;
@@ -1366,7 +1366,7 @@ function get_free_ip($config, $ip)
  * @return adresse ip libre
  *        
  */
-function get_free_ip2($ip)
+function get_free_ip2($config, $ip)
 {
     $reseau = get_vlan($config, $ip);
     $calcul_ip = floatval(sprintf("%u", ip2long($ip)));
@@ -1376,10 +1376,10 @@ function get_free_ip2($ip)
     $begin_range = floatval(sprintf("%u", $reseau['begin_range']));
     $end_range = floatval(sprintf("%u", $reseau['end_range']));
 
-    if ((reservation($ip)) or ($ip == long2ip($reseau['gateway'])) or (($calcul_ip >= $begin_range) and ($calcul_ip <= $end_range))) {
+    if ((reservation($config, $ip)) or ($ip == long2ip($reseau['gateway'])) or (($calcul_ip >= $begin_range) and ($calcul_ip <= $end_range))) {
         $calcul_free = $reseau['ipmin'];
         while (floatval(sprintf("%u", $calcul_free)) <= $ipmax) {
-            if ((fping(long2ip($calcul_free)) == 1) or (reservation(long2ip($calcul_free)) or ($calcul_free == $reseau['gateway']))) {
+            if ((fping(long2ip($calcul_free)) == 1) or (reservation($config, long2ip($calcul_free)) or ($calcul_free == $reseau['gateway']))) {
                 $calcul_free ++;
             } elseif ($calcul_free == $reseau['begin_range']) {
                 $calcul_free = $reseau['end_range'] + 1;
@@ -1407,9 +1407,9 @@ function get_free_ip2($ip)
 function get_vlan($config, $ip)
 {
     if ($config["dhcp_vlan"] == 0) {
-        return get_network();
+        return get_network($config);
     } else {
-        $reseau = get_network();
+        $reseau = get_network($config);
         $calcul_inetaddr = ip2long($ip);
         foreach ($reseau as $key => $value) {
             if ($calcul_inetaddr == ($calcul_inetaddr & $value['broadcast'])) {

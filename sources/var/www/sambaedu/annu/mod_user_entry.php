@@ -27,7 +27,7 @@ require_once 'ldap.inc.php';
 require "ihm.inc.php";
 require "jlcipher.inc.php";
 
-require "siecle.inc.php";
+require_once "siecle.inc.php";
 
 // HTMLPurifier
 require_once ("traitement_data.inc.php");
@@ -59,14 +59,13 @@ if (! isset($cn)) {
 }
 
 // debug_var();
-
+$corriger_givenname_si_diff = "Y";
 $user_entry = isset($_POST['user_entry']) ? $_POST['user_entry'] : '';
 $nom = isset($_POST['nom']) ? $_POST['nom'] : '';
 $prenom = isset($_POST['prenom']) ? $_POST['prenom'] : '';
 $description = isset($_POST['description']) ? $_POST['description'] : '';
 $userpwd = isset($_POST['userpwd']) ? $_POST['userpwd'] : '';
 $mail = isset($_POST['mail']) ? $_POST['mail'] : '';
-$password = isset($_POST['password']) ? $_POST['password'] : '';
 $string_auth = isset($_POST['string_auth']) ? $_POST['string_auth'] : '';
 
 $naissance = isset($_POST['naissance']) ? $_POST['naissance'] : '';
@@ -99,7 +98,7 @@ if (have_right($config, "se3 is_admin") or ((is_my_eleve($config, $login, $cn)) 
         $info_employeeNumber .= "Un ou des caract&#232;res non valides ont &#233;t&#233; saisis dans le num&#233;ro '<b>$employeeNumber0</b>'";
     }
 
-    if (! isset($user_entry) || ! verifTel($telephone) || ! verifEntree($nom) || ! verifEntree($prenom) || ! verifDescription($description) || ($userpwd && ! verifPwd($userpwd)) || (($naissance != '') && (! verifDateNaissance($naissance))) || ($info_employeeNumber != "")) {
+    if (! isset($user_entry)  || ! verifEntree($nom) || ! verifEntree($prenom) || ! verifDescription($description) || ($userpwd && ! verifPwd($userpwd)) || (($naissance != '') && (! verifDateNaissance($naissance))) || ($info_employeeNumber != "")) {
         // Quand la migration givenName<-Prenom et seeAlso<-pseudo sera effectuee, on pourra modifier ci-dessous:
         // $user[0]["prenom"]=getprenom($user[0]["fullname"],$user[0]["nom"]);
         ?>
@@ -135,6 +134,7 @@ if (have_right($config, "se3 is_admin") or ((is_my_eleve($config, $login, $cn)) 
             if (isset($user["employeenumber"])) {
                 $employeeNumber = $user["employeenumber"];
             }
+            $user['sexe'] = $user['sexe'] ?? "M";
             ?>
 
 			<tr>
@@ -222,7 +222,7 @@ if (have_right($config, "se3 is_admin") or ((is_my_eleve($config, $login, $cn)) 
             $entry["givenname"] = ucfirst(strtolower(strtr(preg_replace("/Æ/", "AE", preg_replace("/æ/", "ae", preg_replace("/¼/", "OE", preg_replace("/½/", "oe", "$prenom")))), "'ÂÄÀÁÃÄÅÇÊËÈÉÎÏÌÍÑÔÖÒÓÕ¦ÛÜÙÚÝ¾´áàâäãåçéèêëîïìíñôöðòóõ¨ûüùúýÿ¸", "_AAAAAAACEEEEIIIINOOOOOSUUUUYYZaaaaaaceeeeiiiinoooooosuuuuyyz")));
         }
 
-        if ($isadmin == "Y") {
+        if ($isadmin) {
             if ($mail != "")
                 $entry["mail"] = $mail;
             if ($description && verifDescription($description))

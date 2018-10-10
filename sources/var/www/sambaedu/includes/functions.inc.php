@@ -65,7 +65,7 @@ function open_session($config, $login, $passwd, $al)
 
     // Initialisation
     $auth_ldap = 0;
-
+    session_destroy();
     if (($al != 1) && ($config['autologon'] == "1")) {
         $logintstsecu = exec("sudo smbstatus -p | grep \"" . $_SERVER['REMOTE_ADDR'] . "\" | grep -v root | grep -v nobody | grep -v adminse3  | grep -v unattend | wc -l");
         if ("$logintstsecu" == "1") {

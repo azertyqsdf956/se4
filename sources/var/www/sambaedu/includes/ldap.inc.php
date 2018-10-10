@@ -7,7 +7,7 @@
 
  * @Auteurs Equipe Sambaedu
 
-* @Version $Id: ldap.inc.php  05-10-2018 mrfi $
+ * @Version $Id: ldap.inc.php  05-10-2018 mrfi $
 
  * @Note: Ce fichier de fonction doit etre appele par un include
 
@@ -55,7 +55,7 @@ function cmp_nom($a, $b)
      * @Parametres $a - La premiere entree 	$b - La deuxieme entree a comparer
      *
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *
+     *        
      */
     return strcmp($a["nom"], $b["nom"]);
 }
@@ -70,7 +70,7 @@ function cmp_cn($a, $b)
      * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
      *
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *
+     *        
      */
     return strcmp($a["cn"], $b["cn"]);
 }
@@ -84,7 +84,7 @@ function cmp_group($a, $b)
      *
      * @Parametres  $a - La premiere entree 	$b - La deuxieme entree a comparer
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *
+     *        
      */
     return strcmp($a["group"], $b["group"]);
 }
@@ -98,7 +98,7 @@ function cmp_cat($a, $b)
      *
      * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *
+     *        
      */
     return strcmp($a["cat"], $b["cat"]);
 }
@@ -188,6 +188,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
 
     // Initialisation
     $info = array();
+    // correspondance des attributs:  ldapAD => php
     $map = array(
         "sn" => "nom",
         "displayname" => "fullname",
@@ -606,7 +607,7 @@ function filter_user($config, $filter)
      *
      * @Parametres $filter - Un filtre de recherche permettant l'extraction de l'annuaire des utilisateurs
      * @return Un tableau contenant les utilisateurs repondant au filtre de recherche ($filter)
-     *
+     *        
      */
     $ret = search_ad($config, $filter, "filter");
 
@@ -647,7 +648,7 @@ function search_user($config, $cn)
      *
      * @return Un tableau contenant les informations sur l'utilisateur (cn)
      *         les groupes sont dans le tableau $res['memberof']
-     *
+     *        
      */
     $ret = search_ad($config, $cn, "user");
     if (count($ret) > 0) {
@@ -680,7 +681,7 @@ function search_machine($config, $cn, $ip = false)
      *
      * @return Un tableau contenant les informations sur la machine (cn ou dn ou dsiplayname)
      *         les dn groupes sont dans le tableau $res['memberof']
-     *
+     *        
      */
     $ret = search_ad($config, $cn, "machine");
     if (count($ret) > 0) {
@@ -710,10 +711,10 @@ function create_machine($config, $name, $ou, $description = "reservation dhcp un
             "computer"
         );
         $info["samaccountname"] = $name . "$";
-//        $info["samaccounttype"] = 0x30000001;
+        // $info["samaccounttype"] = 0x30000001;
         $info["description"] = $description;
         $info["useraccountcontrol"] = 0x1000;
-        
+
         // Ajout
         list ($ds, $r, $error) = bind_ad_gssapi($config);
         $ret = ldap_add($ds, "cn=" . $name . "," . $ou . "," . $config['ldap_base_dn'], $info);
@@ -1043,32 +1044,35 @@ function have_delegation($config, $parc, $right)
 function list_delegations($config, $name = "login", $recurse = true)
 {
     if ($name == "login")
-        $name = $config['login'];
-    $user = search_user($config, $name);
-    $cn = $user['cn'];
-
-    if ($recurse) {
-        $ret = list_delegations($config, $name, false);
+        $name = $config['login'] ?? "";
+    if (! empty($name)) {
         $user = search_user($config, $name);
-        foreach ($user['memberof'] as $groupdn) {
-            $ret1 = list_delegations($config, $groupdn, false);
-            $ret = array_merge($ret1, $ret);
-            return $ret;
-        }
-    } else {
+        $cn = $user['cn'] ?? "";
+        if (! empty($cn)) {
+            if ($recurse) {
+                $ret = list_delegations($config, $name, false);
+                $user = search_user($config, $name);
+                foreach ($user['memberof'] as $groupdn) {
+                    $ret1 = list_delegations($config, $groupdn, false);
+                    $ret = array_merge($ret1, $ret);
+                    return $ret;
+                }
+            } else {
 
-        $res = search_ad($config, $name, "delegation");
-        if ($res) {
-            foreach ($res as $key => $group) {
-                $delegation = explode('_', $group['cn'], 2);
-                $parc[$key]['user'] = $cn;
-                $parc[$key]['cn'] = $delegation[1];
-                $parc[$key]['level'] = $delegation[0];
+                $res = search_ad($config, $name, "delegation");
+                if ($res) {
+                    foreach ($res as $key => $group) {
+                        $delegation = explode('_', $group['cn'], 2);
+                        $parc[$key]['user'] = $cn;
+                        $parc[$key]['cn'] = $delegation[1];
+                        $parc[$key]['level'] = $delegation[0];
+                    }
+                    return $parc;
+                }
             }
-            return $parc;
         }
-        return array();
     }
+    return array();
 }
 
 /*
@@ -1175,10 +1179,9 @@ function delete_dhcp_reservation($config, $machine)
     $reservation = get_dhcp_reservation($config, $machine);
     $del['iphostnumber'] = $reservation['iphostnumber'];
     $del['networkaddress'] = $reservation['networkaddress'];
-    
-    return modify_ad($config, $machine, "machine", $del , "delete");
-}
 
+    return modify_ad($config, $machine, "machine", $del, "delete");
+}
 
 /*
  * Importe le fichier des reservations /etc/sambaedu/reservations.inc vers l'AD
@@ -1293,7 +1296,6 @@ function get_dhcp_lease($config, $name)
             return $data;
     }
 }
-
 
 // ----------- gestion des classes------------------------------
 function is_eleve($config, $name)
@@ -1528,9 +1530,9 @@ function create_group(array $config, string $name, string $description, string $
         $classe = ucfirst($name);
         $ou = $config[$type . "s_rdn"] . "," . $config['groups_rdn'];
         // On crée l'OU si elle n'existe pas
-        $ouName= explode("=",$config[$type . "s_rdn"]);
-        if (! ouexist($config, $ouName[1],$config['dn']['groups'])) {
-            $res1 = ouadd($config,$ouName[1], $config['dn']['groups']);
+        $ouName = explode("=", $config[$type . "s_rdn"]);
+        if (! ouexist($config, $ouName[1], $config['dn']['groups'])) {
+            $res1 = ouadd($config, $ouName[1], $config['dn']['groups']);
         }
         $res = groupadd($config, $classe, $ou, $description);
     } else {

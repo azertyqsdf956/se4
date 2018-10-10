@@ -64,6 +64,7 @@ function get_config_se4($module = "sambaedu")
         $config['dn']['groups'] = $config['groups_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['rights'] = $config['rights_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['equipements'] = $config['equipements_rdn'] . "," . $config['ldap_base_dn'];
+        $config['dn']['delegations'] = $config['delegations_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['trash'] = $config['trash_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['parcs'] = $config['parcs_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['computers'] = $config['computers_rdn'] . "," . $config['ldap_base_dn'];

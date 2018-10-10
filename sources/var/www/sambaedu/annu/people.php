@@ -165,7 +165,7 @@ if (have_right($config, "Annu_is_admin")) {
 <li><a href="del_nt_profile.php?cn=<?php echo $user["cn"] ?>&action=del"
 	onclick="return getconfirm();"><?php echo gettext("Reg&#233;n&#233;rer le profil errant Windows"); ?></a><br>
 		<?php
-
+/*
     exec("/usr/share/se3/sbin/getUserProfileInfo.pl $user[cn]", $AllOutPut, $ReturnValue);
 
     if ($AllOutPut[0] == "lock") {
@@ -175,6 +175,7 @@ if (have_right($config, "Annu_is_admin")) {
         echo "
 		<li><a href=\"del_nt_profile.php?cn=" . $user["cn"] . "&action=lock\">" . gettext("Verrouiller le profil Windows...") . "</a><br>\n";
     }
+*/    
     ?>
 
 		
@@ -268,7 +269,8 @@ echo "</td><td align=\"left\" valign=\"top\">";
 for ($j = 0; $j < count($tab_type); $j ++) {
     $photo = "/var/se3/Docs/trombine/" . $user["cn"] . "." . $tab_type[$j];
     // Supprime le 0 devant s'il existe
-    $employeeNumber_gepi = preg_replace('/^[0]/', '', $user["title"]);
+    $employeenumber = $user['employeenumber'] ?? "";
+    $employeeNumber_gepi = preg_replace('/^[0]/', '', $employeenumber);
     if (! isset($rep_trombine)) {
         $rep_trombine = "";
     } // A quoi sert le $rep_trombine ; Il a l'air de n'etre jamais initialise

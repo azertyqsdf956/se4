@@ -68,7 +68,7 @@ usort($listing, "trieleve");
 
 	foreach ($listing as $nkey => $user)
 		{
-			if (!isset($classe_preced)) { $classe_preced = $user['cla']; }
+			if (!isset($classe_preced)) { $classe_preced = $user['cla'] ?? ""; }
 			if ($user['cla']!=$classe_preced) {
 				$classe_preced = $user['cla'];
 				$content .="</page><page backtop='15mm' backbottom='15mm'>";

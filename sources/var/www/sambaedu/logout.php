@@ -29,5 +29,6 @@ require_once("config.inc.php");
 require ("functions.inc.php");
 unset($_SESSION['comptes_crees']) ;
 close_session();
+//session_destroy();
 header("Location:auth.php?al=0");
 ?>

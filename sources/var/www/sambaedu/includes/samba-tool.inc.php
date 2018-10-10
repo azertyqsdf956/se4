@@ -46,9 +46,10 @@ require_once ("siecle.inc.php");
  * useradd() -> creer_cn($nom,$prenom) //modifiée
  * -> verif_employeeNumber($employeeNumber) // modifiée
  */
-function sambatool($config, $command)
+function sambatool($config, $command, &$message)
 {
-    exec("/usr/bin/samba-tool $command -k yes -H ldap://" . $config['se4ad_name'], $RET);
+    $RET = 0;
+    exec("/usr/bin/samba-tool $command -k yes -H ldap://" . $config['se4ad_name'], $message, $RET);
     return $RET;
 }
 
@@ -57,11 +58,14 @@ function userexist($config, $cn)
     /*
      * Return true if user exist false if not exist
      */
+    $message = array();
     $command = "user list";
-    $RES = sambatool($config, $command);
-    $key = array_search($cn, $RES);
-    if ("$key" != "") {
-        return true;
+    $RES = sambatool($config, $command, $message);
+    if ($RES == 0) {
+        if (in_array($cn, $message))
+            return true;
+        else
+            return false;
     } else {
         return false;
     }
@@ -84,27 +88,26 @@ function useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $cate
     $userpwd = escapeshellarg($userpwd);
     $prenom = escapeshellarg(ucfirst($prenom));
     $nom = escapeshellarg(ucfirst($nom));
-    
 
     if (empty($employeeNumber)) {
         // Pas de champ job-title pour employeeNumber dans ce cas
         $command = "user create '$cn' $userpwd --use-username-as-cn --given-name=$prenom --surname=$nom --mail-address='$cn@" . $config['domain'] . "' --physical-delivery-office='$office'";
         if ($categorie != '')
-            $command = $command . " --userou='ou=$categorie,". $config['people_rdn']."'";
+            $command = $command . " --userou='ou=$categorie," . $config['people_rdn'] . "'";
     } else {
         $command = "user create '$cn' $userpwd --use-username-as-cn --given-name=$prenom --surname=$nom --mail-address='$cn@" . $config['domain'] . "' --job-title='$employeeNumber' --physical-delivery-office='$office'";
         if ($categorie != '')
-            $command = $command . " --userou='ou=$categorie,". $config['people_rdn']."'";
+            $command = $command . " --userou='ou=$categorie," . $config['people_rdn'] . "'";
     }
-
-    $RES = sambatool($config, $command);
-    // A revoir !
-    if (count($RES) == 1) {
-        $newcn = explode("'", $RES[0]);
+    $message = array();
+    $RES = sambatool($config, $command, $message);
+    if ($RES == 0) {
+        $newcn = explode("'", $message[0]);
         // Ajout a un groupe principal
-        groupaddmember($config, $newcn[1], $categorie);
-        return $newcn[1];
-    }
+        $RES = groupaddmember($config, $newcn[1], $categorie);
+        return true;
+    } else 
+        return false;
 }
 
 function userdel($config, $cn)
@@ -113,9 +116,13 @@ function userdel($config, $cn)
      * Return true if userdel succes false if userdel fail
      */
     if (userexist($config, $cn)) {
+        $message = array();
         $command = "user delete " . escapeshellarg($cn);
-        $RES = sambatool($config, $command);
-        return true;
+        $RES = sambatool($config, $command, $message);
+        if ($RES == 0)
+            return true;
+        else
+            return false;
     } else
         return false;
 }
@@ -126,12 +133,15 @@ function usersetpassword($config, $cn, $password, $change = false)
      * Return true if password succes false if userdel fail
      */
     if (userexist($config, $cn)) {
+        $message = array();
         $command = "user setpassword " . escapeshellarg($cn) . " --newpassword=" . escapeshellarg($password);
         if ($change)
             $command .= " --must-change-at-next-login";
-        $RES = sambatool($config, $command);
-        if (preg_match("/OK/", $RES))
+        $RES = sambatool($config, $command, $message);
+        if ($RES == 0)
             return true;
+        else
+            return false;
     } else
         return false;
 }
@@ -139,7 +149,6 @@ function usersetpassword($config, $cn, $password, $change = false)
 /*
  * Gestion des OU
  */
-
 function ouexist($config, $ou, $ouparent)
 {
 
@@ -153,7 +162,7 @@ function ouexist($config, $ou, $ouparent)
     list ($ds, $r, $error) = bind_ad_gssapi($config);
 
     if ($r) {
-        $ret = ldap_search($ds, "OU=$ouparent," . $config['ldap_base_dn'] , "(ou=$ou)", $contenu);
+        $ret = ldap_search($ds, "OU=$ouparent," . $config['ldap_base_dn'], "(ou=$ou)", $contenu);
         $info = ldap_get_entries($ds, $ret);
         if ($info["count"] > 0) {
             return true;
@@ -182,7 +191,7 @@ function ouadd($config, $ou, $ouparent)
         $info["objectclass"] = "organizationalUnit";
         // Ajout
         list ($ds, $r, $error) = bind_ad_gssapi($config);
-        #echo "DBG >> OU=$ouparent," . $config['ldap_base_dn'];
+        // echo "DBG >> OU=$ouparent," . $config['ldap_base_dn'];
         $r = ldap_add($ds, "OU=$ou,OU=$ouparent," . $config['ldap_base_dn'], $info);
         ldap_close($ds);
         if (ouexist($config, $ou, $ouparent)) {
@@ -196,7 +205,7 @@ function ouadd($config, $ou, $ouparent)
     }
 }
 
-function oudel($config, $ou, $dn_parent)
+function oudel($config, $ou, $ouparent)
 {
     /*
      * Return true if OU is remove false in other cases
@@ -204,7 +213,7 @@ function oudel($config, $ou, $dn_parent)
     if (ouexist($config, $ou, $ouparent)) {
         list ($ds, $r, $error) = bind_ad_gssapi();
         // Verifier si le OU est vide !
-        if (!ouexist ($config, $ou, $ouparent)) {
+        if (! ouexist($config, $ou, $ouparent)) {
             // On efface le OU
             $r = ldap_delete($ds, "OU=$ou,OU=$ouparent," . $config['ldap_base_dn']);
             ldap_close($ds);
@@ -243,10 +252,14 @@ function grouplistmembers($config, $cn)
     /*
      * Return array of member's cn
      */
+    $message = array();
     $command = "group listmembers '$cn'";
-    $res = sambatool($config, $command);
+    $res = sambatool($config, $command, $message);
 
-    return $res;
+    if ($res == 0)
+        return $message;
+    else
+        return false;
 }
 
 function groupexist($config, $cn)
@@ -255,13 +268,16 @@ function groupexist($config, $cn)
     /*
      * Return true if cn group exist
      */
+    $message = array();
     $command = "group list ";
-    $RES = sambatool($config, $command);
-
-    $key = array_search($cn, $RES);
-    if (! empty($key))
-        return true;
-    else
+    $RES = sambatool($config, $command, $message);
+    if ($RES == 0) {
+        $key = array_search($cn, $message);
+        if (! empty($key))
+            return true;
+        else
+            return false;
+    } else
         return false;
 }
 
@@ -289,11 +305,12 @@ function groupadd($config, $cn, $inou, $description)
         // if ( !ouexist($inou,$dn["groups"]) ) {
         // ouadd ($inou, $dn["groups"]);
         // }
+        $message = array();
         $command = "group add " . escapeshellarg($cn) . " --groupou=" . escapeshellarg($inou) . " --description=" . escapeshellarg($description);
         $RES = sambatool($config, $command);
 
-        if (count($RES) == 1) {
-            $group = explode(" ", $RES[0]);
+        if ($RES == 0) {
+            $group = explode(" ", $message[0]);
             if ($group[2] == $cn) {
                 return true;
             } else {
@@ -322,11 +339,12 @@ function groupdel($config, $cn)
     /*
      * Return true if group is delete false in other cases
      */
+    $message = array();
     $command = "group delete " . escapeshellarg($cn);
-    $RES = sambatool($config, $command);
+    $RES = sambatool($config, $command, $message);
 
-    if (count($RES) == 1) {
-        $group = explode(" ", $RES[0]);
+    if ($RES == 0) {
+        $group = explode(" ", $message[0]);
         if ($group[2] == $cn) {
             return true;
         } else {
@@ -347,16 +365,12 @@ function groupaddmember($config, $cn, $ingroup)
     // le cn et le groupe exist ?
     if (userexist($config, $cn) && groupexist($config, $ingroup)) {
         // Ajout du cn in group
+        $message = array();
         $command = "group addmembers " . escapeshellarg($ingroup) . " " . escapeshellarg($cn);
-        $RES = sambatool($config, $command);
+        $RES = sambatool($config, $command, $message);
 
-        if (count($RES) == 1) {
-            $ERROR = explode(":", $RES[0]);
-            if ($ERROR[0] == "ERROR(exception)") {
-                return false;
-            } else {
-                return true;
-            }
+        if ($RES == 0) {
+            return true;
         } else {
             return false;
         }
@@ -378,16 +392,12 @@ function groupdelmember($config, $cn, $ingroup)
     // le cn et le groupe exist ?
     if (userexist($config, $cn) && groupexist($config, $ingroup)) {
         // Remove du cn in group
+        $message = array();
         $command = "group removemembers " . escapeshellarg($ingroup) . " " . escapeshellarg($cn);
-        $RES = sambatool($config, $command);
+        $RES = sambatool($config, $command, $message);
 
-        if (count($RES) == 1) {
-            $ERROR = explode(":", $RES[0]);
-            if ($ERROR[0] == "ERROR(exception)") {
-                return false;
-            } else {
-                return true;
-            }
+        if ($RES == 0) {
+            return true;
         } else {
             return false;
         }

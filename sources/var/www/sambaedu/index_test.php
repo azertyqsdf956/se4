@@ -172,10 +172,16 @@ $config['login'] = "admin";
 header("Content-type: text/plain");
 echo $res;
 */
-$res = create_machine($config, "w10-samedi", $config['computers_rdn'], "test");
+/*
+  
+ $res = create_machine($config, "w10-samedi", $config['computers_rdn'], "test");
 
 $res = search_machine($config, "c2:19:88:2c:10:44", true);
+*/
 
+//$res = usersetpassword($config, "eleve3.test", "azerty0", true);
+$res = user_valid_passwd($config, "eleve3.test", "azerty0");
+$classes = list_classes($config, "eleve3.test");
 var_dump($res);
 
 ?>

@@ -54,7 +54,10 @@ if ((have_right($config, "annu_can_read")) || (have_right($config, "Annu_is_admi
     if (count($info > 0)) {
         $prenom = $info["prenom"];
         $nom = $info["nom"];
-        $date_naiss = $info["naissance"];
+        $date_naiss = $info["naissance"] ?? "";
+        $classes = list_classes($config, $info['cn']);
+        $classe = $classes[0] ?? "";
+        
 
         echo "<a href='people.php?cn=" . $cn_init . "' title=\"Retour à la fiche de l'utilisateur" . $nom . " " . $prenom . "\">" . $nom . " " . $prenom . "</a>: ";
 
@@ -90,7 +93,8 @@ if ((have_right($config, "annu_can_read")) || (have_right($config, "Annu_is_admi
                 'nom' => "$nom",
                 'pre' => "$prenom",
                 'cn' => "$cn_init",
-                'pwd' => "$userpwd"
+                'pwd' => "$userpwd",
+                'cla' => "$classe"
             );
             $_SESSION['comptes_crees'][] = $nouveau;
         }
