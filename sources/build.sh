@@ -22,5 +22,5 @@ dch -U -i ""
 debuild -us -uc -b
 scp -P 2222 $debs root@wawadeb.crdp.ac-caen.fr:/root/se4
 ssh -p 2222 root@wawadeb.crdp.ac-caen.fr "se4/se4.sh $version"
-ssh root@admin.sambaedu3.maison "apt-get update && apt-get -y upgrade $deb"
+#ssh root@admin.sambaedu3.maison "apt-get update && apt-get -y upgrade $deb"
 cd

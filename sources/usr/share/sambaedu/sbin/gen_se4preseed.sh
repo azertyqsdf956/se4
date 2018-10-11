@@ -4,7 +4,7 @@
 # franck molle
 # version 03 - 2018 
 
-
+# @TODO mettre a jour pour install directe depuis un se4 ? 
 
 function usage() 
 {
