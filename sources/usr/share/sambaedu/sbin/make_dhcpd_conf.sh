@@ -28,8 +28,8 @@ echo "option client-arch code 93 = unsigned integer 16;">>$conf
 if  [ -n "$config_wpad" ]; then
     echo "option wpad-url \"$config_wpad\";">>$conf
 fi
+    echo "option domain-name-servers $config_dhcp_dns_server_prim;">>$conf
 if [ -n "$config_se4ad_ip" ]; then
-    echo "option domain-name-servers $config_se4ad_ip;">>$conf
     echo "option netbios-name-servers $config_se4ad_ip;">>$conf
 fi
 # boot ipxe
@@ -42,7 +42,9 @@ echo "if exists client-arch {
          if exists user-class and option user-class = \"sambaedu\" {
              filename \"${config_ipxe_url}${config_ipxe_script}\"; 
          } else {
-             filename \"${config_ipxe_url}undionly.kpxe\";
+#            filename \"${config_ipxe_url}undionly.kpxe\";
+#			 premier boot en tftp !
+		     filename \"undionly.kpxe\";			
          }
      } elsif option client-arch = 00:06 {
        filename \"bin-i386/ipxe.efi\";

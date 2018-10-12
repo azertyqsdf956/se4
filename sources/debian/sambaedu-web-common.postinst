@@ -59,9 +59,9 @@ case "$1" in
 		
         # virtualhost admin.domaine
         chown -R www-admin /var/www/sambaedu
-        cp -a /usr/share/doc/sambaedu/web.conf.example /etc/apache2/sites-available/sambaedu.conf
-        write_param /etc/apache2/sites-available/sambaedu.conf config_domain
-        a2ensite sambaedu.conf
+#        cp -a /usr/share/doc/sambaedu/web.conf.example /etc/apache2/sites-available/sambaedu.conf
+#        write_param /etc/apache2/sites-available/sambaedu.conf config_domain
+#        a2ensite sambaedu.conf
         a2enmod proxy_fcgi setenvif
         cp -a /usr/share/doc/sambaedu/fpm.conf /etc/php/7.0/fpm/pool.d/sambaedu.conf
 

@@ -17,7 +17,7 @@ Description: scripts et fichiers de configuration Sambaedu.
 Package: sambaedu-boot-server
 Architecture: all
 Pre-Depends: sambaedu-config
-Depends:  ${misc:Depends}, tftp, ipxe, isc-dhcp-server, apache2
+Depends:  ${misc:Depends}, atftpd, isc-dhcp-server, apache2
 Description: configuration minimale dhcp et tftp permettant la configuration sambaedu et le boot ipxe.
  Assistance a l'installation d'un serveur de fichiers Samba. Le kit samba-edu est un ensemble de scripts et de fichiers de configuration permettant de fournir aux etablissements scolaires une configuration "cle en main" d'un serveur Samba Active Directory DC.
 

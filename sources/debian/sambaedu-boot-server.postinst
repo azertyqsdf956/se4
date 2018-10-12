@@ -36,6 +36,7 @@ case "$1" in
 #        if [ -z "$my_domain" ]; then
 #        echo "$my_ip $my_hostname ${my_hostname}.${RET}">> /etc/hosts
         set_config sambaedu se4fs_ip $my_address
+        set_config sambaedu se4fs_name $my_hostname
         # conf dhcpd
         get_config
         my_network
@@ -56,17 +57,33 @@ case "$1" in
         set_config dhcp ipxe_url "http://$my_address/ipxe/"
         /usr/share/sambaedu/sbin/make_dhcpd_conf.sh
 
+		# conf atftpd lançé par inetd
+		sed -i "s|/srv/tftp|/var/lib/tftpboot|" /etc/inetd.conf
+#		sed -i "s|/srv/tftp|/var/lib/tftpboot|" /etc/default/atftpd
+		systemctl restart inetd.service
+
         # conf apache
-        if [ ! -e /etc/apache2/sites.available/ipxe.conf ]; then
-            cp -a /usr/share/doc/sambaedu/ipxe.conf.example /etc/apache2/sites-available/ipxe.conf
+#        if [ ! -e /etc/apache2/sites.available/ipxe.conf ]; then
+#            cp -a /usr/share/doc/sambaedu/ipxe.conf.example /etc/apache2/sites-available/ipxe.conf
+#        fi        
+#        write_param /etc/apache2/sites-available/ipxe.conf config_se4ad_ip
+#        write_param /etc/apache2/sites-available/ipxe.conf config_se4fs_ip      
+#        a2ensite ipxe.conf
+#        apachectl restart
+        if [ ! -e /etc/apache2/sites.available/sambaedu.conf ]; then
+            cp -a /usr/share/doc/sambaedu/web.conf.example /etc/apache2/sites-available/sambaedu.conf
         fi        
-        write_param /etc/apache2/sites-available/ipxe.conf config_se4ad_ip
-        write_param /etc/apache2/sites-available/ipxe.conf config_se4fs_ip      
-        a2ensite ipxe.conf
+        write_param /etc/apache2/sites-available/sambaedu.conf config_se4ad_ip
+        write_param /etc/apache2/sites-available/sambaedu.conf config_se4fs_ip
+        write_param /etc/apache2/sites-available/sambaedu.conf config_domain 
+        write_param /etc/apache2/sites-available/sambaedu.conf config_se4fs_name     
+        a2ensite sambaedu.conf || true
+        a2dissite 000-default.conf || true
         apachectl restart
 
-        #conf statique ipxe, remplacé ensuite lors de l'installation du paquet ipxe
-        write_param /var/www/boot/boot.ipxe config_ipxe_url
+
+        #conf statique ipxe, remplacé ensuite lors de l'installation du paquet sambaedu-ipxe
+        write_param /var/www/sambaedu/ipxe/boot.ipxe config_ipxe_url
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

@@ -1,9 +1,9 @@
 #!ipxe
-console --x 1024 --y 768 --picture ipxe-se3.png
+console --x 1024 --y 768 --picture png/ipxe-se4.png
 :menu
 menu Preboot eXecution Environment
 set menu-default exit
-set menu-timeout 1000
+set menu-timeout 10000
 item --gap -- ---------------------------------------------------Menu----------------------------------------------------
 item --key 1 Se4AD  (1) Installation du serveur Active Directory Sambaedu
 item --key 2 Se4FS  (2) Installation du serveur de fichiers Sambaedu
@@ -14,14 +14,14 @@ choose --default ${menu-default} --timeout ${menu-timeout} selected && goto ${se
 
 
 :Se4AD
-kernel http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux
+kernel http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux initrd=initrd.gz initrd=preseed.cfg 
 initrd http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/initrd.gz
-initrd ###_IPXE_URL_###se4ad.preseed preseed.cfg
+initrd ###_IPXE_URL_###diconf/se4ad.preseed preseed.cfg
 boot
 :Se4FS
-kernel http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux
+kernel http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux initrd=initrd.gz initrd=preseed.cfg 
 initrd http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/initrd.gz
-initrd ###_IPXE_URL_###se4fs.preseed preseed.cfg
+initrd ###_IPXE_URL_###diconf/se4fs.preseed preseed.cfg
 boot
 :Debian
 kernel http://ftp.debian.org/debian/dists/stretch/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux

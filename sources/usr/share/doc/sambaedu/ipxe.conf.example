@@ -1,8 +1,8 @@
 <VirtualHost *:80>
 
-	DocumentRoot /var/www/boot
-    Alias /diconf/ /var/www/boot/diconf/	
-    <Directory /var/www/boot>
+	DocumentRoot /var/www/sambaedu/ipxe/
+    Alias /diconf/ /var/www/sambaedu/ipxe/diconf/	
+    <Directory /var/www/sambaedu/ipxe>
 		Options Indexes FollowSymLinks MultiViews
 		AllowOverride None
 		Order allow,deny

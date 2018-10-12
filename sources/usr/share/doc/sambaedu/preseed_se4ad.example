@@ -7,7 +7,7 @@
 #
 
 # Ligne d'amorçage possible (exemple)
-# APPEND  auto=true locale=fr_FR keymap=fr(latin9) hostname=poste domain=###_DOMAINE_### url=http://###_IP_SE3_###/install/preseed_debian_###_DEBIAN_###_base.cfg initrd=debian-installer/amd64/initrd.gz --
+# APPEND  auto=true locale=fr_FR keymap=fr(latin9) hostname=poste domain=###_DOMAINE_### url=http://###_SE4FS_IP_###/install/preseed_debian_###_DEBIAN_###_base.cfg initrd=debian-installer/amd64/initrd.gz --
 #
 #
 # 11 sections
@@ -48,7 +48,7 @@ d-i keyboard-configuration/xkb-keymap select fr(latin9)
 
 ### 2. Configuration du réseau avec le serveur DHCP du SE3
 # dans la ligne APPEND de l'amorçage, on spécifiera les paramètres
-# netcfg/get_hostname=poste netcfg/get_domain=###_DOMAINE_###
+# netcfg/get_hostname=poste netcfg/get_domain=###_DOMAIN_###
 #############
 # choix automatique de l'interface
 # en général, l'installateur prend une interface connectée
@@ -66,8 +66,8 @@ d-i netcfg/dhcp_options select Configure network manually
 #
 # exemple pour IPv4
 d-i netcfg/get_ipaddress string ###_SE4AD_IP_###
-d-i netcfg/get_netmask string ###_SE4MASK_###
-d-i netcfg/get_gateway string ###_SE4GW_###
+d-i netcfg/get_netmask string ###_SE4_MASK_###
+d-i netcfg/get_gateway string ###_SE4_GW_###
 d-i netcfg/get_nameservers string ###_NAMESERVER_###
 d-i netcfg/confirm_static boolean true
 
@@ -77,11 +77,11 @@ d-i netcfg/confirm_static boolean true
 
 # nom de l'ordinateur
 # question déjà posée lors de l'amorçage
-d-i netcfg/get_hostname string ###_SE4NAME_###
+d-i netcfg/get_hostname string ###_SE4AD_NAME_###
 
 # nom du domaine
 # question déjà posée lors de l'amorçage
-d-i netcfg/get_domain string ###_AD_DOMAIN_###
+d-i netcfg/get_domain string ###_DOMAIN_###
 
 # Si pour le réseau ou pour un autre matériel vous avez besoin d'un
 # microprogramme (« firmware ») non libre, vous pouvez forcer
@@ -132,14 +132,14 @@ d-i clock-setup/ntp-server string ###_NTP_SERV_###
 # - lvm       partitionnement LVM
 # - crypto    partitionnement LVM dans une partition cryptée
 # 2 lignes à commenter en double-boot, à décommenter en simple-boot
-d-i partman-auto/disk string ###_BOOT_DISK_###
+partman-auto partman-auto/disk string /dev/sda
 d-i partman-auto/method string regular
 
 # Choix d'une des 3 possibilités de partitionnement prédéfinies :
 # - atomic: tout dans une seule partition
 # - home:   partition /home separée
 # - multi:  partitions /home, /usr, /var, and /tmp séparées
-#d-i partman-auto/choose_recipe select atomic
+d-i partman-auto/choose_recipe select atomic
 
 # Fourre tout pour le moment on affinera ensuite :
 # Il faudra commenter "atomic"" et décommenter ce qui suit :
@@ -147,24 +147,24 @@ d-i partman-auto/method string regular
 #
 # une partition /, une /var et un swap
 
-d-i partman-auto/expert_recipe string                         \
-      boot-root ::                                            \
-               5120 10240 20480 ext4                          \
-                      method{ format } format{ }              \
-                      use_filesystem{ } filesystem{ ext4 }    \
-                      mountpoint{ / }                         \
-              .                                               \
-              5120 10240 204800 ext4                          \
-                      method{ format } format{ }              \
-                      use_filesystem{ } filesystem{ ext4 }    \
-                      mountpoint{ /var }                      \
-              .                                               \
-              200% 200% 16000 linux-swap                     \
-                      method{ swap } format{ }                \
-              .
+#d-i partman-auto/expert_recipe string                         \
+#      boot-root ::                                            \
+#               5120 10240 20480 ext4                          \
+#                      method{ format } format{ }              \
+#                      use_filesystem{ } filesystem{ ext4 }    \
+#                      mountpoint{ / }                         \
+#              .                                               \
+#              5120 10240 204800 ext4                          \
+#                      method{ format } format{ }              \
+#                      use_filesystem{ } filesystem{ ext4 }    \
+#                      mountpoint{ /var }                      \
+#              .                                               \
+#              200% 200% 16000 linux-swap                     \
+#                      method{ swap } format{ }                \
+#              .
 
 # choix du format ext4
-# d-i partman/default_filesystem string ext4
+d-i partman/default_filesystem string ext4
 
 # partitionnement automatique sans demander de confirmation
 d-i partman-partitioning/confirm_write_new_label boolean true
@@ -238,20 +238,20 @@ d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
 
 # La position du MBR doit être spécifiée
-d-i grub-installer/bootdev string ###_BOOT_DISK_###
+d-i grub-installer/bootdev string /dev/sda
 #### fin section 9
 
 ### 10. Exécution d'une commande avant la fin de l'installation
 # Cette commande est exécutée juste avant que l'installation ne se termine,
 # quand le répertoire /target est encore utilisable.
 #############
-# Le script nstall_se4ad_phase2.shsera lancé au 1er redémarrage de la machine une fois connecté root
+# Le script install_se4ad_phase2.shsera lancé au 1er redémarrage de la machine une fois connecté root
 
-d-i preseed/late_command string wget http://###_IP_SE3_###/diconf/install_se4ad_phase2.sh; \
-wget http://###_IP_SE3_###/diconf/.profile; \
-wget http://###_IP_SE3_###/diconf/.bashrc; \
-wget http://###_IP_SE3_###/diconf/secret/se4ad.config.tgz; \
-wget http://###_IP_SE3_###/diconf/authorized_keys; \
+d-i preseed/late_command string wget ###_IPXE_URL_###diconf/install_se4ad_phase2.sh; \
+wget ###_IPXE_URL_###diconf/.profile; \
+wget ###_IPXE_URL_###diconf/.bashrc; \
+wget ###_IPXE_URL_###diconf/secret/se4ad.config.tgz; \
+wget ###_IPXE_URL_###diconf/authorized_keys; \
 mkdir -p /target/etc/sambaedu; \
 cp se4ad.config.tgz authorized_keys /target/etc/sambaedu; \
 chmod +x ./install_se4ad_phase2.sh; \

@@ -9,7 +9,6 @@ install:
 	mkdir -p $(DESTDIR)/usr/share/sambaedu/scripts/	
 	mkdir -p $(DESTDIR)/usr/share/sambaedu/includes/
 	mkdir -p $(DESTDIR)/usr/share/doc/sambaedu/
-	mkdir -p $(DESTDIR)/var/www/boot/diconf
 	mkdir -p $(DESTDIR)/var/www/sambaedu
 	mkdir -p $(DESTDIR)/var/www/sambaedu/html2pdf
 	mkdir -p $(DESTDIR)/var/lib/tftpboot/
@@ -20,7 +19,6 @@ install:
 	cp -R usr/share/sambaedu/includes/* $(DESTDIR)/usr/share/sambaedu/includes/
 	cp -R usr/share/doc/sambaedu/* $(DESTDIR)/usr/share/doc/sambaedu/
 	cp -R etc/sambaedu/* $(DESTDIR)/etc/sambaedu/
-	cp -R var/www/boot/* $(DESTDIR)/var/www/boot/
 	cp -R var/www/sambaedu/* $(DESTDIR)/var/www/sambaedu/
 	cp -R libs/html2pdf/* $(DESTDIR)/var/www/sambaedu/html2pdf/
 	cp -R var/lib/tftpboot/* $(DESTDIR)/var/lib/tftpboot/

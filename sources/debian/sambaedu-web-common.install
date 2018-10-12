@@ -1,4 +1,4 @@
-usr/share/doc/sambaedu/web.conf.example
+#usr/share/doc/sambaedu/web.conf.example
 usr/share/doc/sambaedu/sambaedu.sql
 usr/share/doc/sambaedu/fpm.conf
 usr/share/doc/sambaedu/php-cli.ini.example

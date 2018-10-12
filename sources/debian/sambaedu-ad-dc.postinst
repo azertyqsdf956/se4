@@ -68,10 +68,21 @@ nameserver $config_se4ad_ip">/etc/resolv.conf
                 exit 1
             fi
         else
+            db_get sambaedu/action_ad
+            case "$RET" in
+            	VM)
+            	/usr/share/sambaedu/sbin/gen_se4preseed.sh
+            	;;
+            	LXC)
+            	/usr/share/sambaedu/sbin/install_se4lxc.sh
+            	;;
+            	*)
             echo "L'installation de sambaedu ne peut pas continuer tant que le serveur AD n'est pas en fonctionnement,Les scripts d'installation suivants sont désormais disponibles
 - Installation du container LXC /usr/share/se3/sbin/install_se4lxc.sh
 - Génération du preseed pour installation d'un serveur SE4-AD /usr/share/se3/sbin/install_se4preseed.sh
 relancer l'installation du paquet une fois le serveur SE4-AD operationnel">2
+				;;
+			esac
             exit 1
         fi
  

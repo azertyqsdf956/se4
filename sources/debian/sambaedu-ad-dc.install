@@ -2,4 +2,5 @@
 usr/share/sambaedu/sbin/gen_se4preseed.sh
 usr/share/sambaedu/sbin/install_se4lxc.sh
 usr/share/sambaedu/sbin/lxc-mac-generator
-var/www/boot/diconf/*
+usr/share/doc/sambaedu/preseed_se4ad.example
+var/www/sambaedu/ipxe/diconf/*
