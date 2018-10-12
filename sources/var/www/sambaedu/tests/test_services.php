@@ -62,11 +62,11 @@ $testsid="x";
 
 // Controle si le dhcp tourne si celui-ci a ete installe
 $dhcp_install = exec("dpkg -l | grep dhcp3 > /dev/null && echo 1");
-
-if (($dhcp_install == "1") && ($dhcp =="1")) {
-
+//if (($config["dhcp_install == "1") && ($dhcp =="1")"]) {
+if (isset($config["dhcp_install"]) &&($config["dhcp_install"] == "1") && ($dhcp =="1")) {
   	$dhcp_state=exec("sudo /usr/share/sambaedu/scripts/makedhcpdconf state");
-	if($dhcp_state==1) {
+    //if($config["dhcp_state==1"]) {
+	if(isset($config["dhcp_state"]) && $config["dhcp_state"]==1) {
 		$okdhcp="1";
 	} else {
 		$okdhcp="0";
