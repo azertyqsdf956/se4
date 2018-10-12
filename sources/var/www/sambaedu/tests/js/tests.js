@@ -4,14 +4,8 @@
    * @Version $Id: tests.js 3002 2008-05-30 12:58:43Z keyser $
       * @Projet LCS / SambaEdu
    * @Auteurs Equipe Sambaedu
-   * @Licence Distribue sous la licence GPLlancement des scripts bash par la technologie asynchrone Ajax.
-
-
-
-   */
-
-   /**
-
+   * @Licence Distribue sous la licence GPL
+   * lancement des scripts bash par la technologie asynchrone Ajax.
    * @Repertoire: /tests/js/
    * file: tests.js
    */
@@ -52,8 +46,6 @@
 					else
 						$('check_dns_se3').src = '../elements/images/critical.png';
 					}});
-
-
 				}
 			else
 				$('check_gateway').src = '../elements/images/critical.png';
@@ -66,11 +58,6 @@
 		var method13 = 'post';
 		var ajax313 = new Ajax.Request(url13,{ method: method13, parameters: params13, onSuccess: function(requester){
 		var reponse13 = requester.responseText;
-
-              //  if (reponse13 != '-1') {
-
-		//	Element.show('ligne_clonage');
-
 
 		if(reponse13 == '1') {
 			$('check_clonage').src = '../elements/images/recovery.png';
@@ -88,10 +75,6 @@
 			$('link_clonage').href = link_clonage_ko;
 
 			}
-
-                //} else {
-	//		Element.hide('ligne_clonage');
-		//}
 		}});
 
 		//test client
@@ -301,9 +284,9 @@
 			can_connect_internet = (requester.responseText == '0%');
 			if(can_connect_internet) {
 
-				var ajax311 = new Ajax.Request('tests/popup_alert.php',{ onSuccess: function(requester){
-					eval(requester.responseText);
-				}});
+//				var ajax311 = new Ajax.Request('tests/popup_alert.php',{ onSuccess: function(requester){
+//					eval(requester.responseText);
+//				}});
 
 				$('check_internet').src = '../elements/images/recovery.png';
 				//DNS

@@ -5,7 +5,8 @@
  * @Version $Id$
     * @Projet LCS / SambaEdu
    * @Auteurs Equipe Sambaedu
-   * @Licence Distribue sous la licence GPLlancement des scripts bash par la technologie asynchrone Ajax.
+   * @Licence Distribue sous la licence GPL
+ * lancement des scripts bash par la technologie asynchrone Ajax.
 
 
  */
@@ -101,40 +102,6 @@ if (file_exists('/etc/sambaedu/temoin_test_refresh.txt')) {
     echo "</div>\n";
 }
 // =======================================
-//// Verifie la connexion a internet si ligne_internet = 0% alors on a internet
-//$PING_INTERNET = "195.98.246.50";
-//if ($phpv >= 4.2) {
-//    $PING = "ping -c 1 -w 1 $PING_INTERNET | awk '/packet/ {print $6}'";
-//} else {
-//    $PING = "ping -c 1 $PING_INTERNET | awk '/packet/ {print $7}'";
-//}
-//
-//$ligne_internet = exec("$PING", $test, $testretour);
-//if ($ligne_internet != "0%") { // on teste sur un autre serveur
-//    $PING_INTERNET = "www.free.fr";
-//    if ($phpv >= 4.2) {
-//        $PING = "ping -c 1 -w 1 $PING_INTERNET | awk '/packet/ {print $6}'";
-//    } else {
-//        $PING = "ping -c 1 $PING_INTERNET | awk '/packet/ {print $7}'";
-//    }
-//    $ligne_internet = exec("$PING", $test, $testretour);
-//}
-//
-//// leb 30sept2007
-//if ($ligne_internet != "0%") { // test acces http
-//                               // $http=exec("cd /tmp; wget -q ---tries=1 --connect-timeout=1 http://wawadeb.crdp.ac-caen.fr && echo \$? | rm -f /tmp/index.html.1*",$out,$retour);
-//    $http = exec("cd /tmp; wget -q --tries=1 --timeout=2 http://wawadeb.crdp.ac-caen.fr && echo \$? | rm -f /tmp/index.html.1*", $out, $retour);
-//    if ($retour == "0") {
-//        $ligne_internet = "0%";
-//    }
-//}
-//// fin-leb 30sept2007
-//// Verifie si proxy defini
-//$proxy = exec("cat /etc/profile | grep http_proxy= | cut -d= -f2");
-//if ($proxy != "") {
-//    preg_match("/http:\/\/(.*)\"/i", $proxy, $rest);
-//    putenv("http_proxy=$rest[1]");
-//}
 
 $os = exec("cat /etc/debian_version | cut -d. -f1-2");
 $vers = exec("dpkg -s sambaedu-web-common|grep Version|cut -d ' ' -f2");
@@ -175,8 +142,8 @@ echo "<I> <img src=\"../elements/images/debian.png\">($os)</I></TD></TR>\n";
         </TR>
 
 <?php
-if (isset($config['clonage'])) {
-    echo '<TR>';
+if (isset($config['clonage']) && $config['clonage']==1) {
+    echo '<TR id="ligne_clonage">';
 }
 else {
     echo '<TR id="ligne_clonage" style="display: none;">';
@@ -197,7 +164,7 @@ else {
         <TR>
             <TD>V&#233;rifie la connexion &#224; la passerelle <I>(
 <?php
-// Ping passerelle
+//// Ping passerelle
 $PING_ROUTEUR = `cat /etc/network/interfaces | grep gateway | grep -v broadcast | cut -d" " -f 2`;
 $PING_ROUTEUR = trim($PING_ROUTEUR);
 echo $PING_ROUTEUR;
@@ -226,7 +193,7 @@ echo $PING_ROUTEUR;
         </TR>
         <TR>
             <TD>V&#233;rification du nom DNS du serveur Sambaedu <span
-                    id="urlsambaedu" style="font-style: italic;">(<?php echo "admin." . $config['domain'] ?>)</span></TD>
+                    id="urlsambaedu" style="font-style: italic;">(<?php $hostName=exec("hostname -f ");echo $hostName ?>)</span></TD>
             <TD align="center"><IMG id="check_dns_se3" style="border: 0px solid;"
                                     SRC="../elements/images/info.png"></TD>
             <TD align="center"><a id="help_dns2_se3"><img name="action_image2"

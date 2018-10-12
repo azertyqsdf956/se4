@@ -5,28 +5,16 @@
 
    * Retourne le nom DNS du serveur Se3
    * @Version $Id$
-   * @Projet LCS / SambaEdu
-   * @auteurs Philippe Chadefaux  MrT
-   * @Licence Distribue selon les termes de la licence GPL
-   * @note
-   * Modifications proposees par Sebastien Tack (MrT)
-   * Optimisation du lancement des scripts bash par la technologie asynchrone Ajax.
-
-
-   */
-
-   /**
-
+    * @Projet LCS / SambaEdu
+   * @Auteurs Equipe Sambaedu
+   * @Licence Distribue sous la licence GPL
    * @Repertoire: /tests/
    * file: test_dns_se3.php
    */
-
-
-
 	require_once('entete_ajax.inc.php');
 	// Verifie DNS SE3
-
-	preg_match("/^(http:\/\/)?([^\:]+)/i","$urlsambaedu",$adress);
+    $hostName=exec("hostname -f ");
+	preg_match("/^(http:\/\/)?([^\:]+)/i",$hostName,$adress);
 	//$com="/usr/bin/host -t A $adress[2] 2>&1";
 	$phpv2=preg_replace("/[^0-9\.]+/","",phpversion());
 	$phpv=$phpv2-0;

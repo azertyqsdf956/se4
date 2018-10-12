@@ -263,7 +263,8 @@ if (have_right($config, "Annu_is_admin")) {
                     break;
             }
             // Creation du nouvel utilisateur
-            $ret = create_user($config, "", $prenom, $nom, $password, $naissance, $sexe, $categorie, "");
+            $cn = creer_cn($config, $nom, $prenom);
+            $ret = create_user($config, $cn, $prenom, $nom, $password, $naissance, $sexe, $categorie, "");
             // Compte rendu de creation
             if ($ret) {
                 if ($sexe == "M") {
@@ -271,7 +272,7 @@ if (have_right($config, "Annu_is_admin")) {
                 } else {
                     echo gettext("L'utilisateur ") . " <strong>$prenom $nom</strong> " . gettext(" a &#233;t&#233; cr&#233;&#233;e avec succ&#232;s.") . "<BR>";
                 }
-                $users = search_ad($config, $ret, "user");
+                $users = search_ad($config, $cn, "user");
                 if (count($users)) {
                     echo gettext("Son identifiant est ") . "<STRONG><a href='people.php?cn=" . $users[0]["cn"] . "' title=\"Modifier le compte.\">" . $users[0]["cn"] . "</a></STRONG><BR>\n";
                     echo gettext("Son mot de passe est ") . "<STRONG>" . $password . "</STRONG><BR>\n";

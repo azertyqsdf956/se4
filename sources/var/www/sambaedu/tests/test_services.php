@@ -7,12 +7,7 @@
    * @Version $Id$
    * @Projet LCS / SambaEdu
    * @Auteurs Equipe Sambaedu
-   * @Licence Distribue sous la licence GPLlancement des scripts bash par la technologie asynchrone Ajax.
-
-   */
-
-   /**
-
+   * @Licence Distribue sous la licence GPL
    * @Repertoire: /tests/
    * file: test_services.php
    */
@@ -25,7 +20,7 @@ require_once('entete_ajax.inc.php');
 //######################## CONTROLE LES SERVICES ##################################//
 // Controle le temps de la machine
 $la=date("G:i:s d/m/Y");
-$okmail="0";
+$okmail=$oksmb=$oksid=$okmysql=$okdhcp=$okondul="0";
 // Controle si le fichier ssmtp a ete configure
 $ssmtp = exec("dpkg -l | grep ssmtp > /dev/null && echo 1");
 if ($ssmtp == "1") {
@@ -47,6 +42,7 @@ if ($ssmtp == "1") {
 
 
 // Test le sid samba et la presence d'un eventuel doublon de sid
+$testsid="x";
   $testsid = exec('sudo /usr/share/sambaedu/scripts/testSID.sh');
 
    if ($testsid == "") {
@@ -66,11 +62,11 @@ if ($ssmtp == "1") {
 
 // Controle si le dhcp tourne si celui-ci a ete installe
 $dhcp_install = exec("dpkg -l | grep dhcp3 > /dev/null && echo 1");
-
-if (($config["dhcp_install == "1") && ($dhcp =="1")"]) {
-
+//if (($config["dhcp_install == "1") && ($dhcp =="1")"]) {
+if (isset($config["dhcp_install"]) &&($config["dhcp_install"] == "1") && ($dhcp =="1")) {
   	$dhcp_state=exec("sudo /usr/share/sambaedu/scripts/makedhcpdconf state");
-	if($config["dhcp_state==1"]) {
+    //if($config["dhcp_state==1"]) {
+	if(isset($config["dhcp_state"]) && $config["dhcp_state"]==1) {
 		$okdhcp="1";
 	} else {
 		$okdhcp="0";

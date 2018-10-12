@@ -52,7 +52,7 @@ set_config("registred",2); ///A quoi ça sert ? mrfi
 
 <?php if (have_right($config, "se3_is_admin"))  {
 
-    if (isset($config['affiche_etat'])) {
+    if (isset($config['affiche_etat']) && $config['affiche_etat']==1) {
      if ($config['registred'] <= 1)  { ?>
 	<FRAME SRC="blank.php" NAME="main" frameborder="0" /><!--/FRAME-->
 <?php
