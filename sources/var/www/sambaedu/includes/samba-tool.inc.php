@@ -307,18 +307,11 @@ function groupadd($config, $cn, $inou, $description)
         // }
         $message = array();
         $command = "group add " . escapeshellarg($cn) . " --groupou=" . escapeshellarg($inou) . " --description=" . escapeshellarg($description);
-        $RES = sambatool($config, $command);
-
-        if ($RES == 0) {
-            $group = explode(" ", $message[0]);
-            if ($group[2] == $cn) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
+        $RES = sambatool($config, $command, $message);
+        if ($RES == 0)
+            return true; 
+        else 
             return false;
-        }
     } else {
         return false;
     }
