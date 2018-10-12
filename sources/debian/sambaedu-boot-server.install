@@ -1,4 +1,4 @@
-# fichiers du paquet sambadu-boot-server
+# fichiers du paquet sambaedu-boot-server
 usr/share/sambaedu/sbin/make_dhcpd_conf.sh
 var/www/sambaedu/ipxe/boot.ipxe
 var/www/sambaedu/ipxe/png/ipxe-se4.png

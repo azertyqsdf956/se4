@@ -1,4 +1,4 @@
-# fichiers du paquet sambadu-config
+# fichiers du paquet sambaedu-config
 usr/share/doc/sambaedu/sambaedu.conf.example
 usr/share/doc/sambaedu/dhcp.conf.example
 usr/share/sambaedu/includes/config.inc.sh
