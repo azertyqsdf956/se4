@@ -11,12 +11,12 @@
    */
 
 require_once('entete_ajax.inc.php');
-   $http=exec("cd /tmp; wget -q --tries=1 --timeout=2 https://ac-caen.fr && echo \$? | rm -f /tmp/index.html*",$out,$retour);
-
-   if ($retour=="0") {
-   	$ok="1";
-   } else {
-   	$ok="0";
-   }
+$fp = @fsockopen("www.ac-caen.fr","80" , $errno, $errstr, 2);
+if (!$fp) {
+    $ok="0";
+} else {
+    $ok="1";
+    fclose($fp);
+}
 die($ok);
 ?>
