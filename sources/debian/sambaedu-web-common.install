@@ -39,7 +39,6 @@ var/www/sambaedu/ups/*
 var/www/sambaedu/cloud/*
 var/www/sambaedu/includes/*
 var/www/sambaedu/dhcp/*
-var/www/sambaedu/tmp/*
 var/www/sambaedu/annu/*
 var/www/sambaedu/elements/*
 var/www/sambaedu/parcs/*
