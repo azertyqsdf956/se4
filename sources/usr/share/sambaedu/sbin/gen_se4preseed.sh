@@ -23,6 +23,7 @@ function write_sambaedu_conf
 if [ -e "$se4ad_config" ] ; then
 	echo "$se4ad_config existe on en écrase le contenu"
 fi
+suffix_domain=$(echo $config_domain | cut -d "." -f 2-)
 echo -e "$COLINFO"
 #echo "Pas de fichier de conf $se4ad_config  -> On en crée un avec les params du se4ad"
 echo -e "$COLTXT"
@@ -48,6 +49,19 @@ echo "##Rdn admin LDAP##" >> $se4ad_config
 echo "adminRdn=\"$config_admin_rdn\"" >> $se4ad_config
 
 chmod +x $se4ad_config
+}
+
+# Fonction copie des fichiers de conf @LXC/etc/sambaedu
+function cp_config_to_preseed()
+{
+echo "Création de l'archive d'export des données $se4ad_config_tgz et copie sur $dir_preseed"
+cd $dir_config
+echo -e "$COLCMD"
+tar -czf $se4ad_config_tgz export_se4ad
+cp -av  $se4ad_config_tgz $dir_preseed/
+cd -
+echo -e "$COLTXT"
+sleep 2
 }
 
 
