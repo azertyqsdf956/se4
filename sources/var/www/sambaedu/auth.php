@@ -4,7 +4,7 @@
 
  * Page pour l'authentification
  * @Version $Id$
-    * @Projet LCS / SambaEdu
+   * @Projet LCS / SambaEdu
    * @Auteurs Equipe Sambaedu
    * @Licence Distribue sous la licence GPL
    * @Repertoire: /
