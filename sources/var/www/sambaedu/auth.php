@@ -4,22 +4,10 @@
 
  * Page pour l'authentification
  * @Version $Id$
-
- * @Projet LCS / SambaEdu
-
- * @auteurs  jLCF >:>  jean-luc.chretien@tice.ac-caen.fr
- * @auteurs  oluve  olivier.le_monnier@crdp.ac-caen.fr
- * @auteurs Olivier LECLUSE
-
- * @Licence Distribue selon les termes de la licence GPL
-
- * @note
-
- */
-
-/**
- *
- * @Repertoire: /
+    * @Projet LCS / SambaEdu
+   * @Auteurs Equipe Sambaedu
+   * @Licence Distribue sous la licence GPL
+   * @Repertoire: /
  * file: auth.php
  *
  */
