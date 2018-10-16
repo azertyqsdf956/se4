@@ -1,6 +1,5 @@
 <?php
-
-   /**
+  /**
 
    * Test une requete sur le web wawadeb
    * @Projet LCS / SambaEdu
