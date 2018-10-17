@@ -86,7 +86,7 @@ function get_config($force = false)
 //    while (apc_fetch('config_lock')) {
 //        sleep(1);
 //    }
-    if (($force) || ! ($config = apc_fetch('config'))) {
+   if (($force) || ! ($config = apc_fetch('config'))) {
         apc_add('config_lock', 1, 60);
 
         unset($config);
