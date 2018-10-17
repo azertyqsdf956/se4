@@ -42,31 +42,39 @@ case "$1" in
         -b $config_ldap_base_dn -w "$config_ldap_admin_passwd" \
         "(&(objectClass=person)(samaccountname=$config_ldap_admin_name))"\
         -H  ldaps://$config_se4ad_ip) ; then
-            # mise en place dns ad
-            echo "domain $config_domain
+            db_get sambaedu/boot_server
+            if [ "$RET" == "true" ]; then
+            	# mise en place dns ad
+            	echo "domain $config_domain
 nameserver $config_se4ad_ip">/etc/resolv.conf
-            set_config sambaedu ldap_url "ldaps://$config_domain"
-            if res=$(ldapsearch  -xLLL -D "cn=$config_ldap_admin_name,$config_admin_rdn,$config_ldap_base_dn" \
+            	set_config sambaedu ldap_url "ldaps://$config_domain"
+            	if res=$(ldapsearch  -xLLL -D "cn=$config_ldap_admin_name,$config_admin_rdn,$config_ldap_base_dn" \
             -b $config_ldap_base_dn -w "$config_ldap_admin_passwd" \
             "(&(objectClass=person)(samaccountname=$config_ldap_admin_name))"\
          -H $config_ldap_url); then
-                echo "Cool ! le serveur SE4-AD fonctionne.">2
-                # configuration des cles ssh
-				# on ajoute le host se4ad
-				[ -f /etc/ssh/ssh_known_hosts ] && ssh-keygen -R $config_se4ad_ip -f /etc/ssh/ssh_known_hosts
-				ssh-keyscan -t rsa $config_se4ad_ip >> /etc/ssh/ssh_known_hosts
+                	echo "Cool ! le serveur SE4-AD fonctionne.">2
+                	# configuration des cles ssh
+					# on ajoute le host se4ad
+					[ -f /etc/ssh/ssh_known_hosts ] && ssh-keygen -R $config_se4ad_ip -f /etc/ssh/ssh_known_hosts
+					ssh-keyscan -t rsa $config_se4ad_ip >> /etc/ssh/ssh_known_hosts
 
-				if [ ! -f /etc/sambaedu/id_rsa ] ; then
-					ssh-keygen -q -N "" -t rsa -f /etc/sambaedu/id_rsa
-					ssh-copy-id -i /etc/sambaedu/id_rsa.pub root@$config_se4ad_ip 
-				fi
-                sed -i "s/^#NTP=.*/NTP=${config_se4ad_name}.${config_domain}/" /etc/systemd/timesyncd.conf 
-                systemctl restart systemd-timesyncd.service || true
-		exit 0
-            else
-                echo "problème de configuration dns, vérifiez votre configuration">2
-                exit 1
-            fi
+					if [ ! -f /etc/sambaedu/id_rsa ] ; then
+						ssh-keygen -q -N "" -t rsa -f /etc/sambaedu/id_rsa
+						ssh-copy-id -i /etc/sambaedu/id_rsa.pub root@$config_se4ad_ip 
+					fi
+                	sed -i "s/^#NTP=.*/NTP=${config_se4ad_name}.${config_domain}/" /etc/systemd/timesyncd.conf 
+            	    systemctl restart systemd-timesyncd.service || true
+					exit 0
+            	else
+                	echo "problème de configuration dns, vérifiez votre configuration">2
+                	exit 1
+            	fi
+        	else
+        		# client linux, on met juste à l'heure sur l'AD
+               	sed -i "s/^#NTP=.*/NTP=${config_se4ad_name}.${config_domain}/" /etc/systemd/timesyncd.conf 
+            	systemctl restart systemd-timesyncd.service || true
+        		exit 0
+        	fi
         else
             db_get sambaedu/action_ad
             case "$RET" in

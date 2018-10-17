@@ -35,7 +35,7 @@ Description: Adresse IP du serveur Active Directory
 Template: sambaedu/boot_server
 Type: boolean
 Default: false
-Description: Installer un serveur de boot ?
+Description: Installer un serveur sambaedu ?
  Si vous installez un nouveau serveur sambaedu, repondre oui. Si vous installez un client linux répondre non.
 
 Template: sambaedu/dhcp_begin_range
