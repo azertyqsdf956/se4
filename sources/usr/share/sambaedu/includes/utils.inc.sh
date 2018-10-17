@@ -22,7 +22,7 @@ my_network() {
 
 IFS=" "
 read my_gateway my_interface<<<$(ip -o -f inet route show default 0.0.0.0/0 | cut -d ' ' -f3,5)
-read my_address my_cdr my_broadcast<<<$(ip -o -f inet addr show dev "$my_interface" | awk '{sub("/", " ", $4); print $4, $6}')
+read my_address my_cdr my_broadcast my_mode<<<$(ip -o -f inet addr show dev "$my_interface" | awk '{sub("/", " ", $4); print $4, $6, $9}')
 my_mask=$(cdr2mask $my_cdr)
 IFS=
 my_network=$(ip -o -f inet route show dev $my_interface  src $my_address | cut -d/ -f1)
