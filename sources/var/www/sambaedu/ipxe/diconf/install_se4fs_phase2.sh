@@ -3,7 +3,7 @@
 # version pour Stretch - franck molle
 # version 02 - 2018 
 
-
+# ---------- Début des fonctions ----------#
 # # Fonction permettant de quitter en cas d'erreur 
 function quit_on_choice()
 {
@@ -31,7 +31,7 @@ while [ "$REPONSE" != "o" -a "$REPONSE" != "O" -a "$REPONSE" != "n" ]
 do
     echo -e "$COLTXT"
     echo -e "Peut-on poursuivre? (${COLCHOIX}O/n${COLTXL}) $COLSAISIE"
-    read REPONSE
+    read -t 40 REPONSE
     echo -e "$COLTXT"
     if [ -z "$REPONSE" ]; then
             REPONSE="o"
@@ -72,8 +72,9 @@ fi
 # Fonction génération du sources.list stretch FR
 function gensourcelist()
 {
+[ -z "$mirror_name" ] && mirror_name="deb.debian.org"
 cat >/etc/apt/sources.list <<END
-deb http://deb.debian.org/debian stretch main non-free contrib
+deb http://$mirror_name/debian stretch main non-free contrib
 
 deb http://security.debian.org/debian-security stretch/updates main contrib non-free
 
@@ -101,30 +102,58 @@ apt-get -q update
 }
 
 # Fonction génération conf réseau
-gennetwork()
+gen_network()
 {
-echo "saisir l'ip de la machine"
-read NEW_SE3IP
-echo "saisir le masque"
-read NEW_NETMASK
-echo "saisir l'adresse du réseau"
-read NEW_NETWORK
-echo "saisir l'adresse de brodcast"
-read NEW_BROADCAST
-echo "saisir l'adresse de la passerrelle"
-read NEW_GATEWAY
 
-echo -e "$COLINFO"
-echo "Vous vous apprêtez à modifier les paramètres suivants:"
-echo -e "IP:		$NEW_SE3IP"
-echo -e "Masque:		$NEW_NETMASK"
-echo -e "Réseau:		$NEW_NETWORK"
-echo -e "Broadcast:	$NEW_BROADCAST"
-echo -e "Passerelle:	$NEW_GATEWAY"
+dialog_box="dialog"
+se4fs_lan_title="Modification de la configuration réseau"	
+se4fs_ecard="$(ls /sys/class/net/ | grep -v lo | head -n 1)"
+se4fs_ip="$(ifconfig $se4fs_ecard | grep "inet " | awk '{ print $2}')"
+se4fs_mask="$(ifconfig $se4fs_ecard | grep "inet " | awk '{ print $4}')"
+se4fs_network="$(grep network $interfaces_file | grep -v "#" | sed -e "s/network//g" | tr "\t" " " | sed -e "s/ //g")"
+se4fs_bcast="$(grep broadcast $interfaces_file | grep -v "#" | sed -e "s/broadcast//g" | tr "\t" " " | sed -e "s/ //g")"
+se4fs_gw="$(grep gateway $interfaces_file | grep -v "#" | sed -e "s/gateway//g" | tr "\t" " " | sed -e "s/ //g")"
 
-go_on
 
-cat >/etc/network/interfaces <<END
+REPONSE=""
+while [ "$REPONSE" != "yes" ]
+do
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4fs_lan_title" --inputbox "Confirmer le nom de la carte réseau à configurer" 15 70 $se4fs_ecard 2>$tempfile || erreur "Annulation"
+    se4fs_ecard=$(cat $tempfile)
+    
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4fs_lan_title" --inputbox "Saisir l'IP du SE4-AD souhaitée" 15 70 $se4fs_ip 2>$tempfile || erreur "Annulation"
+    se4fs_ip=$(cat $tempfile)
+
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4fs_lan_title" --inputbox "Saisir le Masque sous réseau" 15 70 $se4fs_mask 2>$tempfile || erreur "Annulation"
+    se4fs_mask=$(cat $tempfile)
+    
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4fs_lan_title" --inputbox "Saisir l'Adresse de base du réseau" 15 70 $se4fs_network 2>$tempfile || erreur "Annulation"
+    se4fs_network=$(cat $tempfile)
+    
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4fs_lan_title" --inputbox "Saisir l'Adresse de broadcast" 15 70 $se4fs_bcast 2>$tempfile || erreur "Annulation"
+    se4fs_bcast=$(cat $tempfile)
+    
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4fs_lan_title" --inputbox "Saisir l'Adresse de la passerelle" 15 70 $se4fs_gw 2>$tempfile || erreur "Annulation"
+    se4fs_gw=$(cat $tempfile)
+
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4fs_lan_title" --inputbox "Saisir l'Adresse du serveur DNS" 15 70 $se4fs_gw 2>$tempfile || erreur "Annulation"
+    se4fs_dns=$(cat $tempfile)
+    
+    confirm_title="Nouvelle configuration réseau"
+    confirm_txt="La configuration sera la suivante 
+
+Carte réseau à configurer :   $se4fs_ecard    
+Adresse IP du serveur SE3 :   $se4fs_ip
+Adresse réseau de base :      $se4fs_network
+Adresse de Broadcast :        $se4fs_bcast
+Adresse IP de la Passerelle : $se4fs_gw
+Adresse IP du Serveur DNS   : $se4fs_dns
+	
+Poursuivre avec ces modifications ?"	
+	
+    if ($dialog_box --backtitle "$BACKTITLE" --title "$confirm_title" --yesno "$confirm_txt" 15 70) then
+        REPONSE="yes"
+        cat >/etc/network/interfaces <<END
 # /etc/network/interfaces -- configuration file for ifup(8), ifdown(8)
 
 # The loopback interface
@@ -133,14 +162,29 @@ iface lo inet loopback
 
 # The first network card - this entry was created during the Debian installation
 # (network, broadcast and gateway are optional)
-auto eth0
-iface eth0 inet static
-        address $NEW_SE3IP
-        netmask $NEW_NETMASK
-        network $NEW_NETWORK
-        broadcast $NEW_BROADCAST
-        gateway $NEW_GATEWAY
+auto $se4fs_ecard
+iface $se4fs_ecard inet static
+        address $se4fs_ip
+        netmask $se4fs_mask
+        network $se4fs_network
+        broadcast $se4fs_bcast
+        gateway $se4fs_gw
 END
+    sed "s/nameserver.*/nameserver $se4fs_dns/" -i /etc/resolv.conf
+    
+    else
+            REPONSE="no"
+    fi
+done
+    confirm_title="Redémarrage nécessaire"
+    confirm_txt="La machine doit redémarrer afin de prendre en compte les nouveaux paramètres. Rédémarrer immédiatement ?"
+    if ($dialog_box --backtitle "$BACKTITLE" --title "$confirm_title" --yesno "$confirm_txt" 15 70) then
+        echo "reboot dans 5s"
+        sleep 5 && reboot
+    else
+        echo "Annulation du reboot - sortie du script"
+        exit 1
+    fi
 }
 
 # Fonction Affichage du titre et choix dy type d'installation
@@ -172,7 +216,27 @@ Franck.molle@sambaedu.org : Maintenance de l'installeur"
 
 dialog  --ok-label Ok --backtitle "$BACKTITLE" --title "$WELCOME_TITLE" --msgbox "$WELCOME_TEXT" 25 70
 #
+}
 
+
+# Fonction recupération des paramètres via fichier de conf ou tgz
+function recup_params() {
+
+echo -e "$COLINFO"
+if [ -e "$se4fs_config" ] ; then
+ 	echo "$se4fs_config est bien present sur la machine - initialisation des paramètres"
+	source $se4fs_config 
+	echo -e "$COLTXT"
+else
+	echo "$se4fs_config ne se trouve pas sur la machine"
+	echo -e "$COLTXT"
+	se4fs_ip="$(ifconfig eth0 | grep "inet " | awk '{ print $2}')"
+fi
+}
+
+# Fonction affichage du menu principal
+function show_menu()
+{
 dialog --backtitle "$BACKTITLE" --title "Installeur de samba Edu 4 - serveur File System" \
 --menu "Choisissez l'action à effectuer" 15 90 7  \
 "1" "Installation classique" \
@@ -198,65 +262,6 @@ case $choice in
         esac
 }
 
-# Fonction test carte réseau
-function test_ecard()
-{
-ECARD=$(/sbin/ifconfig | grep eth | sort | head -n 1 | cut -d " " -f 1)
-if [ -z "$ECARD" ]; then
-  ECARD=$(/sbin/ifconfig -a | grep eth | sort | head -n 1 | cut -d " " -f 1)
-
-	if [ -z "$ECARD" ]; then
-		echo -e "$COLERREUR"
-		echo "Aucune carte réseau n'a été détectée."
-		echo "Il n'est pas souhaitable de poursuivre l'installation."
-		echo -e "$COLTXT"
-		echo -e "Voulez-vous ne pas tenir compte de cet avertissement (${COLCHOIX}1${COLTXL}),"
-		echo -e "ou préférez-vous interrompre le script d'installation (${COLCHOIX}2${COLTXL})"
-		echo -e "et corriger le problème avant de relancer ce script?"
-		REPONSE=""
-		while [ "$REPONSE" != "1" -a "$REPONSE" != "2" ]
-		do
-			echo -e "${COLTXL}Votre choix: [${COLDEFAUT}2${COLTXL}] ${COLSAISIE}\c"
-			read REPONSE
-	
-			if [ -z "$REPONSE" ]; then
-				REPONSE=2
-			fi
-		done
-		if [ "$REPONSE" = "2" ]; then
-			echo -e "$COLINFO"
-			echo "Pour résoudre ce problème, chargez le pilote approprié."
-			echo "ou alors complétez le fichier /etc/modules.conf avec une ligne du type:"
-			echo "   alias eth0 <nom_du_module>"
-			echo -e "Il conviendra ensuite de rebooter pour prendre en compte le changement\nou de charger le module pour cette 'session' par 'modprobe <nom_du_module>"
-			echo -e "Vous pourrez relancer ce script via la commande:\n   /var/cache/se3_install/install_se3.sh"
-			echo -e "$COLTXT"
-			exit 1
-		fi
-	else
-	cp /etc/network/interfaces /etc/network/interfaces.orig
-	sed -i "s/eth[0-9]/$ECARD/" /etc/network/interfaces
-	ifup $ECARD
-	fi
-
-fi
-}
-
-# Fonction recupératoin des paramètres via fichier de conf ou tgz
-function recup_params() {
-
-echo -e "$COLINFO"
-if [ -e "$se4fs_config" ] ; then
- 	echo "$se4fs_config est bien present sur la machine - initialisation des paramètres"
-	source $se4fs_config 
-	echo -e "$COLTXT"
-else
-	echo "$se4fs_config ne se trouve pas sur la machine"
-	echo -e "$COLTXT"
-	se4fs_ip="$(ifconfig eth0 | grep "inet " | awk '{ print $2}')"
-fi
-}
-
 # Fonction installation des paquets de base
 function installbase()
 {
@@ -268,14 +273,13 @@ apt-get -qq update
 apt-get upgrade --quiet --assume-yes
 
 echo -e "$COLPARTIE"
-echo "installation ntpdate, vim, etc..."
+echo "installation des paquets prioritaires ssh, vim, wget, etc..."
 echo -e "$COLTXT"
-prim_packages="ssh  vim wget nano iputils-ping bind9-host libldap-2.4-2 ldap-utils makepasswd haveged"
+prim_packages="ssh vim wget nano iputils-ping bind9-host libldap-2.4-2 ldap-utils makepasswd haveged"
 apt-get install --quiet --assume-yes $prim_packages
 }
 
 # Fonction génération des fichiers /etc/hosts et /etc/hostname
-# normalement fait par les paquets sambaedu
 function write_hostconf()
 {
 cat >/etc/hosts <<END
@@ -283,7 +287,7 @@ cat >/etc/hosts <<END
 ::1	localhost ip6-localhost ip6-loopback
 ff02::1	ip6-allnodes
 ff02::2	ip6-allrouters
-$se4fs_ip	$se4fs_name.$ad_domain	$se4fs_name
+#$se4fs_ip	$se4fs_name.$domain	$se4fs_name
 END
 
 cat >/etc/hostname <<END
@@ -299,9 +303,8 @@ if [ "$download" = "yes" ] || [ ! -e /root/dl_ok ]; then
 	echo "Pré-téléchargement des paquets nécessaire à l'installation"
 	echo -e "$COLTXT"
 	installbase
-	gensourcelist
 	echo -e "$COLPARTIE"
-	echo "Téléchargement de samba 4" 
+	echo "Téléchargement de samba 4.5" 
 	echo -e "$COLCMD"
 
 	apt-get install $samba_packages -d -y
@@ -310,18 +313,6 @@ if [ "$download" = "yes" ] || [ ! -e /root/dl_ok ]; then
 	echo -e "$COLTXT"
 fi
 }
-
-function conf_network {
-echo -e "$COLINFO"
-echo "Mofification de l'adressage IP"
-echo -e "$COLTXT"
-gennetwork
-service networking restart
-echo "Modification Ok" 
-echo "Testez la connexion internet avant de relancer le script sans option afin de procéder à l'installation"
-exit 0
-}
-
 
 # Fonction installation de samba 4.5 (pour le moment)
 function installsamba()
@@ -338,21 +329,8 @@ echo -e "$COLTXT"
 
 }
 
-# Fonction génération du fichier /etc/krb5.conf On peut aussi copier celui de /var/lib/samba
-# inutile, fait par sambaedu-ad-client
-# inutile, fait par sambaedu ensuite
-function write_krb5()
-{
-cat > /etc/krb5.conf <<END
-[libdefaults]
- dns_lookup_realm = false
- dns_lookup_kdc = true
- default_realm = $ad_domain_up
-END
-}
 
-# Fonction permettant la mise à l'heure du serveur
-# inutile avec systemd ? 
+# Fonction permettant la mise à l'heure du serveur 
 function set_time()
 {
 echo -e "$COLPARTIE"
@@ -396,7 +374,59 @@ grep -q "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes
 /usr/sbin/service ssh restart
 }
 
+function check_ad_access()
+{
+echo -e "$COLPARTIE"
+echo -e "Test de connexion sur le serveur AD : $se4ad_ip"
+echo -e "$COLCMD"
+ping -c 3 $se4ad_ip
+check_error
+echo -e "$COLINFO"
+echo "Tentative de connexion ssh sur l'AD et copie de la clé ssh si besoin"
+echo -e "$COLCMD"
+ssh-keyscan -H $se4ad_ip >> ~/.ssh/known_hosts
+ssh-copy-id -i $dir_config/id_rsa.pub root@$se4ad_ip
+scp -i $dir_config/id_rsa @$se4ad_ip:/root/se4fs.conf /root/
+check_error
+if [ -e /root/se4fs.conf ]; then
+cat /root/se4fs.conf >> $se4fs_config
+fi
+echo -e "$COLTXT"
 
+
+}
+
+# Fonction permettant de changer le pass root
+function install_se_packages()
+{
+echo -e "$COLPARTIE"
+echo -e "Installation des paquets SambaEdu"
+go_on
+echo -e "$COLCMD"
+apt-get install -y sambaedu 
+apt-get install -y sambaedu-client-windows 
+echo -e "$COLTXT"
+}
+
+function disable_ipv6()
+{
+if ! grep -q "#disable_ipv6" /etc/sysctl.conf; then
+echo "#disable_ipv6
+# désactivation de ipv6 pour toutes les interfaces
+net.ipv6.conf.all.disable_ipv6 = 1
+
+# désactivation de l’auto configuration pour toutes les interfaces
+net.ipv6.conf.all.autoconf = 0
+
+# désactivation de ipv6 pour les nouvelles interfaces (ex:si ajout de carte réseau)
+net.ipv6.conf.default.disable_ipv6 = 1
+
+# désactivation de l’auto configuration pour les nouvelles interfaces
+net.ipv6.conf.default.autoconf = 0
+" >> /etc/sysctl.conf
+sysctl -p
+fi
+}
 
 # Fonction permettant de changer le pass root
 function change_pass_root()
@@ -512,7 +542,7 @@ done
 
 show_title
 recup_params
-
+show_menu
 
 
 # A voir pour modifier ou récupérer depuis sambaedu.config 
@@ -527,9 +557,9 @@ ad_domain_up="$(echo "$ad_domain" | tr [:lower:] [:upper:])"
 sambadomaine_old="$(echo $se3_domain| tr [:lower:] [:upper:])"
 sambadomaine_new="$smb4_domain_up"
 
+gensourcelist
 download_packages
 haveged
-# ad_admin_pass=$(makepasswd --minchars=8)
 go_on
 
 dev_debug
@@ -548,13 +578,14 @@ export  DEBIAN_PRIORITY
 [ -e /root/debug ] && DEBUG="yes"
 
 write_hostconf
-
+disable_ipv6
 installsamba
 Permit_ssh_by_password
 
 echo "Génération des sources SE4"
 gensourcese4
 
+install_se_packages
 
 change_pass_root
 

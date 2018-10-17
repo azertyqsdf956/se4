@@ -1,9 +1,11 @@
 #!/bin/bash
 # installation Se4-AD phase 2
 # version pour Stretch - franck.molle@sambaedu.org
-# version 02 - 2018 
+# version 10 - 2018 
 
 
+
+# ---------- Début des fonctions ----------#
 # # Fonction permettant de quitter en cas d'erreur 
 function quit_on_choice()
 {
@@ -14,9 +16,15 @@ echo -e "$COLTXT"
 exit 1
 }
 
-function dev_debug() {
+function cp_ssh_key() {
+mkdir -p /root/.ssh/
+
+if [ -e "$dir_config/authorized_keys" ]; then
+    mv  "$dir_config/authorized_keys" /root/.ssh/ 
+fi
+
 if [ -n "$devel" ]; then
-    mkdir -p /root/.ssh/
+    
     ssh_keyser="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDMQ6Nd0Kg+L8200pR2CxUVHBtmjQ2xAX2zqArqV45horU8qopf6AYEew0oKanK3GzY2nrs5g2SYbxqs656YKa/OkTslSc5MR/Nndm9/J1CUsurTlo+VwXJ/x1qoLBmGc/9mZjdlNVKIPwkuHMKUch+XmsWF92GYEpTA1D5ZmfuTxP0GMTpjbuPhas96q+omSubzfzpH7gLUX/afRHfpyOcYWdzNID+xdmML/a3DMtuCatsHKO94Pv4mxpPeAXpJdE262DPXPz2ZIoWSqPz8dQ6C3v7/YW1lImUdOah1Fwwei4jMK338ymo6huR/DheCMa6DEWd/OZK4FW2KccxjXvHALn/QCHWCw0UMQnSVpmFZyV4MqB6YvvQ6u0h9xxWIvloX+sjlFCn71hLgH7tYsj4iBqoStN9KrpKC9ZMYreDezCngnJ87FzAr/nVREAYOEmtfLN37Xww3Vr8mZ8/bBhU1rqfLIaDVKGAfnbFdN6lOJpt2AX07F4vLsF0CpPl4QsVaow44UV0JKSdYXu2okcM80pnVnVmzZEoYOReltW53r1bIZmDvbxBa/CbNzGKwxZgaMSjH63yX1SUBnUmtPDQthA7fK8xhQ1rLUpkUJWDpgLdC2zv2jsKlHf5fJirSnCtuvq6ux1QTXs+bkTz5bbMmsWt9McJMgQzWJNf63o8jw== GitLab"
     grep -q "$ssh_keyser" /root/.ssh/authorized_keys || echo $ssh_keyser >> /root/.ssh/authorized_keys 
 fi
@@ -31,7 +39,7 @@ while [ "$REPONSE" != "o" -a "$REPONSE" != "O" -a "$REPONSE" != "n" ]
 do
     echo -e "$COLTXT"
     echo -e "Peut-on poursuivre? (${COLCHOIX}O/n${COLTXL}) $COLSAISIE"
-    read REPONSE
+    read -t 40 REPONSE
     echo -e "$COLTXT"
     if [ -z "$REPONSE" ]; then
             REPONSE="o"
@@ -72,8 +80,9 @@ fi
 # Fonction génération du sources.list stretch FR
 function gensourcelist()
 {
+[ -z "$mirror_name" ] && mirror_name="deb.debian.org"
 cat >/etc/apt/sources.list <<END
-deb http://deb.debian.org/debian stretch main non-free contrib
+deb http://$mirror_name/debian stretch main non-free contrib
 
 deb http://security.debian.org/debian-security stretch/updates main contrib non-free
 
@@ -98,31 +107,97 @@ deb http://wawadeb.crdp.ac-caen.fr/debian stretch se4testing
 END
 }
 
-# Fonction génération conf réseau
-gennetwork()
-{
-echo "saisir l'ip de la machine"
-read NEW_SE3IP
-echo "saisir le masque"
-read NEW_NETMASK
-echo "saisir l'adresse du réseau"
-read NEW_NETWORK
-echo "saisir l'adresse de brodcast"
-read NEW_BROADCAST
-echo "saisir l'adresse de la passerrelle"
-read NEW_GATEWAY
+
+# Fonction recupération des paramètres via fichier de conf ou tgz
+function recup_params() {
+
+if [ -e "/root/$se4ad_config_tgz" ]; then
+	tar -xzf /root/$se4ad_config_tgz -C /etc/
+elif [ -e "$dir_config/$se4ad_config_tgz" ] ;then
+	tar -xzf $dir_config/$se4ad_config_tgz -C $dir_config/
+fi
 
 echo -e "$COLINFO"
-echo "Vous vous apprêtez à modifier les paramètres suivants:"
-echo -e "IP:		$NEW_SE3IP"
-echo -e "Masque:		$NEW_NETMASK"
-echo -e "Réseau:		$NEW_NETWORK"
-echo -e "Broadcast:	$NEW_BROADCAST"
-echo -e "Passerelle:	$NEW_GATEWAY"
+if [ -e "$se4ad_config" ] ; then
+ 	echo "$se4ad_config est bien present sur la machine - initialisation des paramètres"
+	source $se4ad_config 
+	echo -e "$COLTXT"
+else
+	echo "$se4ad_config ne se trouve pas sur la machine"
+	echo -e "$COLTXT"
+	se4ad_ecard="$(ls /sys/class/net/ | grep -v lo | head -n 1)"
+	se4ad_ip="$(ifconfig $se4ad_ecard | grep "inet " | awk '{ print $2}')"
+fi
+}
 
-go_on
+# Fonction génération des fichiers /etc/hosts et /etc/hostname
+function write_hostconf()
+{
+cat >/etc/hosts <<END
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters
+$se4ad_ip	$se4ad_name.$domain	$se4ad_name
+END
 
-cat >/etc/network/interfaces <<END
+cat >/etc/hostname <<END
+$se4ad_name
+END
+}
+
+# Fonction génération conf réseau
+gen_network()
+{
+dialog_box="dialog"
+se4ad_lan_title="Modification de la configuration réseau"	
+se4ad_ecard="$(ls /sys/class/net/ | grep -v lo | head -n 1)"
+se4ad_ip="$(ifconfig $se4ad_ecard | grep "inet " | awk '{ print $2}')"
+se4ad_mask="$(ifconfig $se4ad_ecard | grep "inet " | awk '{ print $4}')"
+se4ad_network="$(grep network $interfaces_file | grep -v "#" | sed -e "s/network//g" | tr "\t" " " | sed -e "s/ //g")"
+se4ad_bcast="$(grep broadcast $interfaces_file | grep -v "#" | sed -e "s/broadcast//g" | tr "\t" " " | sed -e "s/ //g")"
+se4ad_gw="$(grep gateway $interfaces_file | grep -v "#" | sed -e "s/gateway//g" | tr "\t" " " | sed -e "s/ //g")"
+
+
+REPONSE=""
+while [ "$REPONSE" != "yes" ]
+do
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4ad_lan_title" --inputbox "Confirmer le nom de la carte réseau à configurer" 15 70 $se4ad_ecard 2>$tempfile || erreur "Annulation"
+    se4ad_ecard=$(cat $tempfile)
+    
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4ad_lan_title" --inputbox "Saisir l'IP du SE4-AD souhaitée" 15 70 $se4ad_ip 2>$tempfile || erreur "Annulation"
+    se4ad_ip=$(cat $tempfile)
+
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4ad_lan_title" --inputbox "Saisir le Masque sous réseau" 15 70 $se4ad_mask 2>$tempfile || erreur "Annulation"
+    se4ad_mask=$(cat $tempfile)
+    
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4ad_lan_title" --inputbox "Saisir l'Adresse de base du réseau" 15 70 $se4ad_network 2>$tempfile || erreur "Annulation"
+    se4ad_network=$(cat $tempfile)
+    
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4ad_lan_title" --inputbox "Saisir l'Adresse de broadcast" 15 70 $se4ad_bcast 2>$tempfile || erreur "Annulation"
+    se4ad_bcast=$(cat $tempfile)
+    
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4ad_lan_title" --inputbox "Saisir l'Adresse de la passerelle" 15 70 $se4ad_gw 2>$tempfile || erreur "Annulation"
+    se4ad_gw=$(cat $tempfile)
+
+    $dialog_box --backtitle "$BACKTITLE" --title "$se4ad_lan_title" --inputbox "Saisir l'Adresse du serveur DNS" 15 70 $se4ad_gw 2>$tempfile || erreur "Annulation"
+    se4ad_dns=$(cat $tempfile)
+    
+    confirm_title="Nouvelle configuration réseau"
+    confirm_txt="La configuration sera la suivante 
+
+Carte réseau à configurer :   $se4ad_ecard    
+Adresse IP du serveur SE3 :   $se4ad_ip
+Adresse réseau de base :      $se4ad_network
+Adresse de Broadcast :        $se4ad_bcast
+Adresse IP de la Passerelle : $se4ad_gw
+Adresse IP du Serveur DNS   : $se4ad_dns
+	
+Poursuivre avec ces modifications ?"	
+	
+    if ($dialog_box --backtitle "$BACKTITLE" --title "$confirm_title" --yesno "$confirm_txt" 15 70) then
+        REPONSE="yes"
+        cat >/etc/network/interfaces <<END
 # /etc/network/interfaces -- configuration file for ifup(8), ifdown(8)
 
 # The loopback interface
@@ -131,14 +206,35 @@ iface lo inet loopback
 
 # The first network card - this entry was created during the Debian installation
 # (network, broadcast and gateway are optional)
-auto eth0
-iface eth0 inet static
-        address $NEW_SE3IP
-        netmask $NEW_NETMASK
-        network $NEW_NETWORK
-        broadcast $NEW_BROADCAST
-        gateway $NEW_GATEWAY
+auto $se4ad_ecard
+iface $se4ad_ecard inet static
+        address $se4ad_ip
+        netmask $se4ad_mask
+        network $se4ad_network
+        broadcast $se4ad_bcast
+        gateway $se4ad_gw
 END
+        sed "s/nameserver.*/nameserver $se4ad_dns/" -i /etc/resolv.conf
+    
+        sed "s/se4ad_ip=.*/se4ad_ip=\"$se4ad_ip\"/" -i $se4ad_config
+        ### Refaire l'archive !
+        cd $dir_config
+        tar -czf $se4ad_config_tgz export_se4ad
+        cd -
+        write_hostconf
+    else
+            REPONSE="no"
+    fi
+done
+    confirm_title="Redémarrage nécessaire"
+    confirm_txt="La machine doit redémarrer afin de prendre en compte les nouveaux paramètres. Rédémarrer immédiatement ?"
+    if ($dialog_box --backtitle "$BACKTITLE" --title "$confirm_title" --yesno "$confirm_txt" 15 70) then
+        echo "reboot dans 5s"
+        sleep 5 && reboot
+    else
+        echo "Annulation du reboot - sortie du script"
+        exit 1
+    fi
 }
 
 # Fonction Affichage du titre et choix dy type d'installation
@@ -179,7 +275,7 @@ dialog --backtitle "$BACKTITLE" --title "Installeur de samba Edu 4 - serveur Act
 --menu "Choisissez l'action à effectuer" 15 90 7  \
 "1" "Installation classique" \
 "2" "Téléchargement des paquets uniquement (utile pour préparer un modèle de VM)" \
-"3" "Configuration du réseau uniquement (en cas de changement d'IP" \
+"3" "Configuration du réseau uniquement (en cas de changement d'IP)" \
 2>$tempfile
 
 choice=`cat $tempfile`
@@ -192,85 +288,12 @@ case $choice in
 		exit 0
         ;;
         3)
-        conf_network
+        gen_network
 		exit 0
         ;;
         *) exit 0
         ;;
         esac
-}
-
-# Fonction test carte réseau
-function test_ecard()
-{
-ECARD=$(/sbin/ifconfig | grep eth | sort | head -n 1 | cut -d " " -f 1)
-if [ -z "$ECARD" ]; then
-  ECARD=$(/sbin/ifconfig -a | grep eth | sort | head -n 1 | cut -d " " -f 1)
-
-	if [ -z "$ECARD" ]; then
-		echo -e "$COLERREUR"
-		echo "Aucune carte réseau n'a été détectée."
-		echo "Il n'est pas souhaitable de poursuivre l'installation."
-		echo -e "$COLTXT"
-		echo -e "Voulez-vous ne pas tenir compte de cet avertissement (${COLCHOIX}1${COLTXL}),"
-		echo -e "ou préférez-vous interrompre le script d'installation (${COLCHOIX}2${COLTXL})"
-		echo -e "et corriger le problème avant de relancer ce script?"
-		REPONSE=""
-		while [ "$REPONSE" != "1" -a "$REPONSE" != "2" ]
-		do
-			echo -e "${COLTXL}Votre choix: [${COLDEFAUT}2${COLTXL}] ${COLSAISIE}\c"
-			read REPONSE
-	
-			if [ -z "$REPONSE" ]; then
-				REPONSE=2
-			fi
-		done
-		if [ "$REPONSE" = "2" ]; then
-			echo -e "$COLINFO"
-			echo "Pour résoudre ce problème, chargez le pilote approprié."
-			echo "ou alors complétez le fichier /etc/modules.conf avec une ligne du type:"
-			echo "   alias eth0 <nom_du_module>"
-			echo -e "Il conviendra ensuite de rebooter pour prendre en compte le changement\nou de charger le module pour cette 'session' par 'modprobe <nom_du_module>"
-			echo -e "Vous pourrez relancer ce script via la commande:\n   /var/cache/se3_install/install_se3.sh"
-			echo -e "$COLTXT"
-			exit 1
-		fi
-	else
-	cp /etc/network/interfaces /etc/network/interfaces.orig
-	sed -i "s/eth[0-9]/$ECARD/" /etc/network/interfaces
-	ifup $ECARD
-	fi
-
-fi
-}
-
-# Fonction mise à jour du dns 
-function update_dns() {
-	
-new_ip=$2
-old_ip=$1	
-samba-tool -k yes update $se4_adip $ad_domain  $hostname A $se4ad_ip $newip
-}
-
-# Fonction recupératoin des paramètres via fichier de conf ou tgz
-function recup_params() {
-
-if [ -e "/root/$se4ad_config_tgz" ]; then
-	tar -xzf /root/$se4ad_config_tgz -C /etc/
-elif [ -e "$dir_config/$se4ad_config_tgz" ] ;then
-	tar -xzf $dir_config/$se4ad_config_tgz -C $dir_config/
-fi
-
-echo -e "$COLINFO"
-if [ -e "$se4ad_config" ] ; then
- 	echo "$se4ad_config est bien present sur la machine - initialisation des paramètres"
-	source $se4ad_config 
-	echo -e "$COLTXT"
-else
-	echo "$se4ad_config ne se trouve pas sur la machine"
-	echo -e "$COLTXT"
-	se4ad_ip="$(ifconfig eth0 | grep "inet " | awk '{ print $2}')"
-fi
 }
 
 # Fonction installation des paquets de base
@@ -286,24 +309,8 @@ apt-get upgrade --quiet --assume-yes
 echo -e "$COLPARTIE"
 echo "installation ntpdate, vim, etc..."
 echo -e "$COLTXT"
-prim_packages="ssh ntpdate vim wget nano iputils-ping bind9-host libldap-2.4-2 ldap-utils makepasswd haveged"
+prim_packages="ssh openntpd vim wget nano iputils-ping bind9-host libldap-2.4-2 ldap-utils makepasswd haveged libsasl2-modules-gssapi-mit"
 apt-get install --quiet --assume-yes $prim_packages
-}
-
-# Fonction génération des fichiers /etc/hosts et /etc/hostname
-function write_hostconf()
-{
-cat >/etc/hosts <<END
-127.0.0.1	localhost
-::1	localhost ip6-localhost ip6-loopback
-ff02::1	ip6-allnodes
-ff02::2	ip6-allrouters
-$se4ad_ip	$se4ad_name.$ad_domain	$se4ad_name
-END
-
-cat >/etc/hostname <<END
-$se4ad_name
-END
 }
 
 function download_packages() { 
@@ -324,17 +331,6 @@ if [ "$download" = "yes" ] || [ ! -e /root/dl_ok ]; then
 	echo "Phase de Téléchargement terminée"
 	echo -e "$COLTXT"
 fi
-}
-
-function conf_network {
-echo -e "$COLINFO"
-echo "Mofification de l'adressage IP"
-echo -e "$COLTXT"
-gennetwork
-service networking restart
-echo "Modification Ok" 
-echo "Testez la connexion internet avant de relancer le script sans option afin de procéder à l'installation"
-exit 0
 }
 
 # Fonction installation et config de slapd afin d'importer l'ancien SE3 ldap
@@ -377,7 +373,16 @@ sed "s/$sambadomaine_old/$sambadomaine_new/I" -i $dir_export/$se3ldif
 cp $dir_export/*.schema  /etc/ldap/schema/
 # nettoyage au besoin
 rm -f /var/lib/ldap/* 
-cp $dir_export/DB_CONFIG  /var/lib/ldap/
+# cp $dir_export/DB_CONFIG  /var/lib/ldap/
+cat > /var/lib/ldap/DB_CONFIG <<END
+set_cachesize 	0	41943040	0
+set_flags       DB_TXN_NOSYNC
+set_lg_bsize	524288
+set_lk_max_objects      10000
+set_lk_max_locks        10000
+set_lk_max_lockers      10000
+set_flags DB_LOG_AUTOREMOVE
+END
 slapadd -l $dir_export/$se3ldif
 check_error
 chown -R openldap:openldap /var/lib/ldap/
@@ -418,28 +423,58 @@ ldapdelete -x -D "$adminRdn,$ldap_base_dn" -w "$adminPw" "uid=root,ou=People,$ld
 echo -e "$COLTXT"
 }
 
+function modif_ldap_admin_account()
+{
+cpt_fin=10000
+for ((cpt=3000; cpt <= cpt_fin ; cpt++))
+do
+
+    rdm_sambasid="$(ldapsearch -xLLL sambaSid=$domainsid-$cpt sambaSid)"
+    if [ -z "$rdm_sambasid" ];then
+        echo -e "$COLINFO"
+        echo "Modification du sambaSid pour admin"
+        echo -e "$COLCMD"
+ldapmodify -x -D "$adminRdn,$ldap_base_dn" -w "$adminPw" <<EOF
+dn: uid=admin,ou=People,$ldap_base_dn
+changetype: modify
+replace: sambaSID
+sambaSID: $domainsid-$cpt
+EOF
+        break
+    fi
+done
+    
+}
+
+
+
 # Fonction génération des ldifs de l'ancien annuaire se3 avec adaptation de la structure pour conformité AD
 function extract_ldifs()
 {
 local ad_base_dn="##ad_base_dn##"
 rm -f $dir_config/ad_rights.ldif
-ldapsearch -o ldif-wrap=no -xLLL -D $adminRdn,$ldap_base_dn -w $adminPw -b ou=Rights,$ldap_base_dn cn | sed -n 's/^cn: //p' | while read cn_rights
+# ldapsearch -o ldif-wrap=no -xLLL -D $adminRdn,$ldap_base_dn -w $adminPw -b ou=Rights,$ldap_base_dn cn | sed -n 's/^cn: //p' | while read cn_rights
+for cn_rights in Annu_is_admin se3_is_admin sovajon_is_admin printers_is_admin echange_can_administrate annu_can_read parc_can_view parc_can_manage no_Trash_user parc_can_clone 
 do
-	
-cat >> $dir_config/ad_rights.ldif <<END	
+    cat >> $dir_config/ad_rights.ldif <<END	
 dn: CN=$cn_rights,OU=Rights,$ad_base_dn
 objectClass: group
 objectClass: top
 member: CN=Administrator,CN=Users,$ad_base_dn
 END
-ldapsearch -o ldif-wrap=no -xLLL -D $adminRdn,$ldap_base_dn -w $adminPw -b cn=$cn_rights,ou=Rights,$ldap_base_dn member | sed -n 's/member: uid=//p' | cut -d "," -f1 | grep -v "^admin" | while read member_rights
+ldapsearch -o ldif-wrap=no -xLLL -D $adminRdn,$ldap_base_dn -w $adminPw -b cn=$cn_rights,ou=Rights,$ldap_base_dn member | sed -n 's/member: uid=//p' | cut -d "," -f1 | while read member_rights
 	do
-		echo "member: CN=$member_rights,CN=Users,$ad_base_dn" >> $dir_config/ad_rights.ldif
+		if [ -n "$(ldapsearch -o ldif-wrap=no -xLLL -D $adminRdn,$ldap_base_dn -w $adminPw uid=$member_rights uid)" ]; then
+                    echo "member: CN=$member_rights,CN=Users,$ad_base_dn" >> $dir_config/ad_rights.ldif
+		fi
 	done
 	
 ldapsearch -o ldif-wrap=no -xLLL -D $adminRdn,$ldap_base_dn -w $adminPw -b cn=$cn_rights,ou=Rights,$ldap_base_dn member | sed -n 's/member: cn=//p' | cut -d "," -f1 | while read member_rights
 	do
-		echo "member: CN=$member_rights,OU=Groups,$ad_base_dn" >> $dir_config/ad_rights.ldif
+# 		echo "member: CN=$member_rights,OU=Groups,$ad_base_dn" >> $dir_config/ad_rights.ldif
+		if [ -n "$(ldapsearch -o ldif-wrap=no -xLLL -D $adminRdn,$ldap_base_dn -w $adminPw cn=$member_rights cn)" ]; then
+                    echo "member: CN=$member_rights,CN=Users,$ad_base_dn" >> $dir_config/ad_rights.ldif
+		fi
 	done
 echo ""	>> $dir_config/ad_rights.ldif
 done
@@ -449,13 +484,7 @@ if [ -n "$(ldapsearch -o ldif-wrap=no -xLLL -b ou=Parcs,$ldap_base_dn cn| sed -n
 	ldapsearch -o ldif-wrap=no -xLLL -b ou=Parcs,$ldap_base_dn cn| sed -n 's/^cn: //p' | while read cn_parcs
 	do
 	cat >> $dir_config/ad_parcs.ldif <<END	
-dn: OU=$cn_parcs,OU=Parcs,$ad_base_dn
-objectClass: top
-objectClass: organizationalUnit
-ou: $cn_parcs
-description: ensemble $cn_parcs
-
-dn: CN=$cn_parcs,OU=$cn_parcs,OU=Parcs,$ad_base_dn
+dn: CN=$cn_parcs,OU=Parcs,$ad_base_dn
 objectClass: group
 objectClass: top
 END
@@ -492,6 +521,24 @@ END
 done
 
 }
+
+# generation du contenu de la branche Rights 
+function gen_right_ldifs()
+{
+local ad_base_dn="##ad_base_dn##"
+rm -f $dir_config/ad_rights.ldif
+for cn_rights in Annu_is_admin se3_is_admin sovajon_is_admin printers_is_admin echange_can_administrate annu_can_read parc_can_view parc_can_manage no_Trash_user parc_can_clone 
+do
+    cat >> $dir_config/ad_rights.ldif <<END	
+dn: CN=$cn_rights,OU=Rights,$ad_base_dn
+objectClass: group
+objectClass: top
+member: CN=Administrator,CN=Users,$ad_base_dn
+member: CN=admin,CN=Users,$ad_base_dn
+END
+done
+}
+
 # Nettoyage complet de la conf samba ad
 function reset_smb_ad_conf()
 {
@@ -521,7 +568,7 @@ function installsamba()
 echo -e "$COLINFO"
 echo "Installation de samba 4.5" 
 echo -e "$COLCMD"
-apt-get install $samba_packages 
+apt-get install --assume-yes $samba_packages
 /etc/init.d/samba stop
 /etc/init.d/smbd stop
 /etc/init.d/nmbd stop
@@ -537,7 +584,7 @@ cat > /etc/krb5.conf <<END
 [libdefaults]
  dns_lookup_realm = false
  dns_lookup_kdc = true
- default_realm = $ad_domain_up
+ default_realm = $domain_up
 END
 }
 
@@ -552,11 +599,11 @@ if [ -e "$dir_export/smb.conf" ]; then
 	echo "Lancement de la migration du domaine NT4 vers Samba AD avec sambatool" 
 	go_on
 	echo -e "$COLCMD"
-	sed "s/$netbios_name/se4ad/I" -i $dir_export/smb.conf
-	sed "s/$sambadomaine_old/$sambadomaine_new/I" -i $dir_export/smb.conf
+	sed "s/netbios name = $netbios_name/netbios name = se4ad/I" -i $dir_export/smb.conf
+	sed "s/workgroup = $sambadomaine_old/workgroup = $sambadomaine_new/I" -i $dir_export/smb.conf
 	sed "s#passdb backend.*#passdb backend = ldapsam:ldap://$se4ad_ip#" -i $dir_export/smb.conf  
-	echo "samba-tool domain classicupgrade --dbdir=$dir_export --use-xattrs=yes --realm=$ad_domain_up --dns-backend=SAMBA_INTERNAL $dir_export/smb.conf"
-	samba-tool domain classicupgrade --dbdir=$dir_export --use-xattrs=yes --realm=$ad_domain_up --dns-backend=SAMBA_INTERNAL $dir_export/smb.conf
+	echo "samba-tool domain classicupgrade --dbdir=$dir_export --use-xattrs=yes --realm=$domain_up --dns-backend=SAMBA_INTERNAL $dir_export/smb.conf"
+	samba-tool domain classicupgrade --dbdir=$dir_export --use-xattrs=yes --realm=$domain_up --dns-backend=SAMBA_INTERNAL $dir_export/smb.conf
 	quit_on_error "Une erreur s'est produite lors de la migration de l'annaire avec samba-tool. Reglez le probleme sur l'export d'annuaire ou smb.conf et relancez le script" 
         echo -e "$COLINFO"
         echo "Migration de l'annuaire vers samba AD Ok !! On peut couper le service slapd et le désactiver au boot" 
@@ -578,7 +625,7 @@ function provision_new_ad()
 {
 echo -e "$COLPARTIE"
 echo "$dir_export/smb.conf Manquant - Lancement d'une nouvelle installation de Samba AD avec sambatool" 
-samba-tool domain provision --realm=$ad_domain_up --domain $smb4_domain_up --adminpass $ad_admin_pass  
+samba-tool domain provision --realm=$domain_up --domain $samba_domain_up --adminpass $ad_admin_pass  
 echo -e "$COLCMD"
 }
 
@@ -622,7 +669,7 @@ function ldbadd_ou()
 local dn_add=$1
 local rdn_add=$2
 local desc_add=$3
-ldbmodify -H /var/lib/samba/private/sam.ldb <<EOF
+ldbmodify -v -H /var/lib/samba/private/sam.ldb <<EOF
 dn: $dn_add
 changetype: add
 objectClass: organizationalUnit
@@ -633,14 +680,14 @@ description: $desc_add
 EOF
 }
 
-# Fonction permettant le déplacement d'un groupe ds l'annuaire AD
+# Fonction permettant le déplacement d'un groupe ou un utilisateur ds l'annuaire AD
 function ldbmv_grp()
 {
 local dn_mv=$1
 local rdn_mv=$2
 local target_dn_mv=$3
 
-ldbmodify -H /var/lib/samba/private/sam.ldb <<EOF
+ldbmodify -v -H /var/lib/samba/private/sam.ldb <<EOF
 dn: $dn_mv
 changetype: moddn
 newrdn: $rdn_mv
@@ -657,51 +704,47 @@ ad_base_dn="$(ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b "" defaultN
 ad_bindDN="CN=Administrator,CN=users,$ad_base_dn"
 echo "Base Dn trouvée : $ad_base_dn"
 
+se4fs_config="/root/se4fs.conf"
+echo "## ad_base_dn ##" > $se4fs_config
+echo "ldap_base_dn=\"$ad_base_dn\"" >> $se4fs_config
+
 echo "Modification des exports ldif pour insertion de la base dn AD"
 sed "s/##ad_base_dn##/$ad_base_dn/g" -i $dir_config/*.ldif
+
+
+# ldap_base_dn="dc=sambaedu3,dc=maison" ldap_admin_name="Administrator" ldap_admin_passwd="wwwwwww"
 
 echo -e "$COLINFO"
 echo "Ajout des branches de l'annuaire propres à SE4"
 echo -e "$COLCMD"
 ldbadd_ou "OU=Rights,$ad_base_dn" "Rights" "Branche des droits"
 ldbadd_ou "OU=Groups,$ad_base_dn" "Groups" "Branche des groupes"
+ldbadd_ou "OU=Cours,OU=Groups,$ad_base_dn" "Cours" "Branche des groupes cours"
+ldbadd_ou "OU=Matieres,OU=Groups,$ad_base_dn" "Matieres" "Branche des groupes matiere"
+ldbadd_ou "OU=Classes,OU=Groups,$ad_base_dn" "Classes" "Branche des groupes classe"
+ldbadd_ou "OU=Equipes,OU=Groups,$ad_base_dn" "Equipes" "Branche des groupes cours"
+
+ldbadd_ou "OU=Administratifs,OU=Groups,$ad_base_dn" "Administratifs" "Branche des administratifs"
 ldbadd_ou "OU=Trash,$ad_base_dn" "Trash" "Branche de la corbeille"
 ldbadd_ou "OU=Parcs,$ad_base_dn" "Parcs" "Branche parcs"
-ldbadd_ou "OU=Printers,$ad_base_dn" "Printers" "Branche imprimantes"
+ldbadd_ou "OU=Materiels,$ad_base_dn" "Materiels" "Branche Materiels"
+ldbadd_ou "OU=Delegations,$ad_base_dn" "Delegations" "Branche Delegations"
 sleep 2
 
 
 
 echo -e "$COLINFO"
-echo "Commplétion de la branche Parcs"
+echo "Complétion de la branche Parcs"
 echo -e "$COLCMD"
 ldbadd -H /var/lib/samba/private/sam.ldb $dir_config/ad_parcs.ldif
 
 echo -e "$COLINFO"
-echo "Commplétion de la branche Computers"
+echo "Complétion de la branche Computers"
 echo -e "$COLCMD"
 ldbmodify -H /var/lib/samba/private/sam.ldb $dir_config/ad_computers.ldif
 
 echo -e "$COLINFO"
-echo "Déplacement des groupes dans la branche dédiée"
-echo -e "$COLCMD"
-# ldapsearch -xLLL -D $ad_bindDN -w $administrator_pass -b $ad_base_dn -H ldaps://sambaedu4.lan "(objectClass=group)" dn | grep "dn:" | while read dn
-ldbsearch -H /var/lib/samba/private/sam.ldb -b "CN=users,$ad_base_dn" "(objectClass=group)" dn | grep "dn:" | while read dn
-do
-	rdn="$(echo $dn | sed -e "s/dn: //" | cut -d "," -f1)"
-	rdn_classe="$(echo $rdn | sed -n "s/^CN=Classe_\|^CN=Equipe_//"p)"
-# 	rdn_equipe="$(echo $rdn | sed -n "s/^CN=Equipe_//"p)"
-	if [ -n "$rdn_classe" ];then
-		target_dn="OU=$rdn_classe,OU=Groups,$ad_base_dn"
-		ldbsearch -H /var/lib/samba/private/sam.ldb -b "$target_dn" | grep "dn:" || ldbadd_ou "$target_dn" "$rdn_classe" "ensemble $rdn_classe"
-	else
-		target_dn="OU=Groups,$ad_base_dn"
-	fi
-	ldbmv_grp "$rdn,CN=users,$ad_base_dn" "$rdn" "$target_dn"
-done
-
-echo -e "$COLINFO"
-echo "Commplétion de la branche Rights"
+echo "Complétion de la branche Rights"
 echo -e "$COLCMD"
 #~ ad_base_dn
 
@@ -709,48 +752,108 @@ echo -e "$COLCMD"
 ldbadd -H /var/lib/samba/private/sam.ldb $dir_config/ad_rights.ldif
 
 #~ set +x
+
+echo -e "$COLINFO"
+echo "Déplacement des groupes dans leur branche dédiée - Patience !"
+echo -e "$COLCMD"
+# ldapsearch -xLLL -D $ad_bindDN -w $administrator_pass -b $ad_base_dn -H ldaps://sambaedu4.lan "(objectClass=group)" dn | grep "dn:" | while read dn
+ldbsearch -H /var/lib/samba/private/sam.ldb -b "CN=users,$ad_base_dn" "(objectClass=group)" dn | grep "dn:" | while read dn
+do
+	rdn="$(echo $dn | sed -e "s/dn: //" | cut -d "," -f1)"
+	rdn_cours="$(echo $rdn | grep  "^CN=Cours")"
+	rdn_matiere="$(echo $rdn | grep  "^CN=Matiere")"
+	rdn_equipe="$(echo $rdn | grep  "^CN=Equipe")"
+	rdn_classe="$(echo $rdn | grep  "^CN=Classe")"
+	rdn_other="$(echo $rdn | grep  "^CN=Eleves\|^CN=Profs\|^CN=Equipe_\|^CN=Matiere_\|^CN=Administratifs\|^CN=Classe_\|^CN=overfill" | sed -n "s/^CN=//"p)"
+
+	if [ -n "$rdn_cours" ];then
+# 		target_dn="OU=$rdn_classe,OU=Groups,$ad_base_dn"
+		target_dn="OU=Cours,OU=Groups,$ad_base_dn"
+# 		ldbsearch -H /var/lib/samba/private/sam.ldb -b "$target_dn" | grep "dn:" || ldbadd_ou "$target_dn" "Cours" "ensemble des groupes cours"
+	elif [ -n "$rdn_matiere" ];then
+		target_dn="OU=Matieres,OU=Groups,$ad_base_dn"
+	elif [ -n "$rdn_classe" ];then
+		target_dn="OU=Classes,OU=Groups,$ad_base_dn"
+	elif [ -n "$rdn_equipe" ];then
+		target_dn="OU=Equipes,OU=Groups,$ad_base_dn"
+# 	elif [ -n "$rdn_other" ];then
+# 		target_dn="OU=$rdn_other,OU=Groups,$ad_base_dn"
+# 		ldbsearch -H /var/lib/samba/private/sam.ldb -b "$target_dn" | grep "dn:" || ldbadd_ou "$target_dn" "$rdn_other" "ensemble $rdn_other"
+        else
+                target_dn="OU=Groups,$ad_base_dn"
+	fi
+	ldbmv_grp "$rdn,CN=users,$ad_base_dn" "$rdn" "$target_dn"
+done
 }
+
+
+function mv_users()
+{
+ldbadd_ou "OU=Utilisateurs,$ad_base_dn" "Utilisateurs" "Branche utilisateurs"
+ldbadd_ou "OU=Eleves,OU=Utilisateurs,$ad_base_dn" "Eleves" "Branche des Eleves"
+ldbadd_ou "OU=Profs,OU=Utilisateurs,$ad_base_dn" "Profs" "Branche des Profs"
+ldbadd_ou "OU=Administratifs,OU=Utilisateurs,$ad_base_dn" "Administratifs" "Branche des Administratifs"
+
+echo -e "$COLINFO"
+echo "Déplacement des comptes utilisateurs dans les branches dédiées - Patience !"
+echo -e "$COLCMD"
+ldbsearch -H /var/lib/samba/private/sam.ldb -b "CN=users,$ad_base_dn" "(objectClass=person)" cn | sed -n "s/^cn: //"p | while read cn
+do
+    cn_member="$(ldbsearch -H /var/lib/samba/private/sam.ldb -b "CN=users,$ad_base_dn" CN=$cn memberOf)"
+    if [ "$cn" = "Administrator" ]; then
+    continue
+    elif echo $cn_member | grep -q Eleves; then
+        target_dn="OU=Eleves,OU=Utilisateurs,$ad_base_dn"
+    elif echo $cn_member | grep -q Profs; then
+        target_dn="OU=Profs,OU=Utilisateurs,$ad_base_dn"
+    elif echo $cn_member | grep -q Administratifs; then
+        target_dn="OU=Administratifs,OU=Utilisateurs,$ad_base_dn"
+    else
+    continue
+    fi
+    ldbmv_grp "CN=$cn,CN=users,$ad_base_dn" "CN=$cn" "$target_dn"
+done
+}
+
+function mv_computers()
+{
+ldbadd_ou "OU=Computers,$ad_base_dn" "Computers" "Branche machines"
+echo -e "$COLINFO"
+echo "Déplacement des comptes machines les branches dédiées - Patience !"
+echo -e "$COLCMD"
+ldbsearch -H /var/lib/samba/private/sam.ldb -b "CN=Computers,$ad_base_dn" "(objectClass=computer)" cn | sed -n "s/^cn: //"p | while read cn
+
+do
+    cn_member="$(ldbsearch -H /var/lib/samba/private/sam.ldb -b "CN=Computers,$ad_base_dn" CN=$cn memberOf | sed -n "s/^memberOf: //"p | grep -Ei "?salle" | head -n1)"
+    
+    if [ -n "$cn_member" ]; then
+        cn_parc="$(echo $cn_member | cut -d "," -f1 | sed -n "s/^CN=//"p)"
+        target_dn="OU=$cn_parc,OU=Computers,$ad_base_dn"
+        ldbsearch -H /var/lib/samba/private/sam.ldb -b "$target_dn" | grep "dn:" || ldbadd_ou "$target_dn" "$cn_parc" "Container $cn_parc"
+    else
+        target_dn="OU=Computers,$ad_base_dn"
+    fi
+    ldbmv_grp "CN=$cn,CN=Computers,$ad_base_dn" "CN=$cn" "$target_dn"
+done
+}
+
 
 # Fonction permettant la mise à l'heure du serveur 
 function set_time()
 {
 echo -e "$COLPARTIE"
-echo "Type de configuration Ldap et mise a l'heure"
+echo "Configuration d'Open Ntp et mise à l'heure"
 echo -e "$COLTXT"
-
-
-echo -e "$COLINFO"
-
-if [ -n "$GATEWAY" ]; then
-	echo "Tentative de Mise à l'heure automatique du serveur sur $GATEWAY..."
-	ntpdate -b $GATEWAY
-	if [ "$?" = "0" ]; then
-		heureok="yes"
-	fi
-fi
-
-if [ "$heureok" != "yes" ];then
-
-	echo "Mise à l'heure automatique du serveur sur internet..."
-	echo -e "$COLCMD\c"
-	ntpdate -b fr.pool.ntp.org
-	if [ "$?" != "0" ]; then
-		echo -e "${COLERREUR}"
-		echo "ERREUR: mise à l'heure par internet impossible"
-		echo -e "${COLTXL}Vous devez donc vérifier par vous même que celle-ci est à l'heure"
-		echo -e "le serveur indique le$COLINFO $(date +%c)"
-		echo -e "${COLTXL}Ces renseignements sont-ils corrects ? (${COLCHOIX}O/n${COLTXL}) $COLSAISIE\c"
-		read rep
-		[ "$rep" = "n" ] && echo -e "${COLERREUR}Mettez votre serveur à l'heure avant de relancer l'installation$COLTXT" && exit 1
-	fi
-fi
+sed "s/^#listen on \*/listen on */" -i /etc/openntpd/ntpd.conf 
+/usr/sbin/ntpd -s
+echo -e "$COLTXT"
 }
 
 # Fonction permettant l'écriture de resolv.conf car AD est DNS du domaine
 function write_resolvconf()
 {
 cat >/etc/resolv.conf<<END
-search $ad_domain
+search $domain
 nameserver 127.0.0.1
 END
 }
@@ -763,11 +866,11 @@ cat >/etc/samba/smb.conf <<END
 # Global parameters
 [global]
 	netbios name = SE4AD
-	realm = $ad_domain_up
-	workgroup = $smb4_domain_up
+	realm = $domain_up
+	workgroup = $samba_domain_up
 	dns forwarder = $nameserver
 	server role = active directory domain controller
-	idmap_ldb:use rfc2307 = yes
+	ntlm auth = yes
 	
 [netlogon]
 	path = /var/lib/samba/sysvol/sambaedu4.lan/scripts
@@ -792,10 +895,14 @@ grep -q "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes
 
 # Fonction permettant de descendre le niveau de complexité des pass utilisateurs
 function change_policy_passwords() {
+echo -e "$COLPARTIE"
+echo -e "Assouplissement de la politique des mots de passe pour les autres comptes"
+echo -e "$COLINFO"
 samba-tool domain passwordsettings set --complexity=off
 samba-tool domain passwordsettings set --history-length=0
 samba-tool domain passwordsettings set --min-pwd-age=0
 samba-tool domain passwordsettings set --max-pwd-age=0
+echo -e "$COLTXT"
 }
 
 
@@ -836,7 +943,7 @@ echo -e "$COLTXT"
 
 
 # Fonction permettant de fixer le pass admin : Attention complexité requise
-function change_pass_admin()
+function change_pass_administrator()
 {
 TEST_PASS="none"
 cpt=1
@@ -847,10 +954,10 @@ do
 	
 	
 	echo -e "$COLCMD"
-	echo -e "Entrez un mot de passe pour le compte Administrator AD (remplaçant de admin sur se3)" 
+	echo -e "Entrez un mot de passe pour le compte Administrator AD - compte d'aministration de l'annuaire AD" 
 	echo -e "$COLTXT"
 	echo -e "---- /!\ Attention /!\ ----"
-	echo -e "le mot de passe doit contenir au moins 8 caractères tout en mélangeant lettres / chiffres et un caractère spécial !"
+	echo -e "le mot de passe doit contenir au moins 8 caractères tout en mélangeant lettres / chiffres et majuscule(s) ou caratère spécial !"
 	read -r administrator_pass
 	sleep 2
 	echo -e "Veuillez confirmer le mot de passe saisi précédemment"
@@ -881,6 +988,9 @@ do
         TEST_PASS="OK"
         echo -e "$COLINFO"
         echo "Mot de passe Administrator changé avec succès :)"
+        echo "## ldap_admin_passwd ##" >> $se4fs_config
+        echo "ldap_admin_passwd=\"$administrator_pass\"" >> $se4fs_config
+
         sleep 1
     fi
     
@@ -888,6 +998,45 @@ do
 done
 echo -e "$COLTXT"
 }
+
+function create_www-sambaedu()
+{
+samba-tool user create www-sambaedu --description="Utilisateur admin de l'interface web" --random-password 
+samba-tool group addmembers "Domain Admins" www-sambaedu
+samba-tool domain exportkeytab --principal=www-sambaedu@$domain_up $dir_config/www-sambaedu.keytab
+}
+
+function create_admin_account()
+{
+echo -e "$COLPARTIE"
+echo -e "Création du compte admin du domaine sambaEdu 4"
+echo -e "$COLCMD"
+echo -e "Entrez un mot de passe" 
+samba-tool user create admin --description="Utilisateur admin du domaine sambaEdu" --random-password
+samba-tool group addmembers "Domain Admins" admin
+}
+
+
+function disable_ipv6()
+{
+if ! grep -q "#disable_ipv6" /etc/sysctl.conf; then
+echo "#disable_ipv6
+# désactivation de ipv6 pour toutes les interfaces
+net.ipv6.conf.all.disable_ipv6 = 1
+
+# désactivation de l’auto configuration pour toutes les interfaces
+net.ipv6.conf.all.autoconf = 0
+
+# désactivation de ipv6 pour les nouvelles interfaces (ex:si ajout de carte réseau)
+net.ipv6.conf.default.disable_ipv6 = 1
+
+# désactivation de l’auto configuration pour les nouvelles interfaces
+net.ipv6.conf.default.autoconf = 0
+" >> /etc/sysctl.conf
+sysctl -p
+fi
+}
+
 
 # Fonction permettant de changer le pass root
 function change_pass_root()
@@ -919,6 +1068,7 @@ echo -e "$COLTXT"
 
 #### 				---------- Fin des fonctions ---------------####
 
+
 # vt220 sucks !
 [ "$TERM" = "vt220" ] && TERM="linux"
 
@@ -939,7 +1089,7 @@ COLSAISIE="\033[1;32m"  # Vert
 
 ### Mode devel pour le moment sur on !###
 devel="yes"
-dev_debug
+cp_ssh_key
 
 samba_packages="samba winbind libnss-winbind krb5-user smbclient"
 export DEBIAN_FRONTEND=noninteractive
@@ -1026,7 +1176,7 @@ haveged
 ad_admin_pass=$(makepasswd --minchars=8)
 go_on
 
-dev_debug
+cp_ssh_key
 
 echo -e "$COLPARTIE"
 
@@ -1042,7 +1192,7 @@ export  DEBIAN_PRIORITY
 [ -e /root/debug ] && DEBUG="yes"
 
 write_hostconf
-
+disable_ipv6
 reset_smb_ad_conf
 installsamba
 Permit_ssh_by_password
@@ -1064,14 +1214,18 @@ else
 	echo "$dir_export/slapd.conf non trouvé - L'installation se poursuivra sur un nouveau domaine sans import d'anciennes données"
 	go_on
 	provision_new_ad # Voir partie dns interne
+	write_krb5
 	write_smbconf
 	write_resolvconf
 	activate_smb_ad
+	gen_right_ldifs            # ajouter fonction
+	modif_ldb                  # ajouter fonction
 	check_smb_ad
-	write_krb5
+	change_pass_administrator  # ajouter fonction
+	create_admin_account       # ajouter fonction
 	
 fi
-
+set_time
 change_policy_passwords
 
 change_pass_root

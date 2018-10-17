@@ -83,10 +83,10 @@ function get_config_se4($module = "sambaedu")
  */
 function get_config($force = false)
 {
-/*    while (apc_fetch('config_lock')) {
-        sleep(1);
-    }
-*/    if (($force) || ! ($config = apc_fetch('config'))) {
+//    while (apc_fetch('config_lock')) {
+//        sleep(1);
+//    }
+   if (($force) || ! ($config = apc_fetch('config'))) {
         apc_add('config_lock', 1, 60);
 
         unset($config);
@@ -146,19 +146,37 @@ function set_config($param, $value = "", $module = "sambaedu")
     // write it into file
     if ($module == "sambaedu") {
         $conf_file = "/etc/sambaedu/sambaedu.conf";
+        $conf_file_tmp = "/etc/sambaedu/sambaedu.conf.tmp";
     } else {
         $conf_file = "/etc/sambaedu/sambaedu.conf.d/$module.conf";
+        $conf_file_tmp = "/etc/sambaedu/sambaedu.conf.d/$module.conf.tmp";
     }
     apc_add('config_lock', 1, 60);
-    if (! $handle = fopen($conf_file, "w")) {
+    //on teste l'ecriture dans le fichier temporaire
+    if (! $handle1 = fopen($conf_file_tmp, "w")) {
         apc_delete('config_lock');
         die("Erreur d'ecriture de la configuration se4 : $module $param $value");
     }
-    $res = fwrite($handle, $content);
-    fclose($handle);
-    apc_delete('config_lock');
-    if (! $res)
-        die("Erreur d'ecriture de la configuration se4 : $module $param $value");
+    $res_test = fwrite($handle1, $content);
+    fclose($handle1);
+        if (! $res_test) {
+            apc_delete('config_lock');
+            die("Erreur d'ecriture de la configuration se4 : $module $param $value");
+        }
+
+        else {
+            //test ecriture reussi
+            if (! $handle = fopen($conf_file, "w")) {
+                apc_delete('config_lock');
+                die("Erreur d'ecriture de la configuration se4 : $module $param $value");
+            }
+            $res = fwrite($handle, $content);
+            fclose($handle);
+            @unlink($conf_file_tmp);
+            apc_delete('config_lock');
+            if (! $res)
+                die("Erreur d'ecriture de la configuration se4 : $module $param $value");
+        }
 
     return (get_config(true));
 }
@@ -170,8 +188,8 @@ function set_config($param, $value = "", $module = "sambaedu")
  * @Parametres : valeur
  * @Parametres : module ( defaut = "sambaedu" )
  * @return : array() $config
- *        
- *        
+ *
+ *
  */
 function init_param(&$config, $nom, $valeur, $module = "sambaedu")
 {

@@ -1,20 +1,10 @@
 <?php
-
-
    /**
 
    * Page qui permet d'enregistrer le serveur la premiere fois que l'on se connecte
-   * @Version $Id$
-
-   * @Projet LCS / SambaEdu
-
-   * @auteurs  jLCF >:>  jean-luc.chretien@tice.ac-caen.fr
-   * @auteurs oluve olivier.le_monnier@crdp.ac-caen.fr
-   * @auteurs Olivier LECLUSE
-
-   * @Licence Distribu&#233; selon les termes de la licence GPL
-
-   * @note
+   * * @Projet LCS / SambaEdu
+   * @Auteurs Equipe Sambaedu
+   * @Licence Distribue sous la licence GPL
 
    */
 
@@ -42,7 +32,7 @@ require_once ("traitement_data.inc.php");
   $dept=isset($_POST['dept']) ? $_POST['dept'] : "";
   $vernbr=isset($_POST['vernbr']) ? $_POST['vernbr'] : "";
   $rne=isset($_POST['rne']) ? $_POST['rne'] : "";
-
+  $ok_alert=0;
 // Demande de s'enregistrer
 if (isset ($register)) {
 	if ($register == "yes") {
