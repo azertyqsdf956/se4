@@ -32,6 +32,12 @@ Default:
 Description: Adresse IP du serveur Active Directory
  Le serveur se4ad aura une adresse ip fixe. Il est conseillé de la choisir dans la même plage que l'adresse du serveur de fichiers.
 
+Template: sambaedu/boot_server
+Type: boolean
+Default: false
+Description: Installer un serveur de boot ?
+ Si vous installez un nouveau serveur sambaedu, repondre oui. Si vous installez un client linux répondre non.
+
 Template: sambaedu/dhcp_begin_range
 Type: string
 Default:

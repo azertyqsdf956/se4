@@ -4,8 +4,8 @@ usr/share/doc/sambaedu/sambaedu.sql
 usr/share/doc/sambaedu/fpm.conf
 usr/share/doc/sambaedu/php-cli.ini.example
 #var/www/sambaedu/*
-usr/share/sambaedu/scripts/*
 usr/share/sambaedu/sbin/renew_ticket.sh
+var/www/sambaedu/includes/*
 var/www/sambaedu/logout.php
 var/www/sambaedu/action_serv.php
 var/www/sambaedu/public_key.js
@@ -39,7 +39,7 @@ var/www/sambaedu/ups/*
 var/www/sambaedu/cloud/*
 var/www/sambaedu/includes/*
 var/www/sambaedu/dhcp/*
-var/www/sambaedu/tmp/*
+#var/www/sambaedu/tmp/*
 var/www/sambaedu/annu/*
 var/www/sambaedu/elements/*
 var/www/sambaedu/parcs/*
