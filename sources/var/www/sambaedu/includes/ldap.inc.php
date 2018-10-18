@@ -55,7 +55,7 @@ function cmp_nom($a, $b)
      * @Parametres $a - La premiere entree 	$b - La deuxieme entree a comparer
      *
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
+     *
      */
     return strcmp($a["nom"], $b["nom"]);
 }
@@ -70,7 +70,7 @@ function cmp_cn($a, $b)
      * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
      *
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
+     *
      */
     return strcmp($a["cn"], $b["cn"]);
 }
@@ -84,7 +84,7 @@ function cmp_group($a, $b)
      *
      * @Parametres  $a - La premiere entree 	$b - La deuxieme entree a comparer
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
+     *
      */
     return strcmp($a["group"], $b["group"]);
 }
@@ -98,7 +98,7 @@ function cmp_cat($a, $b)
      *
      * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
+     *
      */
     return strcmp($a["cat"], $b["cat"]);
 }
@@ -607,7 +607,7 @@ function filter_user($config, $filter)
      *
      * @Parametres $filter - Un filtre de recherche permettant l'extraction de l'annuaire des utilisateurs
      * @return Un tableau contenant les utilisateurs repondant au filtre de recherche ($filter)
-     *        
+     *
      */
     $ret = search_ad($config, $filter, "filter");
 
@@ -648,7 +648,7 @@ function search_user($config, $cn)
      *
      * @return Un tableau contenant les informations sur l'utilisateur (cn)
      *         les groupes sont dans le tableau $res['memberof']
-     *        
+     *
      */
     $ret = search_ad($config, $cn, "user");
     if (count($ret) > 0) {
@@ -681,7 +681,7 @@ function search_machine($config, $cn, $ip = false)
      *
      * @return Un tableau contenant les informations sur la machine (cn ou dn ou dsiplayname)
      *         les dn groupes sont dans le tableau $res['memberof']
-     *        
+     *
      */
     $ret = search_ad($config, $cn, "machine");
     if (count($ret) > 0) {
@@ -1526,13 +1526,13 @@ function create_group(array $config, string $name, string $description, string $
         $pp = "PP_" . $name;
         $ou = $config['equipes_rdn'] . "," . $config['groups_rdn'];
         $res = groupadd($config, $pp, $ou, "Profs principaux de " . $description);
-    } elseif ($type == "other_group") {
+    } elseif ($type == "other_group" || $type == "projet") {
         $classe = ucfirst($name);
         $ou = $config[$type . "s_rdn"] . "," . $config['groups_rdn'];
         // On crée l'OU si elle n'existe pas
         $ouName = explode("=", $config[$type . "s_rdn"]);
-        if (! ouexist($config, $ouName[1], $config['dn']['groups'])) {
-            $res1 = ouadd($config, $ouName[1], $config['dn']['groups']);
+        if (! ouexist($config, $ouName[1], "Groups")) {
+            $res1 = ouadd($config, $ouName[1], "Groups");
         }
         $res = groupadd($config, $classe, $ou, $description);
     } else {

@@ -54,6 +54,7 @@ if (have_right($config, "Annu_is_admin")) {
 	           <option><?php echo gettext("Cours"); ?></option>
                    <option><?php echo gettext("Equipe"); ?></option>
                    <option><?php echo gettext("Matiere"); ?></option>
+                   <option><?php echo gettext("Projet"); ?></option>
                    <option><?php echo gettext("Autre"); ?></option>
                  </select>
               	</td>
