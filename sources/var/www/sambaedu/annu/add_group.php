@@ -8,9 +8,6 @@
    * @Projet LCS / SambaEdu
    * @Auteurs Equipe Sambaedu
    * @Licence Distribue sous la licence GPL
-   */
-
-   /**
 
    * @Repertoire: annu
    * file: add_group.php

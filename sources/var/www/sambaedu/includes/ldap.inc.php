@@ -344,6 +344,43 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
             );
             $branch = $config['equipes_rdn'] . "," . $config['dn']['groups'];
             break;
+        case "matiere":
+            if ($name == "*")
+                $filter = "(&(objectclass=group)(cn=Matiere_*))";
+            else
+                $filter = "(&(objectclass=group)(cn=Matiere_*)(|(cn=Matiere_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
+            $ldap_attrs = array(
+                "cn",
+                "description",
+                "member"
+            );
+            $branch = $config['matieres_rdn'] . "," . $config['dn']['groups'];
+            break;
+        case "projet":
+            if ($name == "*")
+                $filter = "(&(objectclass=group)(cn=Projet*))";
+            else
+                $filter = "(&(objectclass=group)(cn=Projet_*)(|(cn=Projet_" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
+            $ldap_attrs = array(
+                "cn",
+                "description",
+                "member"
+            );
+            $branch = $config['projets_rdn'] . "," . $config['dn']['groups'];
+            break;
+        case "autre":
+            if ($name == "*")
+                $filter = "(&(objectclass=group)(cn=*))";
+            else
+                $filter = "(&(objectclass=group)(|(cn=" . $name . ")(cn=" . $name . ")(dn=" . $name . ")(member=cn=" . $name . "*)))";
+            $ldap_attrs = array(
+                "cn",
+                "description",
+                "member"
+            );
+            $branch = $config['other_groups_rdn'] . "," . $config['dn']['groups'];
+            break;
+
         case "imprimante":
             break;
         case "delegation":

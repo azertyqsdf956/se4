@@ -68,6 +68,8 @@ function get_config_se4($module = "sambaedu")
         $config['dn']['trash'] = $config['trash_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['parcs'] = $config['parcs_rdn'] . "," . $config['ldap_base_dn'];
         $config['dn']['computers'] = $config['computers_rdn'] . "," . $config['ldap_base_dn'];
+        $config['dn']['autres'] = $config['other_groups_rdn'] . "," . $config['ldap_base_dn'];
+        $config['dn']['projets'] = $config['projets_rdn'] . "," . $config['ldap_base_dn'];
     } else {
         $conf_file = "/etc/sambaedu/sambaedu.conf.d/$module.conf";
         $config = parse_ini_file($conf_file);
