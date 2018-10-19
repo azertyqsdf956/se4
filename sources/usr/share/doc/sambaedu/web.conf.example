@@ -49,7 +49,6 @@
 		    Require all granted
 	    </Directory>
 	    <FilesMatch "diconf/.*\.tar\.gz$">
-            AllowOverride None
             Order deny,allow
             Deny from all
             Allow from ###_SE4AD_IP_###
