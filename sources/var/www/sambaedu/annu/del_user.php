@@ -6,9 +6,9 @@
    * Supprime les utilisateurs 
    * @Version $Id$ 
    
-   * @Projet LCS / SambaEdu 
+   * @Projet SambaEdu / SE4
    
-   * @auteurs jLCF jean-luc.chretien@tice.ac-caen.fr
+   * @auteurs jLCF jean-luc.chretien@ac-caen.fr
    * @auteurs wawa  olivier.lecluse@crdp.ac-caen.fr
    * @auteurs Equipe Tice academie de Caen
    * @auteurs oluve olivier.le_monnier.ac-caen.fr
@@ -51,8 +51,7 @@ if (have_right($config, "Annu_is_admin")) {
     	} elseif (!$cn)  {
       		echo "<div class=error_msg>".gettext("Vous devez pr&#233;ciser le login du compte a effacer ! !")."</div>";
     	} else {
-        	exec ("/usr/share/se3/sbin/userDel.pl $cn",$AllOutPut,$ReturnValue);
-        	if ($ReturnValue == "0") {
+        	if ( userdel($config, $cn) ) {
           		echo gettext("Le compte")." <strong>$cn</strong> ".gettext(" a &#233;t&#233; effac&#233; avec succ&#232;s !")."<BR>\n";
         	} else {
           		echo "<div class=error_msg>".gettext("Echec, l'utilisateur $cn n'a pas &#233;t&#233; effac&#233; !");
