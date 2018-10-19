@@ -23,7 +23,7 @@ textdomain ('se3-annu');
 
 //Aide
 $_SESSION["pageaide"]="Annuaire";
-$classe_gr=$equipe_gr=$matiere_gr=$autre_gr="";
+$classe_gr=$equipe_gr=$matiere_gr=$autres_gr="";
 echo "<h1>".gettext("Annuaire")."</h1>";
 
 if (have_right($config, "Annu_is_admin")) {
