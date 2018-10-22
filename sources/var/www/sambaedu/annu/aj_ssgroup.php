@@ -7,7 +7,6 @@
    * @Projet LCS / SambaEdu
    * @Auteurs Equipe Sambaedu
    * @Licence Distribue sous la licence GPL
-
    * @Repertoire: annu
    * file: aj_ssgroup.php
    */
@@ -18,8 +17,8 @@ include_once "ldap.inc.php";
 include "ihm.inc.php";
 
 require_once ("lang.inc.php");
-bindtextdomain('se3-annu',"/var/www/se3/locale");
-textdomain ('se3-annu');
+bindtextdomain('sambaedu-core', "/var/www/sambaedu/locale");
+textdomain('sambaedu-core');
 
 //Aide
 $_SESSION["pageaide"]="Annuaire";
