@@ -106,7 +106,7 @@ function useradd($config, $cn, $prenom, $nom, $userpwd, $naissance, $sexe, $cate
         // Ajout a un groupe principal
         $RES = groupaddmember($config, $newcn[1], $categorie);
         return true;
-    } else 
+    } else
         return false;
 }
 
@@ -309,8 +309,8 @@ function groupadd($config, $cn, $inou, $description)
         $command = "group add " . escapeshellarg($cn) . " --groupou=" . escapeshellarg($inou) . " --description=" . escapeshellarg($description);
         $RES = sambatool($config, $command, $message);
         if ($RES == 0)
-            return true; 
-        else 
+            return true;
+        else
             return false;
     } else {
         return false;
@@ -397,6 +397,118 @@ function groupdelmember($config, $cn, $ingroup)
     } else {
         return false;
     }
+}
+
+/**
+ * retourne la liste des gpo active pour l'utilisateur ou la machine
+ *
+ * @param array $config
+ * @param string $cn
+ *            utilisateur, machine...
+ * @return array liste des gpo [ uuid, displayname ]
+ */
+function gpolist(array $config, string $cn)
+{
+    $message = array();
+    $command = "gpo list " . escapeshellarg($cn);
+    $RES = sambatool($config, $command, $message);
+    $gpo = array();
+    $match = array();
+    if ($RES == 0) {
+
+        foreach ($message as $key => $ligne) {
+            preg_match("/^(.*)\s({.*})$/", $ligne, $match);
+            $gpo[$key]['uuid'] = $match[1];
+            $gpo[$key]['displayname'] = $match[0];
+        }
+    }
+    return $gpo;
+}
+
+function gposetlink(array $config, string $container, string $gpo, bool $enforce = true, bool $disable = false)
+{
+    $message = array();
+    $command = "gpo setlink " . escapeshellarg($gpo) . " " . escapeshellarg($container);
+    if ($enforce)
+        $message .= " --enforce";
+    if ($disable)
+        $message .= " --disable";
+    $RES = sambatool($config, $command, $message);
+    if ($RES == 0) {
+        return true;
+    }
+    return false;
+}
+
+function gpodellink(array $config, string $container, string $gpo)
+{
+    $message = array();
+    $command = "gpo dellink " . escapeshellarg($gpo) . " " . escapeshellarg($container);
+    $RES = sambatool($config, $command, $message);
+    if ($RES == 0) {
+        return true;
+    }
+    return false;
+}
+
+function gposetinheritance(array $config, string $container, bool $flag = true)
+{
+    $message = array();
+    $command = "gpo setinheritance " . escapeshellarg($container);
+    if ($flag)
+        $message .= " inherit";
+    else
+        $message .= " block";
+    $RES = sambatool($config, $command, $message);
+    if ($RES == 0) {
+        return true;
+    }
+    return false;
+}
+
+function gpogetinheritance(array $config, string $container)
+{
+    $message = array();
+    $command = "gpo getinheritance " . escapeshellarg($container);
+    $RES = sambatool($config, $command, $message);
+    if ($RES == 0) {
+        if (preg_match("/GPO_INHERIT/", $message[0]))
+            return "inherit";
+        else 
+            return "block";
+    }
+    return false;
+}
+function gpofetch(array $config, string $gpo, string $dir = "/temp")
+{
+    $message = array();
+    $command = "gpo fetch " . escapeshellarg($gpo) . " " . escapeshellarg($dir);
+    $RES = sambatool($config, $command, $message);
+    if ($RES == 0) {
+        return true;
+    }
+    return false;
+}
+function gpocreate(array $config, string $displayname)
+{
+    $message = $match = array();
+    $command = "gpo create " . escapeshellarg($displayname);
+    $RES = sambatool($config, $command, $message);
+    if ($RES == 0) {
+        preg_match("/^.*\s({.*})$/", $message[0], $match);
+        return $match[0];
+    }
+    return false;
+}
+function gpodel(array $config, string $gpo)
+{
+    $message = $match = array();
+    $command = "gpo del " . escapeshellarg($gpo);
+    $RES = sambatool($config, $command, $message);
+    if ($RES == 0) {
+        return true;
+    }
+    return false;
 }
 
 ?>
