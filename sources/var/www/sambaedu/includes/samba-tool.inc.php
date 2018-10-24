@@ -479,7 +479,7 @@ function gpogetinheritance(array $config, string $container)
     }
     return false;
 }
-function gpofetch(array $config, string $gpo, string $dir = "/temp")
+function gpofetch(array $config, string $gpo, string $dir = "/var/www/sambaedu/temp/policies")
 {
     $message = array();
     $command = "gpo fetch " . escapeshellarg($gpo) . " " . escapeshellarg($dir);
@@ -502,7 +502,7 @@ function gpocreate(array $config, string $displayname)
 }
 function gpodel(array $config, string $gpo)
 {
-    $message = $match = array();
+    $message = array();
     $command = "gpo del " . escapeshellarg($gpo);
     $RES = sambatool($config, $command, $message);
     if ($RES == 0) {
