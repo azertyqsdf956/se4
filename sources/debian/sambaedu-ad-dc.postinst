@@ -48,6 +48,7 @@ case "$1" in
             	echo "domain $config_domain
 nameserver $config_se4ad_ip">/etc/resolv.conf
             	set_config sambaedu ldap_url "ldaps://$config_domain"
+            	set_config dhcp dhcp_dns_server_prim $config_se4ad_ip
             	if res=$(ldapsearch  -xLLL -D "cn=$config_ldap_admin_name,$config_admin_rdn,$config_ldap_base_dn" \
             -b $config_ldap_base_dn -w "$config_ldap_admin_passwd" \
             "(&(objectClass=person)(samaccountname=$config_ldap_admin_name))"\
@@ -72,7 +73,9 @@ nameserver $config_se4ad_ip">/etc/resolv.conf
         	else
         		# client linux, on met juste à l'heure sur l'AD
                	sed -i "s/^#NTP=.*/NTP=${config_se4ad_name}.${config_domain}/" /etc/systemd/timesyncd.conf 
-            	systemctl restart systemd-timesyncd.service || true
+            	systemctl stop systemd-timesyncd.service || true
+            	sleep 5
+            	systemctl start systemd-timesyncd.service || true
         		exit 0
         	fi
         else
