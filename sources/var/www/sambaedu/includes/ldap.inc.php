@@ -34,96 +34,96 @@ $corriger_givenname_si_diff = "n";
 function cmp_fullname($a, $b)
 {
 
-    /**
-     *
-     * Fonctions de comparaison utilisees dans la fonction usort, pour trier le fullname
-     *
-     * @Parametres $a - La premiere entree 	$b - La deuxieme entree a comparer
-     *
-     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     */
-    return strcmp($a["fullname"], $b["fullname"]);
+/**
+*
+* Fonctions de comparaison utilisees dans la fonction usort, pour trier le fullname
+*
+* @Parametres $a - La premiere entree 	$b - La deuxieme entree a comparer
+*
+* @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+*/
+return strcmp($a["fullname"], $b["fullname"]);
 }
 
 function cmp_nom($a, $b)
 {
 
-    /**
-     *
-     * Fonctions de comparaison utilisees dans la fonction usort, pour trier le name
-     *
-     * @Parametres $a - La premiere entree 	$b - La deuxieme entree a comparer
-     *
-     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
-     */
+/**
+ *
+ * Fonctions de comparaison utilisees dans la fonction usort, pour trier le name
+ *
+ * @Parametres $a - La premiere entree 	$b - La deuxieme entree a comparer
+ *
+ * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+ *        
+ */
     return strcmp($a["nom"], $b["nom"]);
 }
 
 function cmp_cn($a, $b)
 {
 
-    /**
-     *
-     * Fonctions de comparaison utilisees dans la fonction usort, pour trier le cn (common name)
-     *
-     * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
-     *
-     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
-     */
+/**
+ *
+ * Fonctions de comparaison utilisees dans la fonction usort, pour trier le cn (common name)
+ *
+ * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
+ *
+ * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+ *        
+ */
     return strcmp($a["cn"], $b["cn"]);
 }
 
 function cmp_group($a, $b)
 {
 
-    /**
-     *
-     * Fonctions de comparaison utilisees dans la fonction usort, pour trier les groupes
-     *
-     * @Parametres  $a - La premiere entree 	$b - La deuxieme entree a comparer
-     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
-     */
+/**
+ *
+ * Fonctions de comparaison utilisees dans la fonction usort, pour trier les groupes
+ *
+ * @Parametres  $a - La premiere entree 	$b - La deuxieme entree a comparer
+ * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+ *        
+ */
     return strcmp($a["group"], $b["group"]);
 }
 
 function cmp_cat($a, $b)
 {
 
-    /**
-     *
-     * Fonctions de comparaison utilisees dans la fonction usort, pour trier les categories
-     *
-     * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
-     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
-     */
+/**
+ *
+ * Fonctions de comparaison utilisees dans la fonction usort, pour trier les categories
+ *
+ * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
+ * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+ *        
+ */
     return strcmp($a["cat"], $b["cat"]);
 }
 
 function cmp_printer($a, $b)
 {
 
-    /**
-     * Fonctions de comparaison utilisees dans la fonction usort, pour trier le printer-name, insensible a la case
-     *
-     * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
-     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     */
+/**
+ * Fonctions de comparaison utilisees dans la fonction usort, pour trier le printer-name, insensible a la case
+ *
+ * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
+ * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+ */
     return strcasecmp($a["printer-name"], $b["printer-name"]);
 }
 
 function cmp_location($a, $b)
 {
 
-    /**
-     * Fonctions de comparaison utilisees dans la fonction usort, pour trier le printer-location, insensible a la case
-     *
-     * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
-     * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     */
+/**
+ * Fonctions de comparaison utilisees dans la fonction usort, pour trier le printer-location, insensible a la case
+ *
+ * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
+ * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
+ */
     return strcasecmp($a["printer-location"], $b["printer-location"]);
 }
 
@@ -151,9 +151,9 @@ function remove_count($arr)
 
 function bind_ad_gssapi($config)
 {
-    /*
-     * établit une connexion avec l'AD en GSSAPI
-     */
+/*
+ * établit une connexion avec l'AD en GSSAPI
+ */
     $error = 0;
     $url = "ldap://" . $config['se4ad_name'] . "." . $config['domain'];
     $ds = ldap_connect($url, '389');
@@ -177,14 +177,14 @@ function bind_ad_gssapi($config)
 function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array())
 {
 
-    /**
-     * Recherche des objets dans l'AD
-     *
-     * @Parametres $name - le nom de l'objet (cn|ou|dn) "*" pour tout
-     * @Parametres $type - le type d'objets à chercher : dn, user, computer, group, classe, equipe, projet, parc, rights
-     * @Parametre $brnch - la branche de recherche "all" pour tout (sans effet pour dn)
-     * @return Retourne un tableau avec les objets et leurs attributs utiles
-     */
+/**
+ * Recherche des objets dans l'AD
+ *
+ * @Parametres $name - le nom de l'objet (cn|ou|dn) "*" pour tout
+ * @Parametres $type - le type d'objets à chercher : dn, user, computer, group, classe, equipe, projet, parc, rights
+ * @Parametre $brnch - la branche de recherche "all" pour tout (sans effet pour dn)
+ * @return Retourne un tableau avec les objets et leurs attributs utiles
+ */
 
     // Initialisation
     $info = array();
@@ -234,7 +234,8 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
             $filter = $name;
             $ldap_attrs = array(
                 "cn",
-                "displayname" //
+                "displayname",
+                "description"//
             );
             if ($branch == "all") {
                 $branch = $config['ldap_base_dn'];
@@ -685,7 +686,7 @@ function filter_group($config, $filter)
      *
      * @return Retourne un tableau $groups avec le cn et la description de chaque groupe
      */
-    $groups = search_ad($config, $filter, "filter");
+    $groups = search_ad($config, "(&(objectclass=group)" .$filter. ")", "filter", $config['dn']['groups']);
     if (count($groups))
         usort($groups, "cmp_cn");
 
