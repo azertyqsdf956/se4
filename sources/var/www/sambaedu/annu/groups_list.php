@@ -1,31 +1,23 @@
 <?php
 
+/**
+* Affiche les groupes de l'AD correspondant au filtre passé en post
 
-   /**
-   
-   * Affiche les groupes a partir de l'annuaires
-   * @Version $Id$ 
-   
-   * @Projet LCS / SambaEdu 
-   
-   * @auteurs jLCF jean-luc.chretien@tice.ac-caen.fr
-   * @auteurs oluve olivier.le_monnier@crdp.ac-caen.fr
-   * @auteurs wawa  olivier.lecluse@crdp.ac-caen.fr
-   * @auteurs Equipe Tice academie de Caen
+ * @Projet LCS / SambaEdu
 
-   * @Licence Distribue selon les termes de la licence GPL
-   
-   * @note 
-   */
+ * @Auteurs Equipe Sambaedu
 
-   /**
+ * @Version $Id: groups_list.php  05-11-2018 keyser $
 
-   * @Repertoire: annu
-   * file: groups_list.php
-   */
+ * @Note: Ce fichier doit etre appele par un form
 
-
-
+ * @Licence Distribue sous la licence GPL
+ */
+/**
+*
+* @Repertoire: annu
+* file: groups_list.php
+*/
 
 include "entete.inc.php";
 include_once "ldap.inc.php";
@@ -36,8 +28,16 @@ bindtextdomain('se3-annu',"/var/www/se3/locale");
 textdomain ('se3-annu');
 
 
-$group=$_POST['group'];
-$priority_group=$_POST['priority_group'];
+$group = isset($_POST['group']) ? $_POST['group'] : "";
+$priority_group = isset($_POST['priority_group']) ? $_POST['priority_group'] : "";
+
+
+if (!isset($_POST['group'])) {
+   die('Erreur : ce script ne peut être appelé directement!');
+}
+
+//var_dump($priority_group);
+//var_dump($group);
 
 echo "<h1>".gettext("Annuaire")."</h1>\n";
 $_SESSION["pageaide"]="Annuaire";
@@ -62,10 +62,11 @@ if ((have_right($config, "Annu_is_admin")) || (have_right($config, "Annu_can_rea
 	// Remplacement *** ou ** par *
 	$filter=preg_replace("/\*\*\*/","*",$filter);
 	$filter=preg_replace("/\*\*/","*",$filter);
-	
+	//var_dump($filter);
 	#$TimeStamp_0=microtime();
-	$groups=filter_group($filter);
-	#$TimeStamp_1=microtime();
+	$groups = filter_group($config, $filter);
+        //var_dump($groups);
+        #$TimeStamp_1=microtime();
 	  #############
 	  # DEBUG     #
 	  #############
@@ -83,10 +84,10 @@ if ((have_right($config, "Annu_is_admin")) || (have_right($config, "Annu_can_rea
 	    echo "<UL>\n";
 	    for ($loop=0; $loop < count($groups); $loop++) {
 	      	echo "<LI><A href=\"group.php?filter=".$groups[$loop]["cn"]."\">";
-	      	if ($groups[$loop]["type"]=="posixGroup")
+	      	//if ($groups[$loop]["type"]=="posixGroup")
         		 echo "<STRONG>".$groups[$loop]["cn"]."</STRONG>";
-	      	else
-        		echo $groups[$loop]["cn"];
+	      	//else
+        		//echo $groups[$loop]["cn"];
       			echo "</A>&nbsp;&nbsp;&nbsp;<font size=\"-2\">".$groups[$loop]["description"]."</font></LI>\n";
             }
     	    echo "</UL>\n";
@@ -94,7 +95,9 @@ if ((have_right($config, "Annu_is_admin")) || (have_right($config, "Annu_can_rea
     		echo "<STRONG>".gettext("Pas de r&#233;sultats")."</STRONG> ".gettext("correspondant aux crit&#232;res s&#233;lectionn&#233;s.")."<BR>";
 	}
   
-} 
+} else {
+    die(gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction") . "</BODY></HTML>");
+}
 	
 
 include ("pdp.inc.php");
