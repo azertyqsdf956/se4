@@ -12,6 +12,8 @@
  *
  * @Repertoire: includes/
  */
+
+
 function get_gpo_template_info(string $dir)
 {
     $path = "/var/www/sambaedu/gpo/templates/" . $dir;
@@ -19,8 +21,23 @@ function get_gpo_template_info(string $dir)
     return $gptini['version'];
 }
 
+function list_gpo_templates()
+{
+    $path = "/var/www/sambaedu/gpo/templates/";
+    $dir = opendir($path);
+    $gpos = scandir($dir);
+    $templates = array();
+    foreach($gpos as $gpo){
+        if (is_dir($gpo) && ($gpo != ".") && ($gpo != "..")){
+        $templates[]['displayname'] = $gpo; 
+        $templates[]['version'] = get_gpo_template_info($gpo);
+    }
+    }
+    return $templates;
+}
+
 /**
- * met à jour une gpo à partir des fichiers dans /var/www/sambaaedu/tmp
+ * met à jour une gpo à partir des fichiers dans /var/www/sambaaedu/gpo/templates
  *
  * utilise smbclient pour copier les fichiers.
  *
@@ -33,6 +50,8 @@ function get_gpo_template_info(string $dir)
  */
 function import_gpo(array $config, string $displayname, string $dir)
 {
+    $message = "";
+    $ret = 0;
     $gpo = search_ad($config, $displayname, "gpo");
     if (count($gpo) > 0) {
 
@@ -41,8 +60,8 @@ function import_gpo(array $config, string $displayname, string $dir)
         $gptini['version'] = $gpo['version'] + 0x10001;
         write_ini_file($gptini, $path . "/GPT.INI");
         // exec("rsync -a " . $path . " root@se4ad:/var/lib/samba/sysvol/" . strtoupper($config['domain']) . "/policies/" . $gpo['uuid'], $message, $ret);
-        $command = "'cd " . strtoupper($config['domain']) . "/policies/" . $gpo['uuid'] . ";lcd " . $path . ";mput *'";
-        exec("smbclient //se4ad/var/lib/samba/sysvol -k -c" . $command, $message, $ret);
+        $command = "'cd " . $config['domain'] . "/Policies/" . $gpo['uuid'] . ";lcd " . $path . ";mput *'";
+        exec("smbclient //se4ad/sysvol -k -c" . $command, $message, $ret);
         if ($ret == 0)
             return true;
         else
