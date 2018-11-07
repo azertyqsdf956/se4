@@ -159,9 +159,9 @@ function ouexist($config, $ou, $ouparent)
         "ou"
     );
 
-    list ($ds, $r, $error) = bind_ad_gssapi($config);
+    $ds = bind_ad_gssapi($config);
 
-    if ($r) {
+    if ($ds) {
         $ret = ldap_search($ds, "OU=$ouparent," . $config['ldap_base_dn'], "(ou=$ou)", $contenu);
         $info = ldap_get_entries($ds, $ret);
         if ($info["count"] > 0) {
@@ -185,14 +185,15 @@ function ouadd($config, $ou, $ouparent)
     // Ajoute le OU si il n'existe pas
     if (! ouexist($config, $ou, $ouparent)) {
         // Prépare les données
+        $info = array();
         $info["ou"] = "$ou";
         $info["name"] = "$ou";
         $info["objectclass"] = "top";
         $info["objectclass"] = "organizationalUnit";
         // Ajout
-        list ($ds, $r, $error) = bind_ad_gssapi($config);
+        $ds = bind_ad_gssapi($config);
         // echo "DBG >> OU=$ouparent," . $config['ldap_base_dn'];
-        $r = ldap_add($ds, "OU=$ou,OU=$ouparent," . $config['ldap_base_dn'], $info);
+        ldap_add($ds, "OU=$ou,OU=$ouparent," . $config['ldap_base_dn'], $info);
         ldap_close($ds);
         if (ouexist($config, $ou, $ouparent)) {
             return true;
@@ -211,11 +212,11 @@ function oudel($config, $ou, $ouparent)
      * Return true if OU is remove false in other cases
      */
     if (ouexist($config, $ou, $ouparent)) {
-        list ($ds, $r, $error) = bind_ad_gssapi();
+        $ds = bind_ad_gssapi();
         // Verifier si le OU est vide !
         if (! ouexist($config, $ou, $ouparent)) {
             // On efface le OU
-            $r = ldap_delete($ds, "OU=$ou,OU=$ouparent," . $config['ldap_base_dn']);
+            ldap_delete($ds, "OU=$ou,OU=$ouparent," . $config['ldap_base_dn']);
             ldap_close($ds);
         }
         if (! ouexist($ou, $ouparent)) {
