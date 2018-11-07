@@ -39,9 +39,9 @@ $config['login'] = "admin";
  * }
  */
 
-/*
- * var_dump(search_ad($config, "tm-a23-len2", "machine"));
- * var_dump(get_dhcp_reservation($config, "tm-a23-len2"));
+
+ var_dump(search_ad($config, "(&(objectclass=group)(cn=*))", "filter"));
+ /* var_dump(get_dhcp_reservation($config, "tm-a23-len2"));
  * var_dump(export_dhcp_reservations($config));
  * var_dump(type_group($config, "Equipe_CIM2"));
  * var_dump(type_group($config, "CIM2"));
@@ -180,8 +180,8 @@ $res = search_machine($config, "c2:19:88:2c:10:44", true);
 */
 
 //$res = usersetpassword($config, "eleve3.test", "azerty0", true);
-$res = user_valid_passwd($config, "eleve3.test", "azerty0");
-$classes = list_classes($config, "eleve3.test");
+//$res = user_valid_passwd($config, "eleve3.test", "azerty0");
+//$classes = list_classes($config, "eleve3.test");
 var_dump($res);
 
 ?>

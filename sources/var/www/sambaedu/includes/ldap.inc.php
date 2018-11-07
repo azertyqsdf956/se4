@@ -770,7 +770,7 @@ function create_machine($config, $name, $ou, $description = "reservation dhcp un
         // Ajout
         $ds = bind_ad_gssapi($config);
         $ret = ldap_add($ds, "cn=" . $name . "," . $ou . "," . $config['ldap_base_dn'], $info);
-        $err = ldap_error($ds);
+//        $err = ldap_error($ds);
         ldap_close($ds);
 
         return $ret;
@@ -813,7 +813,6 @@ function have_right($config, $type, $user = "login")
 {
     if ($user == "login")
         $user = $config['login'];
-    $ret = false;
     $typearr = explode("|", "$type");
     $typearr[] = "se3_is_admin";
     foreach ($typearr as $right) {
@@ -830,7 +829,7 @@ function have_right($config, $type, $user = "login")
  *
  * @Parametres : name - utilisateur ou groupe
  * @Parametres : inverse - retourne les drois que l'utisateur n'a pas
- * @return tableau des droits ou false
+ * @return array des droits 
  */
 function list_rights($config, $name, $inverse = false)
 {
@@ -1095,6 +1094,7 @@ function have_delegation($config, $parc, $right)
  */
 function list_delegations($config, $name = "login", $recurse = true)
 {
+    $parc =array();
     if ($name == "login")
         $name = $config['login'] ?? "";
     if (! empty($name)) {
@@ -1228,6 +1228,7 @@ function set_dhcp_reservation($config, $machine, $reservation)
  */
 function delete_dhcp_reservation($config, $machine)
 {
+    $del = array();
     $reservation = get_dhcp_reservation($config, $machine);
     $del['iphostnumber'] = $reservation['iphostnumber'];
     $del['networkaddress'] = $reservation['networkaddress'];
@@ -1298,7 +1299,7 @@ function export_dhcp_reservations($config)
  * importe les leases dhcp.
  * Seul le dernier enregistrement actif d'une ip est conservé.
  *
- * @param unknown $config
+ * @param array $config
  * @return array(array(ip, name, mac))
  */
 function import_dhcp_leases($config)
@@ -1306,7 +1307,7 @@ function import_dhcp_leases($config)
     $contents = file_get_contents("/var/lib/dhcp/dhcpd.leases");
     $contents = explode("\n", $contents);
     $current = 0;
-    $data = array();
+    $data = $m = array();
     foreach ($contents as $line) {
         switch ($current) {
             case 0:
@@ -1344,7 +1345,7 @@ function import_dhcp_leases($config)
 function get_dhcp_lease($config, $name)
 {
     foreach (import_dhcp_leases($config) as $data) {
-        if (($name == $ip) || ($data['name'] == $name) || ($data['mac'] == $name))
+        if (($data['ip'] == $name) || ($data['name'] == $name) || ($data['mac'] == $name))
             return $data;
     }
 }
@@ -1372,8 +1373,8 @@ function is_pp(array $config, string $name)
 /**
  * liste les classes pour une classe, un eleve, un prof, ou tous
  *
- * @param unknown $config
- * @param unknown $name
+ * @param array $config
+ * @param string $name
  *            : eleve, prof, "*"
  * @return array $classe : le nom court des classes
  */
@@ -1396,8 +1397,8 @@ function list_classes(array $config, string $name)
 /**
  * liste les profs pour une classe, un eleve ou tous
  *
- * @param unknown $config
- * @param unknown $name
+ * @param array $config
+ * @param string $name
  *            : classe ou eleve ou "*"
  */
 function list_profs($config, $name)
@@ -1417,10 +1418,10 @@ function list_profs($config, $name)
 /**
  * retourne la liste des eleves du prof, ou de la classe ou tous
  *
- * @param unknown $config
- * @param unknown $name
+ * @param array $config
+ * @param string $name
  *            : prof, classe, "*"
- * @return [eleves]
+ * @return array [eleves]
  */
 function list_eleves($config, $name)
 {
@@ -1439,8 +1440,8 @@ function list_eleves($config, $name)
 /**
  * retourne la liste des profs principaux de l'eleve, de la classe ou tous
  *
- * @param unknown $config
- * @param unknown $name
+ * @param array $config
+ * @param string $name
  *            : eleve, classe, "*"
  * @return array(pp)
  */
@@ -1584,7 +1585,7 @@ function create_group(array $config, string $name, string $description, string $
         // On crée l'OU si elle n'existe pas
         $ouName = explode("=", $config[$type . "s_rdn"]);
         if (! ouexist($config, $ouName[1], "Groups")) {
-            $res1 = ouadd($config, $ouName[1], "Groups");
+            ouadd($config, $ouName[1], "Groups");
         }
         $res = groupadd($config, $classe, $ou, $description);
     } else {
