@@ -45,4 +45,4 @@ var/www/sambaedu/parcs/*
 var/www/sambaedu/gepcgi/*
 var/www/sambaedu/tests/*
 var/www/sambaedu/partages/*
-
+etc/sudoers.d/sudoers-sambaedu

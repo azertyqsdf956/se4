@@ -47,7 +47,7 @@ Description: libs php non packagées debian
 
 Package: sambaedu-web-common
 Architecture: all
-Depends:  ${misc:Depends}, php-fpm, php7.0-opcache, php-apcu, apache2-suexec-pristine, sambaedu-ad-client, default-mysql-server, php-ldap, sambaedu-php-libs
+Depends:  ${misc:Depends}, php-fpm, php7.0-opcache, php-apcu, apache2-suexec-pristine, sambaedu-ad-client, default-mysql-server, php-ldap, sambaedu-php-libs, sudo
 Description: Interface d'administration web
  
 Package: sambaedu

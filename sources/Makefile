@@ -5,6 +5,7 @@ all:
 
 install:
 	mkdir -p $(DESTDIR)/etc/sambaedu
+	mkdir -p $(DESTDIR)/etc/sudoers.d/
 	mkdir -p $(DESTDIR)/usr/share/sambaedu/sbin/
 	mkdir -p $(DESTDIR)/usr/share/sambaedu/scripts/	
 	mkdir -p $(DESTDIR)/usr/share/sambaedu/includes/
@@ -23,6 +24,7 @@ install:
 	cp -R libs/html2pdf/* $(DESTDIR)/var/www/sambaedu/html2pdf/
 	cp -R var/lib/tftpboot/* $(DESTDIR)/var/lib/tftpboot/
 	cp -R usr/share/sambaedu/shares/shares.avail/* $(DESTDIR)/usr/share/sambaedu/shares/shares.avail
+	cp -R etc/sudoers.d/* $(DESTDIR)/etc/sudoers.d
  
 html2pdf:
 #	git clone  	
