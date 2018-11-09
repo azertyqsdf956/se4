@@ -45,4 +45,5 @@ var/www/sambaedu/parcs/*
 var/www/sambaedu/gepcgi/*
 var/www/sambaedu/tests/*
 var/www/sambaedu/partages/*
+var/www/sambaedu/gpo/*
 etc/sudoers.d/sudoers-sambaedu

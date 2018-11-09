@@ -62,7 +62,7 @@ function import_gpo(array $config, string $displayname, string $dir)
         fwrite($handle, $content);
         fclose($handle);
 
-        $command = "'cd " . $config['domain'] . "/Policies/" . $gpo[0]['cn'] . ";lcd " . $path . ";prompt OFF;mput *'";
+        $command = "'cd " . $config['domain'] . "/Policies/" . $gpo[0]['cn'] . ";lcd " . $path . ";prompt OFF;recurse ON;mput *'";
         exec("smbclient //se4ad/sysvol -k -c" . $command, $message, $ret);
         if ($ret == 0)
             return true;
@@ -71,8 +71,10 @@ function import_gpo(array $config, string $displayname, string $dir)
     } else {
         $uuid = gpocreate($config, $displayname);
         if ($uuid) {
-            import_gpo($config, $displayname, $dir);
-            gposetlink($config, $config['ldap_base_dn'], $uuid);
+            if (import_gpo($config, $displayname, $dir))
+                return gposetlink($config, $config['ldap_base_dn'], $uuid);
+            else
+                return false;
         } else
             return false;
     }
@@ -83,10 +85,14 @@ function export_gpo(array $config, string $displayname)
     $gpo = search_ad($config, $displayname, "gpo");
     if (count($gpo) > 0) {
         $path = "/var/www/sambaedu/tmp/";
+        //@TODO refaire la fonction avec smbclient car la version samba-tool oublie des fichiers...
         $res = gpofetch($config, $gpo[0]['cn'], $path);
         if ($res) {
-            exec("mv " . $path . "policy/" . $gpo[0]['cn'] . " \"/var/www/sambaedu/gpo/templates/" . $displayname . "\"");
-            return true;
+            exec("mv " . $path . "policy/" . $gpo[0]['cn'] . " " . escapeshellarg("/var/www/sambaedu/gpo/templates/" . $displayname), $message, $res);
+            if ($res == 0)  
+                return true;
+            else
+                return false;
         } else
             return false;
     } else {
