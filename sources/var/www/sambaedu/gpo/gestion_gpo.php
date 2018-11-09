@@ -76,12 +76,12 @@ if ($testniveau) {
 	echo "<h1>".gettext("Administration de l'interface GPO")."</h1>\n";
 	echo "<h3>".gettext("Gestion des GPO :")."</h3>";
 	echo "<a href=\"gpo-maj.php\">".gettext("Effectuer la mise a jour de la base des GPO")."</a><br>";
-	echo "<a href=\"gpo-export.php\">".gettext("Exporter les GPO")."</a><br>";
-	echo "<a href=\"gestion_gpo.php?action=delall\" onclick=\"return getconfirm();\">".gettext("Supprimer toutes les GPO ?")."</a><br>";
+//	echo "<a href=\"gpo-export.php\">".gettext("Exporter les GPO")."</a><br>";
+//	echo "<a href=\"gestion_gpo.php?action=delall\" onclick=\"return getconfirm();\">".gettext("Supprimer toutes les GPO ?")."</a><br>";
 
 	if ($testniveau>1) {
 		echo "<form method=\"post\" enctype=\"multipart/form-data\" action=\"gpo-maj.php\">";
-		echo "<BR>".gettext("Incorporer le fichier de GPO suivant  (format .tgz) :");
+		echo "<BR>".gettext("TODO Incorporer le fichier de GPO suivant  (format .tgz) :");
 		echo "<BR><input type=\"file\" name=\"fichier\" size=\"30\">";
 		echo "<input type=\"hidden\" name=\"action\" value=\"file\" />";
 		echo "<input type=\"submit\" name=\"upload\" value=\"Incorporer \">";
