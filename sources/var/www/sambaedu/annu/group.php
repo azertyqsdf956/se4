@@ -241,7 +241,6 @@ if (preg_match("/Classe/", $filter, $matche)) {
 if (preg_match("/Equipe/", $filter, $matche)) {
     $filter2 = preg_replace("/Equipe_/", "Classe_", $filter);
     $people2 = grouplistmembers($config, $filter2);
-    //$people2 = search_people_groups ($cns2,"(sn=*)","cat");
     if (count($people2)) {
         // affichage des resultats
         echo "<BR>" . gettext("Il y a ") . count($people2) . gettext(" &#233;l&#232;ves dans la ") . "<a href=\"group.php?filter=$filter2\">$filter2</A>" . gettext(" associ&#233;e &#224; cette &#233;quipe.") . "\n";

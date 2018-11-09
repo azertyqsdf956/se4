@@ -7,7 +7,7 @@
 
  * @Auteurs Equipe Sambaedu
 
- * @Version $Id: ldap.inc.php  05-10-2018 mrfi $
+ * @Version $Id: ldap.inc.php  09-11-2018 mrfi $
 
  * @Note: Ce fichier de fonction doit etre appele par un include
 
