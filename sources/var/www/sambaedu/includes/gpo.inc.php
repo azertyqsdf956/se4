@@ -56,7 +56,6 @@ function import_gpo(array $config, string $displayname, string $dir)
     if (count($gpo) > 0) {
 
         $path = "/var/www/sambaedu/gpo/templates/" . $dir;
-        $gptini = parse_ini_file($path . "/GPT.INI");
         $version = $gpo[0]['versionnumber'] + 0x10001;
         $content = "[General]\r\nVersion=" . $version . "\r\ndisplayName=" . $displayname . "\r\n";
         $handle = fopen($path . "/GPT.INI", "w");
