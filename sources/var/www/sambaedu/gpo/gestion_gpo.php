@@ -23,8 +23,8 @@
   */	
 
 
+/*
 
-require "include.inc.php";
 $action=$_GET['action'];
 $cat=$_GET['cat'];
 $sscat=$_GET['sscat'];
@@ -39,19 +39,19 @@ if ($cat=="tout") {
 	$cat="";
 	$sscat="";
 }
+*/
 
+require_once "entete.inc.php";
+require_once "functions.inc.php";
+require_once "ldap.inc.php";
+require_once "ihm.inc.php";
 
-include "entete.inc.php";
-include "ldap.inc.php";
-include "ihm.inc.php";
-
-if (!have_right("computers_is_admin"))
+if (!have_right($config, "computers_is_admin"))
         die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
 $_SESSION["pageaide"]="Gestion_des_clients_windowsNG#Description_du_processus_de_configuration_du_registre_Windows";
 
 //require ("functions.inc.php");
 $testniveau=getintlevel();
-$afficheniveau=afficheniveau($testniveau);
 /*
 if ($action == "delall")
 {
@@ -75,8 +75,8 @@ if ($action == "delallmod" or $action == "delall")
 if ($testniveau) {
 	echo "<h1>".gettext("Administration de l'interface GPO")."</h1>\n";
 	echo "<h3>".gettext("Gestion des GPO :")."</h3>";
-	echo "<a href=\"gpo-maj.php?action=maj\">".gettext("Effectuer la mise a jour de la base des GPO ?")."</a><br>";
-	echo "<a href=\"affiche_gpo.php\">".gettext("Editer les GPO ?")."</a><br>";
+	echo "<a href=\"gpo-maj.php\">".gettext("Effectuer la mise a jour de la base des GPO")."</a><br>";
+	echo "<a href=\"gpo-export.php\">".gettext("Exporter les GPO")."</a><br>";
 	echo "<a href=\"gestion_gpo.php?action=delall\" onclick=\"return getconfirm();\">".gettext("Supprimer toutes les GPO ?")."</a><br>";
 
 	if ($testniveau>1) {
@@ -116,5 +116,5 @@ if ($testniveau) {
 
 // echo $testniveau;
 # pied de page
-include ("pdp.inc.php");
+require_once ("pdp.inc.php");
 ?>

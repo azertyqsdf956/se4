@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RegistrySettings
+	clsid="{A3CCFC41-DFDB-43a5-8D26-0FE8B954DA51}">
+	<Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}"
+		name="Personal" status="Personal" image="6"
+		changed="2018-09-04 22:10:34"
+		uid="{334F412C-8F21-4712-9413-F9947936E7EE}" bypassErrors="1">
+		<Properties action="R" displayDecimal="0" default="0"
+			hive="HKEY_CURRENT_USER"
+			key="Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+			name="Personal" type="REG_EXPAND_SZ"
+			value="\\se4fs\users\%username%\Docs" />
+	</Registry>
+	<Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}"
+		name="Desktop" status="Desktop" image="6"
+		changed="2018-09-04 22:03:39"
+		uid="{9FBE3BF1-F16F-49A3-BCE4-3B8EB4481428}" bypassErrors="1">
+		<Properties action="R" displayDecimal="0" default="0"
+			hive="HKEY_CURRENT_USER"
+			key="Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+			name="Desktop" type="REG_EXPAND_SZ"
+			value="\\se4fs\users\%username%\Bureau" />
+	</Registry>
+	<Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}"
+		name="{374DE290-123F-4565-9164-39C4925E467B}"
+		status="{374DE290-123F-4565-9164-39C4925E467B}" image="6"
+		changed="2018-09-04 22:23:14"
+		uid="{FE0C1B16-4DD8-4153-BEA4-68DA21973864}" bypassErrors="1">
+		<Properties action="R" displayDecimal="0" default="0"
+			hive="HKEY_CURRENT_USER"
+			key="Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+			name="{374DE290-123F-4565-9164-39C4925E467B}" type="REG_EXPAND_SZ"
+			value="\\se4fs\users\%username%\Telechargements" />
+	</Registry>
+	<Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}"
+		name="My Pictures" status="My Pictures" image="6"
+		changed="2018-09-04 22:13:38"
+		uid="{50B18699-C395-462A-BBF2-9130C69B7303}" bypassErrors="1">
+		<Properties action="R" displayDecimal="0" default="0"
+			hive="HKEY_CURRENT_USER"
+			key="Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+			name="My Pictures" type="REG_EXPAND_SZ"
+			value="\\se4fs\users\%username%\Photos" />
+	</Registry>
+	<Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}"
+		name="My Videos" status="My Videos" image="6"
+		changed="2018-09-04 22:14:45"
+		uid="{D34967BD-4A3B-4196-BA66-A0DC65102886}" bypassErrors="1">
+		<Properties action="R" displayDecimal="0" default="0"
+			hive="HKEY_CURRENT_USER"
+			key="Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+			name="My Videos" type="REG_EXPAND_SZ"
+			value="\\se4fs\users\%username%\Videos" />
+	</Registry>
+	<Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}"
+		name="My Music" status="My Music" image="6"
+		changed="2018-09-04 22:15:17"
+		uid="{000A42B3-18C1-4730-8577-8B952060D5FD}" bypassErrors="1">
+		<Properties action="R" displayDecimal="0" default="0"
+			hive="HKEY_CURRENT_USER"
+			key="Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+			name="My Music" type="REG_EXPAND_SZ"
+			value="\\se4fs\users\%username%\Musique" />
+	</Registry>
+</RegistrySettings>

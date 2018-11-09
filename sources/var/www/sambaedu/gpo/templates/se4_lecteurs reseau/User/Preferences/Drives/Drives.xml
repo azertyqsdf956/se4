@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Drives clsid="{8FDDCC1A-0C3C-43cd-A6B4-71A6DF20DA8C}">
+	<Drive clsid="{935D1B74-9CB8-4e3c-9914-7DD559B7A417}" name="W:"
+		status="W:" image="0" changed="2018-09-04 14:53:51"
+		uid="{CBA65D7B-8BB1-40D7-ADA4-E19C9A87483D}" userContext="1"
+		bypassErrors="1">
+		<Properties action="C" thisDrive="NOCHANGE"
+			allDrives="NOCHANGE" userName="" path="\\se4fs\progs"
+			label="Programmes" persistent="1" useLetter="1" letter="W" />
+	</Drive>
+	<Drive clsid="{935D1B74-9CB8-4e3c-9914-7DD559B7A417}" name="U:"
+		status="U:" image="0" changed="2018-09-04 13:07:41"
+		uid="{39DAA9D3-6F51-4ABA-B9BF-AFAB98A31EFE}" userContext="1"
+		bypassErrors="1">
+		<Properties action="C" thisDrive="NOCHANGE"
+			allDrives="NOCHANGE" userName="" path="\\se4fs\classes"
+			label="Classes" persistent="1" useLetter="1" letter="U" />
+	</Drive>
+	<Drive clsid="{935D1B74-9CB8-4e3c-9914-7DD559B7A417}" name="K:"
+		status="H:" image="0" changed="2018-11-08 21:13:14"
+		uid="{AE9B7445-98D9-4D3C-8F89-350757E5B193}" userContext="1"
+		bypassErrors="1">
+		<Properties action="C" thisDrive="NOCHANGE"
+			allDrives="NOCHANGE" userName="" path="\\se4fs\users\%LogonUser%"
+			label="Home" persistent="1" useLetter="1" letter="K" />
+	</Drive>
+</Drives>

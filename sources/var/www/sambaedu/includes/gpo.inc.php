@@ -12,26 +12,26 @@
  *
  * @Repertoire: includes/
  */
-
-
 function get_gpo_template_info(string $dir)
 {
     $path = "/var/www/sambaedu/gpo/templates/" . $dir;
     $gptini = parse_ini_file($path . "/GPT.INI");
-    return $gptini['version'];
+    return $gptini['Version'];
 }
 
 function list_gpo_templates()
 {
     $path = "/var/www/sambaedu/gpo/templates/";
-    $dir = opendir($path);
-    $gpos = scandir($dir);
+    // $dir = opendir($path);
+    $gpos = scandir($path);
     $templates = array();
-    foreach($gpos as $gpo){
-        if (is_dir($gpo) && ($gpo != ".") && ($gpo != "..")){
-        $templates[]['displayname'] = $gpo; 
-        $templates[]['version'] = get_gpo_template_info($gpo);
-    }
+    foreach ($gpos as $gpo) {
+        if (($gpo != ".") && ($gpo != "..")) {
+            $templates[] = array(
+                'displayname' => $gpo,
+                'version' => get_gpo_template_info($gpo)
+            );
+        }
     }
     return $templates;
 }
@@ -57,10 +57,13 @@ function import_gpo(array $config, string $displayname, string $dir)
 
         $path = "/var/www/sambaedu/gpo/templates/" . $dir;
         $gptini = parse_ini_file($path . "/GPT.INI");
-        $gptini['version'] = $gpo['version'] + 0x10001;
-        write_ini_file($gptini, $path . "/GPT.INI");
-        // exec("rsync -a " . $path . " root@se4ad:/var/lib/samba/sysvol/" . strtoupper($config['domain']) . "/policies/" . $gpo['uuid'], $message, $ret);
-        $command = "'cd " . $config['domain'] . "/Policies/" . $gpo['uuid'] . ";lcd " . $path . ";mput *'";
+        $version = $gpo[0]['versionnumber'] + 0x10001;
+        $content = "[General]\r\nVersion=" . $version . "\r\ndisplayName=" . $displayname . "\r\n";
+        $handle = fopen($path . "/GPT.INI", "w");
+        fwrite($handle, $content);
+        fclose($handle);
+
+        $command = "'cd " . $config['domain'] . "/Policies/" . $gpo[0]['cn'] . ";lcd " . $path . ";prompt OFF;mput *'";
         exec("smbclient //se4ad/sysvol -k -c" . $command, $message, $ret);
         if ($ret == 0)
             return true;
@@ -68,9 +71,10 @@ function import_gpo(array $config, string $displayname, string $dir)
             return false;
     } else {
         $uuid = gpocreate($config, $displayname);
-        if ($uuid)
-            update_gpo($config, $displayname, $dir);
-        else
+        if ($uuid) {
+            import_gpo($config, $displayname, $dir);
+            gposetlink($config, $config['ldap_base_dn'], $uuid);
+        } else
             return false;
     }
 }
@@ -80,9 +84,9 @@ function export_gpo(array $config, string $displayname)
     $gpo = search_ad($config, $displayname, "gpo");
     if (count($gpo) > 0) {
         $path = "/var/www/sambaedu/tmp/";
-        $res = gpofetch($config, $gpo['uuid'], $path);
+        $res = gpofetch($config, $gpo[0]['cn'], $path);
         if ($res) {
-            exec("mv " . $path . "/" . $gpo['uuid'] . " " . $path . "/" . $displayname );
+            exec("mv " . $path . "policy/" . $gpo[0]['cn'] . " \"/var/www/sambaedu/gpo/templates/" . $displayname . "\"");
             return true;
         } else
             return false;

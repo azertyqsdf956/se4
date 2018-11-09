@@ -419,26 +419,51 @@ function gpolist(array $config, string $cn)
 
         foreach ($message as $key => $ligne) {
             preg_match("/^(.*)\s({.*})$/", $ligne, $match);
-            $gpo[$key]['uuid'] = $match[1];
-            $gpo[$key]['displayname'] = $match[0];
+            $gpo[$key]['uuid'] = $match[2];
+            $gpo[$key]['displayname'] = $match[1];
         }
     }
     return $gpo;
 }
 
-function gposetlink(array $config, string $container, string $gpo, bool $enforce = true, bool $disable = false)
+function gposetlink(array $config, string $container, string $gpo, bool $enforce = false, bool $disable = false)
 {
     $message = array();
-    $command = "gpo setlink " . escapeshellarg($gpo) . " " . escapeshellarg($container);
+    $command = "gpo setlink " . escapeshellarg($container) . " " . escapeshellarg($gpo);
     if ($enforce)
-        $message .= " --enforce";
+        $command .= " --enforce";
     if ($disable)
-        $message .= " --disable";
+        $command .= " --disable";
     $RES = sambatool($config, $command, $message);
     if ($RES == 0) {
         return true;
     }
     return false;
+}
+
+function gpogetlink(array $config, string $container)
+{
+    $message = array();
+    $command = "gpo getlink " . escapeshellarg($container);
+    $RES = sambatool($config, $command, $message);
+    $gpo = array();
+    if ($RES == 0) {
+        $key = 0;
+        foreach ($message as $ligne) {
+            $match = array();
+            if (preg_match("/^\s*(.*)\s*\:\s*(.*)$/", $ligne, $match)) {
+                if (trim($match[1]) == "GPO") {
+                    $gpo[$key]['uuid'] = $match[2];
+                } elseif (trim($match[1]) == "Name") {
+                    $gpo[$key]['displayname'] = $match[2];
+                } elseif (trim($match[1]) == "Options") {
+                    $gpo[$key]['options'] = $match[2];
+                    $key ++;
+                }
+            }
+        }
+    }
+    return $gpo;
 }
 
 function gpodellink(array $config, string $container, string $gpo)
@@ -475,21 +500,23 @@ function gpogetinheritance(array $config, string $container)
     if ($RES == 0) {
         if (preg_match("/GPO_INHERIT/", $message[0]))
             return "inherit";
-        else 
+        else
             return "block";
     }
     return false;
 }
+
 function gpofetch(array $config, string $gpo, string $dir = "/var/www/sambaedu/temp/policies")
 {
     $message = array();
-    $command = "gpo fetch " . escapeshellarg($gpo) . " " . escapeshellarg($dir);
+    $command = "gpo fetch " . escapeshellarg($gpo) . " --tmpdir=" . escapeshellarg($dir);
     $RES = sambatool($config, $command, $message);
     if ($RES == 0) {
         return true;
     }
     return false;
 }
+
 function gpocreate(array $config, string $displayname)
 {
     $message = $match = array();
@@ -497,10 +524,11 @@ function gpocreate(array $config, string $displayname)
     $RES = sambatool($config, $command, $message);
     if ($RES == 0) {
         preg_match("/^.*\s({.*})$/", $message[0], $match);
-        return $match[0];
+        return $match[1];
     }
     return false;
 }
+
 function gpodel(array $config, string $gpo)
 {
     $message = array();

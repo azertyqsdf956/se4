@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RegistrySettings
+	clsid="{A3CCFC41-DFDB-43a5-8D26-0FE8B954DA51}">
+	<Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}"
+		name="Start" status="Start" image="12" changed="2018-09-10 15:42:30"
+		uid="{4D48888E-4F3C-4A5E-9FA0-9B5E9ED5B99A}">
+		<Properties action="U" displayDecimal="0" default="0"
+			hive="HKEY_LOCAL_MACHINE"
+			key="SYSTEM\CurrentControlSet\services\mrxsmb10" name="Start"
+			type="REG_DWORD" value="00000004" />
+	</Registry>
+	<Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}"
+		name="DependOnService" status="DependOnService" image="6"
+		changed="2018-09-10 15:44:14"
+		uid="{6C3AE1F7-0A5B-4B01-AA05-487D59B55B90}">
+		<Properties action="R" displayDecimal="0" default="0"
+			hive="HKEY_LOCAL_MACHINE"
+			key="SYSTEM\CurrentControlSet\Services\LanmanWorkstation"
+			name="DependOnService" type="REG_MULTI_SZ"
+			value="Bowser MRxSmb20 NSI">
+			<Values>
+				<Value>Bowser</Value>
+				<Value>MRxSmb20</Value>
+				<Value>NSI</Value>
+			</Values>
+		</Properties>
+	</Registry>
+	<Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}"
+		name="SMB1" status="SMB1" image="10" changed="2018-09-04 10:13:17"
+		uid="{CBE5A214-6230-4949-892D-953EAD9DC7BA}">
+		<Properties action="C" displayDecimal="0" default="0"
+			hive="HKEY_LOCAL_MACHINE"
+			key="SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
+			name="SMB1" type="REG_DWORD" value="00000000" />
+	</Registry>
+	<Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}"
+		name="SMB2" status="SMB2" image="12" changed="2018-09-10 15:41:28"
+		uid="{08573534-196C-4E34-BFD1-6E467FC43DC6}">
+		<Properties action="U" displayDecimal="0" default="0"
+			hive="HKEY_LOCAL_MACHINE"
+			key="SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
+			name="SMB2" type="REG_DWORD" value="00000001" />
+	</Registry>
+	<Registry clsid="{9CD4B2F4-923D-47f5-A062-E897DD1DAD50}"
+		name="Start" status="Start" image="12" changed="2018-09-10 15:43:06"
+		uid="{B1E90367-7AAB-46DC-AC7E-D2E4BA221A21}">
+		<Properties action="U" displayDecimal="0" default="0"
+			hive="HKEY_LOCAL_MACHINE"
+			key="SYSTEM\CurrentControlSet\services\mrxsmb20" name="Start"
+			type="REG_DWORD" value="00000002" />
+	</Registry>
+</RegistrySettings>

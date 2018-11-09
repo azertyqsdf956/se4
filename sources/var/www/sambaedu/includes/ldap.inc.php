@@ -415,12 +415,12 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
             if ($name == "*")
                 $filter = "(objectclass=grouppolicycontainer)";
             else
-                $filter = "(&(objectclass=grouppolicycontainer)(|(cn=" . $name . ")(displayname=" . $name . "))";
+                $filter = "(&(objectclass=grouppolicycontainer)(|(cn=" . $name . ")(displayname=" . $name . ")))";
             $ldap_attrs = array(
                 "cn",
                 "displayname",
                 "gpcfilesyspath",
-                "version",
+                "versionnumber",
                 "flags"
             );
             $branch = "CN=Policies,CN=System," . $config['ldap_base_dn'];

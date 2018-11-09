@@ -221,6 +221,21 @@ function get_param($config, $nom)
     }
 }
 
+/**
+ * remplace ###_NOM_### par $param['nom'] dans un fichier en mémoire
+ * peut s'utiliser directement avec $config
+ * @param array $params 
+ * @param array $lignes tableau du fichier à remplacer
+ * @return mixed 
+ */
+function write_param(array $params, array $lignes){
+    foreach ($params as $param => $valeur){
+        $lignes = preg_replace("/###_" . strtoupper($param) . "_###/", $valeur, $lignes);
+    }
+    return $lignes;
+}
+
+
 $urlauth = "/auth.php";
 
 // Gettext

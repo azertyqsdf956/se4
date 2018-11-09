@@ -2,7 +2,7 @@
 
 /**
 
- * Gestion des gpo pour clients Windows (mise a jour des gpo)
+ * Gestion des gpo pour clients Windows (export des gpo)
 
 
  * @Projet SambaEdu 
@@ -37,12 +37,12 @@ if (! have_right($config, "computers_is_admin"))
     die(gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction") . "</BODY></HTML>");
 
 // Aide
-$gpos = list_gpo_templates();
+$gpos = gpogetlink($config, $config['ldap_base_dn']);
 foreach ($gpos as $gpo) {
-    $res = import_gpo($config, $gpo['displayname'], $gpo['displayname']);
-    echo "GPO " . $gpo['displayname'] . " version " . $gpo['version'] . ":<br>\n";
+    $res = export_gpo($config, $gpo['displayname']);
+    echo "GPO " . $gpo['displayname'] . " :<br>\n";
     if ($res)
-        echo "importation OK<br>\n";
+        echo "Exportation OK<br>\n";
     else
         echo "ERREUR<br>\n";
 }
