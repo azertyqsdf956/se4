@@ -55,7 +55,7 @@ function cmp_nom($a, $b)
      * @Parametres $a - La premiere entree 	$b - La deuxieme entree a comparer
      *
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
+     *
      */
     return strcmp($a["nom"], $b["nom"]);
 }
@@ -70,7 +70,7 @@ function cmp_cn($a, $b)
      * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
      *
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
+     *
      */
     return strcmp($a["cn"], $b["cn"]);
 }
@@ -84,7 +84,7 @@ function cmp_group($a, $b)
      *
      * @Parametres  $a - La premiere entree 	$b - La deuxieme entree a comparer
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
+     *
      */
     return strcmp($a["group"], $b["group"]);
 }
@@ -98,7 +98,7 @@ function cmp_cat($a, $b)
      *
      * @Parametres  $a - La premiere entree  $b - La deuxieme entree a comparer
      * @return < 0 - Si $a est plus petit a $b > 0 - Si $a est plus grand que $b
-     *        
+     *
      */
     return strcmp($a["cat"], $b["cat"]);
 }
@@ -658,7 +658,7 @@ function filter_user($config, $filter)
      *
      * @Parametres $filter - Un filtre de recherche permettant l'extraction de l'annuaire des utilisateurs
      * @return Un tableau contenant les utilisateurs repondant au filtre de recherche ($filter)
-     *        
+     *
      */
     $ret = search_ad($config, $filter, "filter");
 
@@ -699,7 +699,7 @@ function search_user($config, $cn)
      *
      * @return Un tableau contenant les informations sur l'utilisateur (cn)
      *         les groupes sont dans le tableau $res['memberof']
-     *        
+     *
      */
     $ret = search_ad($config, $cn, "user");
     if (count($ret) > 0) {
@@ -732,7 +732,7 @@ function search_machine($config, $cn, $ip = false)
      *
      * @return Un tableau contenant les informations sur la machine (cn ou dn ou dsiplayname)
      *         les dn groupes sont dans le tableau $res['memberof']
-     *        
+     *
      */
     $ret = search_ad($config, $cn, "machine");
     if (count($ret) > 0) {
@@ -829,7 +829,7 @@ function have_right($config, $type, $user = "login")
  *
  * @Parametres : name - utilisateur ou groupe
  * @Parametres : inverse - retourne les drois que l'utisateur n'a pas
- * @return array des droits 
+ * @return array des droits
  */
 function list_rights($config, $name, $inverse = false)
 {
@@ -1700,5 +1700,13 @@ function delete_group($config, $name)
     }
     return $res;
 }
-
+/*
+ * test si $name (un cn) est prof principal  de $classe
+ * retourne un boolean
+ */
+function is_pp_this_classe($config, string $name, string $classe) {
+    $lespp = array();
+    $lespp = list_pp($config, $classe);
+    return preg_grep("/$name/i", $lespp);
+}
 ?>
