@@ -24,7 +24,6 @@ $_SESSION["pageaide"] = "Annuaire";
 echo "<h1>" . gettext("Annuaire") . "</h1>";
 
 //debug_var();
-
 if (have_right($config, "Annu_is_admin")) {
     $cn = isset($_POST["cn"]) ? $_POST["cn"] : (isset($_GET["cn"]) ? $_GET["cn"] : "");
     $description = ((isset($_POST["description"])) ? $_POST["description"] : "");
@@ -69,7 +68,7 @@ if (have_right($config, "Annu_is_admin")) {
         }
 
         // Verification de l'existence du groupe
-        $groups = filter_group("(cn=$cn)");
+        $groups = filter_group($config, "(cn=$cn)");
         if (count($groups)) {
             echo "<div class='error_msg'>" . gettext("Attention le groupe <font color='#0080ff'><a href='group.php?filter=$cn' style='color:#0080ff' target='_blank'>$cn</a></font> est d&#233;ja pr&#233;sent dans la base, veuillez choisir un autre nom !") . "</div><BR>\n";
             exit();
@@ -114,7 +113,7 @@ if (have_right($config, "Annu_is_admin")) {
         for ($loop = 0; $loop < count($people); $loop++) {
             $gus[$loop] = search_user($config, $people[$loop]);
         }
-        usort($gus, "cmp_nom");
+        usort($gus, "cmp_cn");
         echo "<select name=\"eleves[]\" size=\"10\"  multiple=multiple>\n";
         for ($loop = 0; $loop < count($gus); $loop++) {
             echo "<option value=" . $gus[$loop]["cn"] . ">" . $gus[$loop]["fullname"] . "</option>\n";

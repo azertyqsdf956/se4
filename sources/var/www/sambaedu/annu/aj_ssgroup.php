@@ -39,47 +39,64 @@ if (have_right($config, "Annu_is_admin")) {
 <td><?php echo gettext("Mati&#232;res"); ?></td>
 <td><?php echo gettext("Autres"); ?></td>
 </tr>
-<tr>
-<td valign="top">
 <?php
+echo "<tr>";
+echo "<td valign=\"top\">";
+
 $action='1';
 echo "<select name= \"classe_gr[]\" value=\"$classe_gr\" size=\"10\" multiple=\"multiple\">\n";
     $list_classes=search_ad($config, "*", "classe") ;
+    usort($list_classes, "cmp_cn");
     for ($loop=0; $loop < count ($list_classes) ; $loop++) {
 	echo "<option value=".$list_classes[$loop]["cn"].">".$list_classes[$loop]["cn"];
     }
     echo "</select>";
     echo "</td>";
 
+    // Affichage Select groupe equipes
     echo "<td>\n";
     echo "<select name= \"equipe_gr[]\" value=\"$equipe_gr\" size=\"10\" multiple=\"multiple\">\n";
     $list_equipes=search_ad($config, "*", "equipe") ;
+    usort($list_equipes, "cmp_cn");
     for ($loop=0; $loop < count ($list_equipes) ; $loop++) {
 	echo "<option value=".$list_equipes[$loop]["cn"].">".$list_equipes[$loop]["cn"];
     }
-    echo "</select></td>\n";
+    echo "</select>";
+    echo "</td>";
 
+    // Affichage Select groupe matieres
+    echo "<td>\n";
+    echo "<select name=\"matiere_gr[]\" value=\"$matiere_gr\" size=\"10\" multiple=\"multiple\">";
+    $list_matieres=search_ad($config, "*", "matiere") ;
+    usort($list_matieres, "cmp_cn");
+    for ($loop=0; $loop < count ($list_matieres) ; $loop++) {
+	echo "<option value=".$list_matieres[$loop]["cn"].">".$list_matieres[$loop]["cn"];
+    }
+    echo "</select>";
+    echo "</td>";
+     
+     
+    // Affichage Select groupe principaux, projets et autres 
     echo "<td valign=\"top\">
     <select name=\"autres_gr[]\" value=\"$autres_gr\" size=\"10\" multiple=\"multiple\">";
+    echo "<option value=administratifs>administratifs";
+    echo "<option value=eleves>eleves";
+    echo "<option value=profs>profs";
     $list_autres=search_ad($config, "*", "projet") ;
+    usort($list_autres, "cmp_cn");
     for ($loop=0; $loop < count ($list_autres) ; $loop++) {
 	echo "<option value=".$list_autres[$loop]["cn"].">".$list_autres[$loop]["cn"];
     }
     $list_autres=search_ad($config, "*", "autre") ;
+    usort($list_autres, "cmp_cn");
     for ($loop=0; $loop < count ($list_autres) ; $loop++) {
 	echo "<option value=".$list_autres[$loop]["cn"].">".$list_autres[$loop]["cn"];
-
-
     }
-    echo "<td>\n";
-    echo "<select name=\"matiere_gr[]\" value=\"$matiere_gr\" size=\"10\" multiple=\"multiple\">";
-    $list_matieres=search_ad($config, "*", "matiere") ;
-    for ($loop=0; $loop < count ($list_matieres) ; $loop++) {
-	echo "<option value=".$list_matieres[$loop]["cn"].">".$list_matieres[$loop]["cn"];
-    }
-
-
-    echo "</select></td></tr></table>"; ?>
+    echo "</select>";
+    echo "</td>";
+    
+    echo "</tr></table>"; ?>
+    
     <input type="submit" value="<?php echo gettext("valider");?>">
     <input type="reset" value="<?php echo gettext("R&#233;initialiser la s&#233;lection");?>">
     <input type="hidden" name="cn" value=<?php echo $cn ?> >
