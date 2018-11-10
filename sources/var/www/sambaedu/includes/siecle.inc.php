@@ -3549,50 +3549,33 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                 $temoin_erreur_prof = "";
                 $date = str_replace("-", "", $prof[$cpt]["date_naissance"]);
                 $employeeNumber = "P" . $prof[$cpt]["id"];
+                $nom = remplace_accents(traite_espaces($prof[$cpt]["nom_usage"]));
+                $prenom = strtolower(remplace_accents(traite_espaces($prof[$cpt]["prenom"])));
+                if ($prof[$cpt]["sexe"] == 1) {
+                    $sexe = "M";
+                } else {
+                    $sexe = "F";
+                }
                 $tab = verif_employeeNumber($config, $employeeNumber);
                 if (count($tab) > 0) {
                     $cn = $tab['cn'];
                     my_echo("<p>cn existant pour employeeNumber=$employeeNumber: $cn<br />\n");
 
                     if ($tab['branch'] == "people") {
-                        // ================================
-                        // Verification/correction du GECOS
                         if ($corriger_gecos_si_diff == 'y') {
-                            $prenom = remplace_accents(traite_espaces($prof[$cpt]["prenom"]));
-                            if ($prof[$cpt]["sexe"] == 1) {
-                                $sexe = "M";
-                            } else {
-                                $sexe = "F";
-                            }
                             $naissance = $date;
                             verif_et_corrige_user($config, $cn, $naissance, $sexe, $simulation);
                         }
-                        // ================================
-
-                        // ================================
-                        // Verification/correction du givenName
                         if ($corriger_givenname_si_diff == 'y') {
-                            $nom = remplace_accents(traite_espaces($prof[$cpt]["nom_usage"]));
-                            $prenom = strtolower(remplace_accents(traite_espaces($prof[$cpt]["prenom"])));
-                            // my_echo("Test de la correction du givenName: verif_et_corrige_givenname($cn,$prenom)<br />\n");
                             verif_et_corrige_nom($config, $cn, $prenom, $nom, $simulation);
                         }
-                        // ================================
-
-                        // ================================
-                        // Verification/correction du pseudo
-                        // if($annuelle=="y") {
                         if ($controler_pseudo == 'y') {
-                            $nom = remplace_accents(traite_espaces($prof[$cpt]["nom_usage"]));
-                            $prenom = strtolower(remplace_accents(traite_espaces($prof[$cpt]["prenom"])));
                             verif_et_corrige_pseudo($config, $cn, $nom, $prenom, $annuelle, $simulation);
                         }
-                        // }
-                        // ================================
                     } elseif ($tab['branch'] == "trash") {
                         // On restaure le compte de Trash puisqu'il y est avec le meme employeeNumber
                         my_echo("Restauration du compte depuis la branche Trash: \n");
-                        if (recup_from_trash($confg, $cn)) {
+                        if (recup_from_trash($config, $cn)) {
                             my_echo("<font color='green'>SUCCES</font>");
                         } else {
                             my_echo("<font color='red'>ECHEC</font>");
@@ -3632,6 +3615,16 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                             my_echo("<font color='blue'>SIMULATION</font>");
                             $comptes_avec_employeeNumber_mis_a_jour ++;
                             $tab_comptes_avec_employeeNumber_mis_a_jour[] = $cn;
+                        }
+                        if ($corriger_gecos_si_diff == 'y') {
+                            $naissance = $date;
+                            verif_et_corrige_user($config, $cn, $naissance, $sexe, $simulation);
+                        }
+                        if ($corriger_givenname_si_diff == 'y') {
+                            verif_et_corrige_nom($config, $cn, $prenom, $nom, $simulation);
+                        }
+                        if ($controler_pseudo == 'y') {
+                            verif_et_corrige_pseudo($config, $cn, $nom, $prenom, $annuelle, $simulation);
                         }
                     } else {
                         my_echo("Il n'y a pas de $nom $prenom dans l'annuaire sans employeeNumber<br />\n");
@@ -3898,43 +3891,25 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
 
             // Pour chaque eleve:
             $employeeNumber = $eleve[$numero]["numero"];
+            $nom = remplace_accents(traite_espaces($eleve[$numero]["nom"]));
+            $prenom = strlower(remplace_accents(traite_espaces($eleve[$numero]["prenom"])));
+            $sexe = $eleve[$numero]["sexe"];
+            $naissance = $eleve[$numero]["date"];
             $tab = verif_employeeNumber($config, $employeeNumber);
             if (count($tab) > 0) {
                 $cn = $tab['cn'];
                 my_echo("<p>cn existant pour employeeNumber=$employeeNumber: $cn<br />\n");
 
                 if ($tab['branch'] == "people") {
-                    // ================================
-                    // Verification/correction du GECOS
                     if ($corriger_gecos_si_diff == 'y') {
-                        $nom = remplace_accents(traite_espaces($eleve[$numero]["nom"]));
-                        $prenom = remplace_accents(traite_espaces($eleve[$numero]["prenom"]));
-                        $sexe = $eleve[$numero]["sexe"];
-                        $naissance = $eleve[$numero]["date"];
                         verif_et_corrige_user($config, $cn, $naissance, $sexe, $simulation);
                     }
-                    // ================================
-
-                    // ================================
-                    // Verification/correction du givenName
                     if ($corriger_givenname_si_diff == 'y') {
-                        $nom = remplace_accents(traite_espaces($eleve[$numero]["nom"]));
-                        $prenom = strtolower(remplace_accents(traite_espaces($eleve[$numero]["prenom"])));
-                        // my_echo("Test de la correction du givenName: verif_et_corrige_givenname($cn,$prenom)<br />\n");
                         verif_et_corrige_nom($config, $cn, $prenom, $nom, $simulation);
                     }
-                    // ================================
-
-                    // ================================
-                    // Verification/correction du pseudo
-                    // if($annuelle=="y") {
                     if ($controler_pseudo == 'y') {
-                        $nom = remplace_accents(traite_espaces($eleve[$numero]["nom"]));
-                        $prenom = strtolower(remplace_accents(traite_espaces($eleve[$numero]["prenom"])));
                         verif_et_corrige_pseudo($config, $cn, $nom, $prenom, $annuelle, $simulation);
                     }
-                    // }
-                    // ================================
                 } elseif ($tab['branch'] == "trash") {
                     // On restaure le compte de Trash puisqu'il y est avec le meme employeeNumber
                     my_echo("Restauration du compte depuis la branche Trash: \n");
@@ -3949,19 +3924,12 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
             } else {
                 my_echo("<p>Pas encore de cn pour employeeNumber=$employeeNumber<br />\n");
 
-                // $prenom=remplace_accents($eleve[$numero]["prenom"]);
-                // $nom=remplace_accents($eleve[$numero]["nom"]);
-                // $prenom=remplace_accents(traite_espaces($eleve[$numero]["prenom"]));
-                // $nom=remplace_accents(traite_espaces($eleve[$numero]["nom"]));
-                $prenom = remplace_accents(traite_espaces($eleve[$numero]["prenom"]));
-                $nom = remplace_accents(traite_espaces($eleve[$numero]["nom"]));
                 $tab_cn = verif_nom_prenom($config, $nom, $prenom);
                 if (count($tab_cn) > 0) {
                     $cn = $tab_cn[0]['cn'];
                     my_echo("$nom $prenom est dans l'annuaire sans employeeNumber: $cn<br />\n");
                     my_echo("Mise à jour avec l'employeeNumber $employeeNumber: \n");
-                    // $comptes_avec_employeeNumber_mis_a_jour++;
-
+ 
                     if ($simulation != "y") {
                         $attributs = array();
                         $attributs["title"] = $employeeNumber;
@@ -3977,6 +3945,15 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
                         my_echo("<font color='blue'>SIMULATION</font>");
                         $comptes_avec_employeeNumber_mis_a_jour ++;
                         $tab_comptes_avec_employeeNumber_mis_a_jour[] = $cn;
+                    }
+                    if ($corriger_gecos_si_diff == 'y') {
+                        verif_et_corrige_user($config, $cn, $naissance, $sexe, $simulation);
+                    }
+                    if ($corriger_givenname_si_diff == 'y') {
+                        verif_et_corrige_nom($config, $cn, $prenom, $nom, $simulation);
+                    }
+                    if ($controler_pseudo == 'y') {
+                        verif_et_corrige_pseudo($config, $cn, $nom, $prenom, $annuelle, $simulation);
                     }
                     my_echo(".<br />\n");
                 } else {
