@@ -27,9 +27,11 @@ aff_trailer("8_$filter");
 //recherche des membres du groupe
 $group = search_ad($config, $filter, "group");
 $cns = grouplistmembers($config, $filter);
+$erreur_user = array("cn" => "erreur", "sexe" => " ", "fullname" => "membre inconnu ! ", "nom" => "|z");
 $people = array();
 foreach ($cns as $key => $value) {
-    $people[$key] = search_user($config, $value);
+    $resultat = search_user($config, $value);
+    $people[$key] = ((count($resultat) > 0) ? $resultat : $erreur_user);
 }
 usort($people, "cmp_nom");
 
@@ -53,29 +55,32 @@ if (count($people)) {
                 echo "<img src=\"images/gender_boy.gif\" alt=\"El&egrave;ve\" width=14 height=14 hspace=3 border=0>\n";
             }
         }
-
-        // Si on a pas les droits on n'a pas de lien
-        if (have_right($config, "Annu_is_admin") || have_right($config, "annu_can_read")) {
-            echo "<A href=\"people.php?cn=" . $people[$loop]["cn"] . "\">" . $people[$loop]["fullname"] . "</A>";
-        }
-        else {
-            // si on a les droits sovajon_is_admin on v&#233;rifie si on a la classe ou si les droits étendus du groupe prof sont activés
-            $cn_eleve = $people[$loop]["cn"];
-            $acl_group_profs_classes = exec("cd /var/se3/Classes; /usr/bin/getfacl . | grep group:Profs >/dev/null && echo 1");
-
-            if ((tstclass($login, $cn_eleve) == 1) and ( have_right($config, "sovajon_is_admin") or ( $acl_group_profs_classes == 1)) and ( $people[$loop]["prof"] != 1)) {
-                echo "<A href=\"people.php?cn=" . $people[$loop]["cn"] . "\">" . $people[$loop]["prenom"] . " " . $people[$loop]["name"] . "</A>";
+        if ($people[$loop]["cn"] != "erreur") {
+            // Si on a pas les droits on n'a pas de lien
+            if (have_right($config, "Annu_is_admin") || have_right($config, "annu_can_read")) {
+                echo "<A href=\"people.php?cn=" . $people[$loop]["cn"] . "\">" . $people[$loop]["fullname"] . "</A>";
             }
             else {
-                echo $people[$loop]["prenom"] . " " . $people[$loop]["name"];
+                // si on a les droits sovajon_is_admin on v&#233;rifie si on a la classe ou si les droits étendus du groupe prof sont activés
+                $cn_eleve = $people[$loop]["cn"];
+                $acl_group_profs_classes = exec("cd /var/se3/Classes; /usr/bin/getfacl . | grep group:Profs >/dev/null && echo 1");
+
+                if ((tstclass($login, $cn_eleve) == 1) and ( have_right($config, "sovajon_is_admin") or ( $acl_group_profs_classes == 1)) and ( $people[$loop]["prof"] != 1)) {
+                    echo "<A href=\"people.php?cn=" . $people[$loop]["cn"] . "\">" . $people[$loop]["prenom"] . " " . $people[$loop]["name"] . "</A>";
+                }
+                else {
+                    echo $people[$loop]["prenom"] . " " . $people[$loop]["name"];
+                }
+            }
+
+
+            if (is_pp_this_classe($config, $people[$loop]["cn"], $filter)) {
+                echo "<strong><font size=\"-2\" color=\"#ff8f00\">&nbsp;&nbsp;(" . gettext("professeur principal") . ")</font></strong>";
+                $owner = $people[$loop]["cn"];
             }
         }
-
-
-        if (is_pp_this_classe($config, $people[$loop]["cn"], $filter)) {
-            echo "<strong><font size=\"-2\" color=\"#ff8f00\">&nbsp;&nbsp;(" . gettext("professeur principal") . ")</font></strong>";
-            $owner = $people[$loop]["cn"];
-        }
+        else
+            echo $people[$loop]["fullname"];
         echo "<BR>\n";
     }
 }
@@ -89,7 +94,7 @@ else {
 // Pour les groupes sauf pour les groupes Eleves Profs Administratifs
 //
 
-  	if ((have_right($config, "Annu_is_admin")) && ($filter != "Eleves" && $filter != "Profs" && $filter != "Administration" )) {
+if ((have_right($config, "Annu_is_admin")) && ($filter != "Eleves" && $filter != "Profs" && $filter != "Administration" )) {
     echo "<br><ul style=\"color: red;\">\n";
 
     // Affichage du menu "Ajouter des membres" si le groupe est de type Equipe_ ou Classe
@@ -151,7 +156,7 @@ if (have_right($config, "se3_is_admin")) {
 // ajout du lien trombinoscope
 // Si Annu_is_admin et le repertoire existe on peut  voir les trombinoscopes
 //
-  if (have_right($config, "Annu_is_admin") && is_dir("/var/se3/Docs/trombine")) {
+if (have_right($config, "Annu_is_admin") && is_dir("/var/se3/Docs/trombine")) {
     echo "<ul style=\"color: red;\">\n";
     echo "<li><a href=\"trombin.php?filter=$filter\" target='_new'>" . gettext("Afficher un trombinoscope du groupe") . "</a></li>\n";
     echo "</ul>\n";
@@ -200,8 +205,10 @@ if (preg_match("/Classe/", $filter, $matche)) {
     $filter2 = preg_replace("/Classe_/", "Equipe_", $filter);
     $cns2 = grouplistmembers($config, $filter2);
     $people2 = array();
+    $erreur_user = array("cn" => "erreur", "sexe" => " ", "fullname" => "membre inconnu ! ", "nom" => "|z");
     foreach ($cns2 as $key => $value) {
-        $people2[$key] = search_user($config, $value);
+        $resultat = search_user($config, $value);
+        $people2[$key] = ((count($resultat) > 0) ? $resultat : $erreur_user);
     }
     usort($people2, "cmp_nom");
     if (count($people2)) {
@@ -219,18 +226,21 @@ if (preg_match("/Classe/", $filter, $matche)) {
                     echo "<img src=\"images/gender_boy.gif\" alt=\"El&egrave;ve\" width=14 height=14 hspace=3 border=0>\n";
                 }
             }
-
-            // On a un lien sur les profs uniquement si on est annu_can_read ou Annu_is_admin
-            if ((have_right($config, "Annu_is_admin")) || (have_right($config, "annu_can_read"))) {
-                echo "<A href=\"people.php?cn=" . $people2[$loop]["cn"] . "\">" . $people2[$loop]["fullname"] . "</A>";
+            if ($people2[$loop]["cn"] != "erreur") {
+                // On a un lien sur les profs uniquement si on est annu_can_read ou Annu_is_admin
+                if ((have_right($config, "Annu_is_admin")) || (have_right($config, "annu_can_read"))) {
+                    echo "<A href=\"people.php?cn=" . $people2[$loop]["cn"] . "\">" . $people2[$loop]["fullname"] . "</A>";
+                }
+                else {
+                    echo $people2[$loop]["fullname"];
+                }
+                if (is_pp_this_classe($config, $people2[$loop]["cn"], $filter)) {
+                    echo "<strong><font size=\"-2\" color=\"#ff8f00\">&nbsp;&nbsp;(professeur principal)</font></strong>";
+                    $owner = $people2[$loop]["cn"];
+                }
             }
-            else {
+            else
                 echo $people2[$loop]["fullname"];
-            }
-            if (is_pp_this_classe($config, $people2[$loop]["cn"], $filter)) {
-                echo "<strong><font size=\"-2\" color=\"#ff8f00\">&nbsp;&nbsp;(professeur principal)</font></strong>";
-                $owner = $people2[$loop]["cn"];
-            }
             echo "<BR>\n";
         }
     }
@@ -241,6 +251,7 @@ if (preg_match("/Classe/", $filter, $matche)) {
 if (preg_match("/Equipe/", $filter, $matche)) {
     $filter2 = preg_replace("/Equipe_/", "Classe_", $filter);
     $people2 = grouplistmembers($config, $filter2);
+    //$people2 = search_people_groups ($cns2,"(sn=*)","cat");
     if (count($people2)) {
         // affichage des resultats
         echo "<BR>" . gettext("Il y a ") . count($people2) . gettext(" &#233;l&#232;ves dans la ") . "<a href=\"group.php?filter=$filter2\">$filter2</A>" . gettext(" associ&#233;e &#224; cette &#233;quipe.") . "\n";
