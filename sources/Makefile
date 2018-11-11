@@ -4,6 +4,7 @@
 all:
 
 install:
+	mkdir -p $(DESTDIR)/etc/skel/user.windows
 	mkdir -p $(DESTDIR)/etc/sambaedu
 	mkdir -p $(DESTDIR)/etc/sudoers.d/
 	mkdir -p $(DESTDIR)/usr/share/sambaedu/sbin/
@@ -25,6 +26,7 @@ install:
 	cp -R var/lib/tftpboot/* $(DESTDIR)/var/lib/tftpboot/
 	cp -R usr/share/sambaedu/shares/shares.avail/* $(DESTDIR)/usr/share/sambaedu/shares/shares.avail
 	cp -R etc/sudoers.d/* $(DESTDIR)/etc/sudoers.d
+	cp -R etc/skel/user.windows $(DESTDIR)/etc/skel/user.windows
  
 html2pdf:
 #	git clone  	
