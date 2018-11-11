@@ -49,9 +49,14 @@ Package: sambaedu-web-common
 Architecture: all
 Depends:  ${misc:Depends}, php-fpm, php7.0-opcache, php-apcu, apache2-suexec-pristine, sambaedu-ad-client, default-mysql-server, php-ldap, sambaedu-php-libs, sudo, smbclient
 Description: Interface d'administration web
- 
+
+Package: sambaedu-shares
+Architecture: all
+Depends:  ${misc:Depends}, sambaedu-winbind
+Description: Configuration des partages et de leurs acls
+
 Package: sambaedu
 Architecture: all
-Depends:  ${misc:Depends}, sambaedu-web-common, sambaedu-winbind
+Depends:  ${misc:Depends}, sambaedu-web-common, sambaedu-winbind, sambaedu-shares
 Description: serveur sambaedu
  
