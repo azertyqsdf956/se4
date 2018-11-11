@@ -62,8 +62,8 @@ function import_gpo(array $config, string $displayname, string $dir)
         fwrite($handle, $content);
         fclose($handle);
 
-        $command = "'cd " . $config['domain'] . "/Policies/" . $gpo[0]['cn'] . ";lcd " . $path . ";prompt OFF;recurse ON;mput *'";
-        exec("smbclient //se4ad/sysvol -k -c" . $command, $message, $ret);
+        $command = "cd \"" . $config['domain'] . "/Policies/" . $gpo[0]['cn'] . "\";lcd \"" . $path . "\";prompt OFF;recurse ON;mput *";
+        exec('smbclient //se4ad/sysvol -k -c ' . escapeshellarg($command), $message, $ret);
         if ($ret == 0)
             return true;
         else
