@@ -63,6 +63,9 @@
        read only = no
        force create mode = 0600
        force directory mode = 0700
+       root preexec = /usr/share/sambaedu/sbin/logon.sh -s homes %u %m %I %a
+       root postexec = /usr/share/sambaedu/sbin/logon.sh -k homes %u %m %I %a
+       
 [progs]
        path = /var/sambaedu/Progs
        read only = no
