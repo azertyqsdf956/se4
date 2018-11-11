@@ -30,7 +30,7 @@ case "$1" in
 # on met à jour les droits
 
 # on met a jour les preexec samba
-        /usr/share/sambaedu/sbin/update-share.sh	 
+        /usr/share/sambaedu/sbin/update-share.sh -d || true	 
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

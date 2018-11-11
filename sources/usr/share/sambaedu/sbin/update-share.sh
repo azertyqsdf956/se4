@@ -5,7 +5,7 @@
 # Update share preexec postexec scripts
 SHARES=/usr/share/sambaedu/shares/shares.d
 AVAIL=/usr/share/sambaedu/shares/shares.avail
-SMB_CONF=smb_Win95.conf,smb_WinXP.conf,smb_Win2K.conf,smb_Vista.conf,smb_CIFSFS.conf,smb.conf
+SMB_CONF=smb.conf
 DEFAULT_ARCHS="Win95 WinXP Win2K Vista CIFSFS"
 ARGS=0
 VERBOSE=0
