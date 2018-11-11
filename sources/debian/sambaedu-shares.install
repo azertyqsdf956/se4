@@ -1,3 +1,4 @@
 # fichiers du paquet sambaedu-shares
 usr/share/sbin/logon.sh
-usr/share/sambaedu/shares/*
+usr/share/sambaedu/shares/shares.avail/mkhome.sh
+etc/skel/user/*
