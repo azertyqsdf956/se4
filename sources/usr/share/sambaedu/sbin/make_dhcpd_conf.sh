@@ -40,7 +40,7 @@ echo "next-server  $config_dhcp_tftp_server;">>$conf
 echo "if exists client-arch {
      if option client-arch = 00:00 {
          if exists user-class and option user-class = \"sambaedu\" {
-             filename \"${config_ipxe_url}${config_ipxe_script}\"; 
+             filename \"${config_ipxe_url}${config_dhcp_ipxe_script}\"; 
          } else {
 #            filename \"${config_ipxe_url}undionly.kpxe\";
 #			 premier boot en tftp !
