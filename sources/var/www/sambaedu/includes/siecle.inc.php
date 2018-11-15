@@ -3892,7 +3892,7 @@ document.getElementById('div_signalements').innerHTML=document.getElementById('d
             // Pour chaque eleve:
             $employeeNumber = $eleve[$numero]["numero"];
             $nom = remplace_accents(traite_espaces($eleve[$numero]["nom"]));
-            $prenom = strlower(remplace_accents(traite_espaces($eleve[$numero]["prenom"])));
+            $prenom = strtolower(remplace_accents(traite_espaces($eleve[$numero]["prenom"])));
             $sexe = $eleve[$numero]["sexe"];
             $naissance = $eleve[$numero]["date"];
             $tab = verif_employeeNumber($config, $employeeNumber);
