@@ -113,7 +113,7 @@ if (have_right($config, "Annu_is_admin")) {
         for ($loop = 0; $loop < count($people); $loop++) {
             $gus[$loop] = search_user($config, $people[$loop]);
         }
-        usort($gus, "cmp_cn");
+        usort($gus, "cmp_nom");
         echo "<select name=\"eleves[]\" size=\"10\"  multiple=multiple>\n";
         for ($loop = 0; $loop < count($gus); $loop++) {
             echo "<option value=" . $gus[$loop]["cn"] . ">" . $gus[$loop]["fullname"] . "</option>\n";
