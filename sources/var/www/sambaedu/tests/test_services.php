@@ -42,8 +42,8 @@ if ($ssmtp == "1") {
 
 
 // Test le sid samba et la presence d'un eventuel doublon de sid
-$testsid="x";
-  $testsid = exec('sudo /usr/share/sambaedu/scripts/testSID.sh');
+$testsid="";
+  //$testsid = exec('sudo /usr/share/sambaedu/scripts/testSID.sh');
 
    if ($testsid == "") {
   	$oksid="1";
@@ -52,8 +52,8 @@ $testsid="x";
   }
 
 // Test la base MySQL
-  $mysql = exec('sudo /usr/share/sambaedu/sbin/testMySQL.sh',$out,$err);
-
+  //$mysql = exec('sudo /usr/share/sambaedu/sbin/testMySQL.sh',$out,$err);
+$err = "0";
   if ($err == "0") {
   	$okmysql="1";
   } else {

@@ -31,9 +31,6 @@ $_SESSION["pageaide"] = "Informations_syst%C3%A8me#Diagnostic";
 if (!have_right($config, "se3_is_admin"))
     die(gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction") . "</BODY></HTML>");
 
-if ((isset($action)) && ($action == "setadminse3smbpass")) {
-    exec('/usr/bin/sudo /usr/share/sambaedu/scripts/change_adminse3_smbpass.sh');
-}
 
 // if ($_GET['action'] == "updatesystem") {
 // exec('/usr/bin/sudo /usr/share/se3/scripts/se3_update_system.sh --auto');
@@ -42,7 +39,7 @@ if ((isset($action)) && ($action == "setadminse3smbpass")) {
 if ((isset($action)) && ($action == "updatesystem")) {
     $info_1 = gettext("Mise &#224; jour syst&#232;me lanc&#233;e, ne fermez pas cette fen&#234;tre avant que le script ne soit termin&#233;. vous recevrez un mail r&#233;capitulatif de tout ce qui sera effectu&#233;...");
     echo $info_1;
-    system('sleep 1; /usr/bin/sudo /usr/share/sambaedu/scripts/se3_update_system.sh --auto &');
+    system('sleep 1; /usr/bin/sudo /usr/share/sambaedu/scripts/sambaedu_update_system.sh --auto &');
     unset($action);
 }
 if ((isset($action)) && ($action == "settime")) {
@@ -51,10 +48,10 @@ if ((isset($action)) && ($action == "settime")) {
 if ((isset($action)) && ($action == "startsamba")) {
     exec('/usr/bin/sudo /usr/share/sambaedu/scripts/services.sh samba restart');
 }
-if ((isset($action)) && ($action == "installse3-domain")) {
+if ((isset($action)) && ($action == "installsambaedu-domain")) {
     $info_1 = gettext("Mise &#224; jour lanc&#233;e, ne fermez pas cette fen&#234;tre avant que le script ne soit termin&#233;. vous recevrez un mail r&#233;capitulatif de tout ce qui sera effectu&#233;...");
     echo $info_1;
-    system("/usr/bin/sudo /usr/share/sambaedu/scripts/install_se3-module.sh se3-domain");
+    system("/usr/bin/sudo /usr/share/sambaedu/scripts/install_sambaedu-module.sh sambaedu-domain");
 }
 
 if ((isset($action)) && ($action == "exim_mod")) {
@@ -255,13 +252,13 @@ $la = date("G:i:s d/m/Y");
             <TD align="center"><A id="help_sid_se3"><img name="action_image2"
                                                          src="../elements/images/system-help.png"></A></TD>
         </TR>
-        <TR>
+<!--        <TR>
             <TD>Etat de la base MySQL</TD>
             <TD align="center"><IMG id="check_mysql" style="border: 0px solid;"
                                     SRC="../elements/images/info.png"></TD>
             <TD align="center"><A id="help_mysql_se3"><img name="action_image2"
                                                            src="../elements/images/system-help.png"></A></TD>
-        </TR>
+        </TR>-->
 
         <TR id="ligne_dhcp" style="display: none;">
 
@@ -323,19 +320,21 @@ $la = date("G:i:s d/m/Y");
             <TD align="center"><A id="help_secu_se3"><img name="action_image2"
                                                           src="../elements/images/system-help.png"></A></TD>
         </TR>
-        <TR>
+<!--        <TR>
             <TD colspan="3" align="center" class="menuheader">Clients</TD>
-        </TR>
+        </TR>-->
         <TR>
-            <TD>V&#233;rifie le compte d'int&#233;gration des clients</TD>
-            <TD align="center"><A id="link_client"><IMG id="check_client"
-                                                        style="border: 0px solid;" SRC="../elements/images/info.png"></A></TD>
-            <TD align="center"><A id="help_client_se3"><img name="action_image2"
-                                                            src="../elements/images/system-help.png"></A></TD>
+<!--            <TD>V&#233;rifie le compte d'int&#233;gration des clients</TD>-->
+<!--            <TD align="center"><A id="link_client"><IMG id="check_client"
+                                                        style="border: 0px solid;" SRC="../elements/images/info.png"></A></TD>-->
+<!--            <TD align="center"><A id="help_client_se3"><img name="action_image2"
+                                                            src="../elements/images/system-help.png"></A></TD>-->
         </TR>
 
     </TABLE>
+    <TR>  <TD align="center"><A id="help_client_se3"></A><A id="help_mysql_se3"></A></TD></TR>
 </center>
+
 
 
 <!-- //Menu pour mail. -->
