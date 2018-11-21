@@ -5,3 +5,4 @@ var/www/sambaedu/ipxe/png/ipxe-se4.png
 #usr/share/doc/sambaedu/ipxe.conf.example
 usr/share/doc/sambaedu/web.conf.example
 var/lib/tftpboot/undionly.kpxe
+var/lib/tftpboot/snponly_x64.efi

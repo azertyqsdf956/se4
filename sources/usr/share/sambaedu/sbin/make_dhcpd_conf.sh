@@ -37,27 +37,22 @@ echo "###       BOOT OPTIONS          ##########################################
 echo "next-server  $config_dhcp_tftp_server;">>$conf
 # booter en tftp undionly.kpxe, puis la conf ipxe :
 # script ipxe statique avant install de sambaedu-ipxe, puis page php
-echo "if exists client-arch {
+echo "
+option client-arch code 93 = unsigned integer 16;
+if exists user-class and option user-class = \"sambaedu\" {
+  filename \"${config_ipxe_url}${config_dhcp_ipxe_script}\"; 
+} else {
+  if exists client-arch {
      if option client-arch = 00:00 {
-         if exists user-class and option user-class = \"sambaedu\" {
-             filename \"${config_ipxe_url}${config_dhcp_ipxe_script}\"; 
-         } else {
-#            filename \"${config_ipxe_url}undionly.kpxe\";
-#			 premier boot en tftp !
-		     filename \"undionly.kpxe\";			
-         }
+       filename \"undionly.kpxe\";
      } elsif option client-arch = 00:06 {
-       filename \"bin-i386/ipxe.efi\";
+	   option vendor-class-identifier \"HTTPClient\";
+       filename \"${config_ipxe_url}snponly_x32.efi\";
      } elsif option client-arch = 00:07 {
-       option vendor-class-identifier \"HTTPClient\";
-       filename \"${config_ipxe_url}ipxe.efi\";
-     } elsif option client-arch = 00:09 {
-       filename \"bin-x86_64-efi/ipxe.efi\";
-     } elsif option client-arch = 00:0a {
-       filename \"bin-arm32-efi/ipxe.efi\";
-     } elsif option client-arch = 00:0b {
-       filename \"bin-arm64-efi/ipxe.efi\";
+	   option vendor-class-identifier \"HTTPClient\";
+       filename \"${config_ipxe_url}snponly_x64.efi\";
      }
+  }
 }">>$conf
 # fichier option supplémentaire
 if [ -n "$config_dhcp_extra_option" ]; then

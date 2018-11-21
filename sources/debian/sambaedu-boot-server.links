@@ -1,0 +1,2 @@
+/var/lib/tftpboot/undionly.kpxe /var/www/sambaedu/ipxe/undionly.kpxe
+/var/lib/tftpboot/snponly_x64.efi /var/www/sambaedu/ipxe/snponly_x64.efi
