@@ -38,7 +38,6 @@ echo "next-server  $config_dhcp_tftp_server;">>$conf
 # booter en tftp undionly.kpxe, puis la conf ipxe :
 # script ipxe statique avant install de sambaedu-ipxe, puis page php
 echo "
-option client-arch code 93 = unsigned integer 16;
 if exists user-class and option user-class = \"sambaedu\" {
   filename \"${config_ipxe_url}${config_dhcp_ipxe_script}\"; 
 } else {
@@ -46,11 +45,11 @@ if exists user-class and option user-class = \"sambaedu\" {
      if option client-arch = 00:00 {
        filename \"undionly.kpxe\";
      } elsif option client-arch = 00:06 {
-	   option vendor-class-identifier \"HTTPClient\";
-       filename \"${config_ipxe_url}snponly_x32.efi\";
+#	   option vendor-class-identifier \"HTTPClient\";
+       filename \"snponly_x32.efi\";
      } elsif option client-arch = 00:07 {
-	   option vendor-class-identifier \"HTTPClient\";
-       filename \"${config_ipxe_url}snponly_x64.efi\";
+#	   option vendor-class-identifier \"HTTPClient\";
+       filename \"snponly_x64.efi\";
      }
   }
 }">>$conf
