@@ -58,7 +58,7 @@ case "$1" in
             	set_config dhcp dhcp_domain_name $config_domain
         	fi    
         	set_config dhcp ipxe_url "http://$my_address/ipxe/"
-        	if [ -z $config_dhcp_ipxe_script ]; then
+        	if [ -z "$config_dhcp_ipxe_script" ]; then
         		set_config dhcp dhcp_ipxe_script "boot.ipxe"
         	fi
         	/usr/share/sambaedu/sbin/make_dhcpd_conf.sh

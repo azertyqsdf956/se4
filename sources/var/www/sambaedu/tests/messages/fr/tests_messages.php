@@ -30,16 +30,16 @@
 $tests_msg = array();
 $tests_msg['msg_maj_nocx'] = 'Impossible de vérifier les mises à jour';
 $tests_msg['msg_maj_ok'] = 'Etat : serveur à jour';
-$tests_msg['msg_maj_ko'] = 'Le serveur n\'est pas à jour ! <br />Cliquer ici pour mettre à jour';
-$tests_msg['link_maj_ko'] = '../majphp/majtest.php';
+$tests_msg['msg_maj_ko'] = 'Le serveur n\'est pas à jour ! <br />Cliquer ici pour obtenir des informations complémetaires';
+$tests_msg['link_maj_ko'] = '../majtest.php';
 $tests_msg['msg_maj_info'] = 'Vérifie si votre serveur est à jour.<br>Si ce n\'est pas le cas, vous pouvez le mettre à jour à partir <a href=' . $tests_msg['link_maj_ko'] . '>d\'ici</a>';
 
 // Controle installation dispos clonage
 
-$tests_msg['link_clonage_ko'] = '../tftp/config_tftp.php';
-$tests_msg['msg_clonage_ko'] = 'Cliquer ici pour mettre à jour les dispositifs du paquet se3-clonage';
-$tests_msg['msg_clonage_nocx'] = 'Impossible de mettre à jour les dispositifs sans connexion à internet';
-$tests_msg['msg_clonage_info'] = 'Les dispositfs du paquet se3-clonage sont indépendants et sont mis à jour depuis la page de configuration. <br><br>A lancer depuis cette <a href=\"' . $tests_msg['link_clonage_ko'] . '\">page</a>';
+//$tests_msg['link_clonage_ko'] = '../tftp/config_tftp.php';
+//$tests_msg['msg_clonage_ko'] = 'Cliquer ici pour mettre à jour les dispositifs du paquet se3-clonage';
+//$tests_msg['msg_clonage_nocx'] = 'Impossible de mettre à jour les dispositifs sans connexion à internet';
+//$tests_msg['msg_clonage_info'] = 'Les dispositfs du paquet se3-clonage sont indépendants et sont mis à jour depuis la page de configuration. <br><br>A lancer depuis cette <a href=\"' . $tests_msg['link_clonage_ko'] . '\">page</a>';
 
 // ########################### CONNEXIONS ################################################/
 

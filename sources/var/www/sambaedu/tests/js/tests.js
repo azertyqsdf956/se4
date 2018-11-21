@@ -78,35 +78,35 @@
 		}});
 
 		//test client
-		$('check_client').src = '../elements/images/spinner.gif';
-		var url101 = './tests/test_client.php';
-		var params101 = '';
-		var method101 = 'post';
-		var ajax3101 = new Ajax.Request(url101,{ method: method101, parameters: params101, onSuccess: function(requester){
-		var reponse101 = requester.responseText;
-		if(reponse101 == '1') {
-			$('check_client').src = '../elements/images/recovery.png';
-
-
-			}
-		else {
-			$('check_client').src = '../elements/images/critical.png';
-			$('check_client').onmouseover= function() {
-							UnTip();
-							Tip(msg_client_ko,STICKY,true,WIDTH,250,SHADOW,true,DURATION,duration);
-							this.onmouseout=function() { UnTip(); }
-						}
-						$('link_client').href = link_client_ko;
-
-		}
-		}});
+//		$('check_client').src = '../elements/images/spinner.gif';
+//		var url101 = './tests/test_client.php';
+//		var params101 = '';
+//		var method101 = 'post';
+//		var ajax3101 = new Ajax.Request(url101,{ method: method101, parameters: params101, onSuccess: function(requester){
+//		var reponse101 = requester.responseText;
+//		if(reponse101 == '1') {
+//			$('check_client').src = '../elements/images/recovery.png';
+//
+//
+//			}
+//		else {
+//			$('check_client').src = '../elements/images/critical.png';
+//			$('check_client').onmouseover= function() {
+//							UnTip();
+//							Tip(msg_client_ko,STICKY,true,WIDTH,250,SHADOW,true,DURATION,duration);
+//							this.onmouseout=function() { UnTip(); }
+//						}
+//						$('link_client').href = link_client_ko;
+//
+//		}
+//		}});
 
 
 		//test services
 		$('check_mail').src = '../elements/images/spinner.gif';
 		$('check_smb').src = '../elements/images/spinner.gif';
 		$('check_sid').src = '../elements/images/spinner.gif';
-		$('check_mysql').src = '../elements/images/spinner.gif';
+//		$('check_mysql').src = '../elements/images/spinner.gif';
 
 
 		$('check_ondul').src = '../elements/images/spinner.gif';
@@ -146,10 +146,10 @@
 			}
 
 		}
-		if(arr_services[3] == '1')
-			$('check_mysql').src = '../elements/images/recovery.png';
-		else
-			$('check_mysql').src = '../elements/images/critical.png';
+//		if(arr_services[3] == '1')
+//			$('check_mysql').src = '../elements/images/recovery.png';
+//		else
+//			$('check_mysql').src = '../elements/images/critical.png';
 
 		if (arr_services[4] != '-1') {
 

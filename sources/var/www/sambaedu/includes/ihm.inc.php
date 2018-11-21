@@ -369,7 +369,7 @@ function  aff_mnu_search($user_type)
   if ($user_type=="Y") {
 
 
-    // keyser modif MC marques 02/06
+    //
        // Affichage menu admin
     echo"
 
@@ -384,16 +384,16 @@ function  aff_mnu_search($user_type)
        <li><b>".gettext("Ajouter")." :</b>
          <ul>
            <li><a href=\"add_user.php\">".gettext("un utilisateur...")."</a></li>
-           <li><a href=\"add_group.php\">".gettext("un groupe...")."</a></li>
-           <li><a href=\"groupetpe.php\">".gettext("un regroupement...")."</a></li>
-           </ul>
+           <li><a href=\"add_group.php\">".gettext("un groupe...")."</a></li>";
+//echo           " <li><a href=\"groupetpe.php\">".gettext("un regroupement...")."</a></li>";
+    echo "</ul>
            <br />
 		</li>
         <li><b>".gettext("Import / Export")." :</b>
           <ul>
-            <li><a href=\"../gepcgi/index.php\">".gettext("Importer les comptes en masse...")."</a></li>
-            <li><a href=\"export_csv.php\">".gettext("Exporter les comptes en format CSV...")." </a></li>
-          </ul>
+            <li><a href=\"../gepcgi/index.php\">".gettext("Importer les comptes en masse...")."</a></li>";
+//echo "<li><a href=\"export_csv.php\">".gettext("Exporter les comptes en format CSV...")." </a></li>";
+echo "          </ul>
 		</li>
      </ul>\n";
 

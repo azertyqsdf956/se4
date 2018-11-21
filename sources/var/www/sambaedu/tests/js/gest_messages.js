@@ -110,14 +110,14 @@ function init_default_msg() {
 
 	}
 
-	$('help_mysql_se3').onmouseover = function() {
-		UnTip();
-		Tip(msg_mysql_info, WIDTH, 250, SHADOW, true, DURATION, duration);
-		this.onmouseout = function() {
-			UnTip();
-		}
-
-	}
+//	$('help_mysql_se3').onmouseover = function() {
+//		UnTip();
+//		Tip(msg_mysql_info, WIDTH, 250, SHADOW, true, DURATION, duration);
+//		this.onmouseout = function() {
+//			UnTip();
+//		}
+//
+//	}
 
 	$('help_ondul_se3').onmouseover = function() {
 		UnTip();
@@ -155,13 +155,13 @@ function init_default_msg() {
 
 	}
 
-	$('help_client_se3').onmouseover = function() {
-		UnTip();
-		Tip(msg_client_info, WIDTH, 250, SHADOW, true, DURATION, duration);
-		this.onmouseout = function() {
-			UnTip();
-		}
-	}
+//	$('help_client_se3').onmouseover = function() {
+//		UnTip();
+//		Tip(msg_client_info, WIDTH, 250, SHADOW, true, DURATION, duration);
+//		this.onmouseout = function() {
+//			UnTip();
+//		}
+//	}
 
 	$('check_maj').onmouseover = function() {
 		UnTip();

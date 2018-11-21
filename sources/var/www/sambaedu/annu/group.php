@@ -25,7 +25,7 @@ $filter = $_GET['filter'];
 
 aff_trailer("8_$filter");
 //recherche des membres du groupe
-$group = search_ad($config, $filter, "group");
+$group = search_ad($config, $filter, "group", $config['dn']['groups']);
 $cns = grouplistmembers($config, $filter);
 $erreur_user = array("cn" => "erreur", "sexe" => " ", "fullname" => "membre inconnu ! ", "nom" => "|z");
 $people = array();
