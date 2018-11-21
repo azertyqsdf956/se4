@@ -30,6 +30,12 @@
         rpc_daemon:spoolssd = fork
         spoolss: architecture = Windows x64
         printing = CUPS
+
+# Partages        
+	    hide unreadable = Yes
+        hide files = /desktop.ini/appdata/
+        hide dot files = yes
+		        
 [printers]
 	    path = /var/spool/samba/
         printable = yes
