@@ -30,7 +30,11 @@ require_once ("lang.inc.php");
 bindtextdomain('se3-annu', "/var/www/se3/locale");
 textdomain('se3-annu');
 
-if (have_right($config, "se3_is_admin")) {
+if (!have_right($config, "se3_is_admin")) {
+    die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BO
+DY></HTML>");
+
+}
 	$filtrecomp=$_POST['filtrecomp'];
 $old_rights = $_POST['old_rights'];
 $delete_right = $_POST['delete_right'];
