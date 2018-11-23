@@ -37,6 +37,20 @@ $list_prof_grp = array();
 foreach ($lesprofs as $key => $value) {
     $list_prof_grp[$key] = $value["cn"];
 }
+
+//tableau des PP si Equipe
+if (preg_match("/Equipe/", $filter)) {
+    $people2 = search_people_group($config, $filter);
+    usort($people2, "cmp_nom");
+    //on crée un tableau des PP de la classe
+    $liste_pp = list_pp($config, $filter);
+    $list_pp_grp = array();
+    foreach ($liste_pp as $key => $value) {
+        $cn = str_getcsv($value, ",");
+        parse_str($cn[0], $output);
+        $list_pp_grp[$key] = $output["CN"];
+    }
+}
 //teste les droits
 $admin_annu = have_right($config, "Annu_is_admin");
 $can_read_annu = have_right($config, "annu_can_read");
@@ -87,11 +101,11 @@ if (count($people)) {
         }
 
 
-//           if (in_array( $people[$loop]["cn"],$list_prof_grp) && preg_match("/Classe/", $filter) && is_pp_this_classe($config, $people[$loop]["cn"], $filter)) {
-//               echo "<strong><font size=\"-2\" color=\"#ff8f00\">&nbsp;&nbsp;(" . gettext("professeur principal") . ")</font></strong>";
-//             $owner = $people[$loop]["cn"];
-//           }
-//           supprimé car si c'est une classe , les PP sont affichés en dessous
+           if (in_array( $people[$loop]["cn"],$list_pp_grp)) {
+               echo "<strong><font size=\"-2\" color=\"#ff8f00\">&nbsp;&nbsp;(" . gettext("professeur principal") . ")</font></strong>";
+             $owner = $people[$loop]["cn"];
+           }
+//         supprimé car si c'est une classe , les PP sont affichés en dessous
 
         echo "<BR>\n";
     }
