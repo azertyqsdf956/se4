@@ -101,11 +101,10 @@ if (count($people)) {
         }
 
 
-           if (in_array( $people[$loop]["cn"],$list_pp_grp)) {
+           if (preg_match("/Equipe/", $filter) && in_array( $people[$loop]["cn"],$list_pp_grp)) {
                echo "<strong><font size=\"-2\" color=\"#ff8f00\">&nbsp;&nbsp;(" . gettext("professeur principal") . ")</font></strong>";
              $owner = $people[$loop]["cn"];
            }
-//         supprimé car si c'est une classe , les PP sont affichés en dessous
 
         echo "<BR>\n";
     }
