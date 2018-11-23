@@ -1713,8 +1713,15 @@ function is_pp_this_classe($config, string $name, string $classe) {
     return preg_grep("/$name/i", $lespp);
 }
 
+/*
+ * retourne un tableau [cn,Prenom NoM,Nom,sexe,Ddn, dn],
+ * trié par Nom croissant
+ * des membres du groupe $groupe
+ */
+
 function search_people_group($config,string $groupe) {
     $res= search_ad($config,"*","memberof",$groupe);
+    usort($res,"cmp_nom");
     return $res;
 }
 ?>
