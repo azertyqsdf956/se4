@@ -247,7 +247,10 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
         case "memberof": // cherche si user ou group est membre du groupe branch
             $filter = "(&(cn=" . $name . ")(objectclass=user)(memberof=cn=" . $branch . "*))";
             $ldap_attrs = array(
-                "cn" // login
+                "cn", // login
+                "displayname", // Prenom Nom
+                "sn", // Nom
+                "physicaldeliveryofficename"
             );
             $branch = $config['dn']['people'];
             break;
@@ -1708,5 +1711,10 @@ function is_pp_this_classe($config, string $name, string $classe) {
     $lespp = array();
     $lespp = list_pp($config, $classe);
     return preg_grep("/$name/i", $lespp);
+}
+
+function search_people_group($config,string $groupe) {
+    $res= search_ad($config,"*","memberof",$groupe);
+    return $res;
 }
 ?>
