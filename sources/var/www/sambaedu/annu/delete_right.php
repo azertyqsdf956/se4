@@ -35,12 +35,14 @@ if (!have_right($config, "se3_is_admin")) {
 DY></HTML>");
 
 }
-	$filtrecomp=$_POST['filtrecomp'];
-$old_rights = $_POST['old_rights'];
-$delete_right = $_POST['delete_right'];
-$right = $_POST['right'];
-$type = $_POST['type'];
+isset($_POST['filtrecomp'])  ? $filtrecomp = $_POST['filtrecomp'] : $filtrecomp= "" ;
+isset($_POST['old_rights']) ? $old_rights = $_POST['old_rights'] : $old_rights = "";
+isset($_POST['delete_right']) ? $delete_right = $_POST['delete_right'] : $delete_right = "";
+isset($_POST['right']) ? $right = $_POST['right'] : $right = "";
+isset($_POST['type']) ? $type = $_POST['type'] : $type = "";
 
+
+die("in todolist...");
 // Aide
 $_SESSION["pageaide"] = "Annuaire";
 echo "<h1>" . gettext("Annuaire") . "</h1>\n";
