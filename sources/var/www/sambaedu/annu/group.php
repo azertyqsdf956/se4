@@ -25,11 +25,10 @@ echo "<h1>" . gettext("Annuaire") . "</h1>";
 $filter = $_GET['filter'];
 
 aff_trailer("8_$filter");
-//recherche des membres du groupe
 
+//recherche des membres du groupe
 $group = search_ad($config, $filter, "group", $config['dn']['groups']);
 $people = search_people_group($config, $filter);
-usort($people, "cmp_nom");
 
 //tableau de profs
 $lesprofs = search_ad($config, "*", "memberof", "Profs");
@@ -41,7 +40,6 @@ foreach ($lesprofs as $key => $value) {
 //tableau des PP si Equipe
 if (preg_match("/Equipe/", $filter)) {
     $people2 = search_people_group($config, $filter);
-    usort($people2, "cmp_nom");
     //on crée un tableau des PP de la classe
     $liste_pp = list_pp($config, $filter);
     $list_pp_grp = array();
@@ -230,7 +228,6 @@ if (!$admin_annu) {
 if (preg_match("/Classe/", $filter, $matche)) {
     $filter2 = preg_replace("/Classe_/", "Equipe_", $filter);
     $people2 = search_people_group($config, $filter2);
-    usort($people2, "cmp_nom");
     //on crée un tableau des PP de la classe
     $liste_pp = list_pp($config, $filter);
     $list_pp_grp = array();

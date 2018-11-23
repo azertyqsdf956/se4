@@ -1714,7 +1714,7 @@ function is_pp_this_classe($config, string $name, string $classe) {
 }
 
 /*
- * retourne un tableau [cn,Prenom NoM,Nom,sexe,Ddn, dn],
+ * retourne un tableau [cn,Prenom Nom,Nom,sexe,Ddn, dn],
  * trié par Nom croissant
  * des membres du groupe $groupe
  */
