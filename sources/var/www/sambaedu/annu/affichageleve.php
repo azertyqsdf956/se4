@@ -2,15 +2,14 @@
 
 /**
 
- * Affiche les eleves
+ * Affiche les membres de groupes sélectionnés
  * @Version $Id$
-   * @Projet LCS / SambaEdu
-   * @Auteurs Equipe Sambaedu
-   * @Licence Distribue sous la licence GPL
-   * @Repertoire: annu * @Repertoire: annu
+ * @Projet LCS / SambaEdu
+ * @Auteurs Equipe Sambaedu
+ * @Licence Distribue sous la licence GPL
+ * @Repertoire: annu
  * file: affichageleve.php
  */
-
 include "entete.inc.php";
 include_once "ldap.inc.php";
 include "ihm.inc.php";
@@ -107,12 +106,9 @@ if (have_right($config, "Annu_is_admin")) {
     echo "</TR>\n";
     echo "<TR>\n";
     for ($filt = 0; $filt < count($filter); $filt++) {
-        $gus=array();
-        $people = grouplistmembers($config, $filter[$filt]);
+        $gus = array();
         echo "<td valign=\"top\">";
-        for ($loop = 0; $loop < count($people); $loop++) {
-            $gus[$loop] = search_user($config, $people[$loop]);
-        }
+        $gus = search_people_group($config, $filter[$filt]);
         usort($gus, "cmp_nom");
         echo "<select name=\"eleves[]\" size=\"10\"  multiple=multiple>\n";
         for ($loop = 0; $loop < count($gus); $loop++) {
@@ -123,7 +119,7 @@ if (have_right($config, "Annu_is_admin")) {
     echo "</TR>\n";
     echo "</table>\n";
     echo "<BR><BR>\n";
-    $CREER_REP = (isset($_POST['CREER_REP'])?$_POST['CREER_REP']:"");
+    $CREER_REP = (isset($_POST['CREER_REP']) ? $_POST['CREER_REP'] : "");
     echo "<input type=\"hidden\" name=\"cn\" value=\"$cn\">
       	      <input type=\"hidden\" name=CREER_REP value=\"$CREER_REP\">
       	      <input type=\"submit\" value=\"" . gettext("valider") . "\">
