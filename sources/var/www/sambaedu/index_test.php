@@ -2,21 +2,96 @@
 require ("config.inc.php");
 require_once ("samba-tool.inc.php");
 require_once ("ldap.inc.php");
-require_once ("partages.inc.php");
-require_once ("siecle.inc.php");
+//require_once ("partages.inc.php");
+//require_once ("siecle.inc.php");
 
 // require_once ("functions.inc.php");
+// c'est qui le patron ?
 $config['login'] = "admin";
-// $res = search_user($config, "denis.bonnenfant");
-// var_dump($res);
+
+// Avoir la fiche du gus
+$user = search_user($config, "mollef");
+echo 'tableau utilisateur';
+var_dump($user);
+
+// Groupes d'appartenance et droits (filtrage nécessaire ensuite) - voir page people.php
+echo "Groupes d'appartenance et droits";
+$memberof = $user['memberof'];
+echo "<pre>";
+print_r($memberof);
+echo "</pre>";
+$numbers= count($user['memberof']);
+echo "il y en a" . $numbers . " exactement";
+
+//Toutes les fiches sous forme de tableau pour un group donné ici  les profs
+$lesprofs = search_ad($config, "*", "memberof", "Profs");
+var_dump($lesprofs);
+
+//tableau de profs
+
+$list_prof_grp = array();
+foreach ($lesprofs as $key => $value) {
+    $list_prof_grp[$key] = $value["cn"];
+}
+
+//
+//Lister les membres d'un groupe donné
+$filter="profs";
+$people = search_people_group($config, $filter);
+
+
+
+
+
+
+
+
+// Lister les droit d'un user
 // $res = list_rights($config, "denis.bonnenfant");
 // var_dump($res);
+
+
+// Avoir la liste des utilisateurs avec un droit donné
+$right="se3_is_admin";
+$mp_all = list_members_rights($config,$right);
+var_dump($mp_all);
+//
+
+//Autre possibilité sans interet
+//$groupe = "no_Trash_user";
+//$res= search_ad($config,"*","memberof",$groupe);
+//var_dump($res);
+
+
+//
+//
+//
+////$tmp_tab_no_Trash_user = list_members_rights($config, "no_Trash_user");
+//var_dump($tmp_tab_no_Trash_user);
+
+
+// // 
+// As tu le droit de lire ceci ?
 // if (have_right($config, "se3_is_admin", "denis.bonnenfant")) print "OK";
 // var_dump(list_parc($config, "*", "all"));
 
 // var_dump(type_parc($config, "salle_b8"));
 // var_dump(list_members_parc($config, "salle_b8"));
 // var_dump(list_parc($config, "*"));
+
+
+$filter="(cn=profs)";
+var_dump(filter_group($config, $filter));
+//
+//
+
+//
+
+//$res = search_ad($config, "*", "right");
+//var_dump($res);
+exit();
+
+
 
 /*
  *
@@ -41,6 +116,8 @@ $config['login'] = "admin";
 
 
  var_dump(search_ad($config, "(&(objectclass=group)(cn=*))", "filter"));
+  print 'list_profs($config, "3_A")';
+
  /* var_dump(get_dhcp_reservation($config, "tm-a23-len2"));
  * var_dump(export_dhcp_reservations($config));
  * var_dump(type_group($config, "Equipe_CIM2"));
@@ -58,7 +135,6 @@ $config['login'] = "admin";
  * print 'var_dump(add_prof_group($config, "CIM3", "prof.test", true));';
  * var_dump(add_user_group($config, "CIM3", "prof.test", true));
  *
- * print 'list_profs($config, "CIM3")';
  * var_dump(list_profs($config, "CIM3"));
  * print 'list_pp($config, "CIM3")';
  * var_dump(list_pp($config, "CIM3"));
@@ -179,9 +255,13 @@ echo $res;
 $res = search_machine($config, "c2:19:88:2c:10:44", true);
 */
 
+  
+// Positionner un pass
 //$res = usersetpassword($config, "eleve3.test", "azerty0", true);
-//$res = user_valid_passwd($config, "eleve3.test", "azerty0");
+
+  //tester un pass
+//  $res = user_valid_passwd($config, "eleve3.test", "azerty0");
 //$classes = list_classes($config, "eleve3.test");
-var_dump($res);
+//var_dump($res);
 
 ?>

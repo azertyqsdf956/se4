@@ -441,15 +441,15 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
     $ret = array();
     $ds = bind_ad_gssapi($config);
     if ($ds) {
-        // var_dump($branch);
-        // var_dump($filter);
-        // var_dump($ldap_attrs);
+//         var_dump($branch);
+//         var_dump($filter);
+//         var_dump($ldap_attrs);
         $result = ldap_search($ds, $branch, $filter, $ldap_attrs);
-        // $res = var_dump(ldap_get_entries($ds, $result));
-        // ldap_sort($ds, $result, "cn");
+//         $res = var_dump(ldap_get_entries($ds, $result));
+         ldap_sort($ds, $result, "cn");
         if ($result) {
             $info = ldap_get_entries($ds, $result);
-            // var_dump($info);
+//             var_dump($info);
             foreach ($info as $key1 => $entry) {
                 if (is_array($entry)) {
                     foreach ($entry as $key2 => $attr) {
@@ -494,8 +494,8 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
         }
     }
     @ldap_close($ds);
-    // print "search_ad(" . $name . ", $type):";
-    // var_dump($ret);
+    //print "search_ad(" . $name . ", $type):";
+    //var_dump($ret);
     return $ret;
 }
 
@@ -517,6 +517,7 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
 function modify_ad(array $config, string $name, string $type, array $attrs, string $mode = "replace")
 {
     $res = search_ad($config, $name, $type);
+    //var_dump($res);
     if (count($res) == 1) {
         $dn = $res[0]['dn'];
         $ds = bind_ad_gssapi($config);
@@ -874,32 +875,47 @@ function list_rights($config, $name, $inverse = false)
 
 function list_members_rights($config, $right)
 {
-    $res = grouplistmembers($config, $right);
+    //$res = grouplistmembers($config, $right);
+    $groupe = search_ad($config, $right, "group");
+    $res = $groupe[0]['member'];
     return $res;
+    
 }
 
 /*
  * donne le droit à l'utilisateur ou a au groupe
  * si il l'a dejà par héritage d'un groupe on ne fait rien
+ * @param string $name
+ * @param string $right
+ * @return true ou false
  */
 function add_right($config, $name, $right)
 {
-    if (! in_array($right, list_rights($config, $name))) {
-        return groupaddmember($config, $name, $right);
-    }
+    //if (! in_array($right, list_rights($config, $name))) {
+        $arr = array("$name");
+        $add = array();
+        $add['member'] = $arr[0];
+        //return groupaddmember($config, $name, $right);
+        return modify_ad($config, $right, "rights", $add, "add");
+    //}//
     return true;
 }
 
 /*
  * retire le droit à l'utilisateur
  * non récursif : si le droit est hérité il ne sera pas retiré.
+ * @param string $name
+ * @param string $right
+ * @return true ou false
  */
 function remove_right($config, $name, $right)
 {
-    if (in_array(search_ad($right, $config, $name, "right"))) {
-        return groupdelmember($config, $name, $right);
-    }
-    return false;
+    
+    $arr = array("$name");
+    $del = array();
+    $del['member'] = $arr[0];
+    //var_dump($del);
+    return modify_ad($config, $right, "rights", $del, "del");
 }
 
 // Parcs

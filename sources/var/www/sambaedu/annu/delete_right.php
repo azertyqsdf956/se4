@@ -2,23 +2,11 @@
 
 /**
 
- * Detruit les droits des utilisateurs dans l'annuaire
- * @Version $Id$ 
-
- * @Projet LCS / SambaEdu 
-
- * @auteurs jLCF jean-luc.chretien@tice.ac-caen.fr
- * @auteurs wawa  olivier.lecluse@crdp.ac-caen.fr
- * @auteurs Equipe Tice academie de Caen
- * @auteurs Philippe Chadefaux
-
- * @Licence Distribue selon les termes de la licence GPL
-
- * @note 
- */
-
-/**
- *
+ * Affiche les membres d'un groupe
+ * @Version 11/2018 - keyser
+ * @Projet LCS / SambaEdu
+ * @Auteurs Equipe Sambaedu
+ * @Licence Distribue sous la licence GPL
  * @Repertoire: annu
  * file: delete_right.php
  */
@@ -35,20 +23,21 @@ if (!have_right($config, "se3_is_admin")) {
 DY></HTML>");
 
 }
-isset($_POST['filtrecomp'])  ? $filtrecomp = $_POST['filtrecomp'] : $filtrecomp= "" ;
-isset($_POST['old_rights']) ? $old_rights = $_POST['old_rights'] : $old_rights = "";
-isset($_POST['delete_right']) ? $delete_right = $_POST['delete_right'] : $delete_right = "";
-isset($_POST['right']) ? $right = $_POST['right'] : $right = "";
-isset($_POST['type']) ? $type = $_POST['type'] : $type = "";
+$filtrecomp = $_POST['filtrecomp'] ?? "";
+$old_rights = $_POST['old_rights'] ?? array();
+$delete_right = $_POST['delete_right'] ?? "";
+$right = $_POST['right'] ?? "";
+$type = $_POST['type'] ?? "";
+$mp="";
 
 
-die("in todolist...");
+//die("in todolist...");
 // Aide
 $_SESSION["pageaide"] = "Annuaire";
 echo "<h1>" . gettext("Annuaire") . "</h1>\n";
 aff_trailer("1");
 // Affichage du formulaire de selection de parc
-if (! isset($right)) {
+if ($right == "") {
     echo "<TABLE><TR><TD>";
     echo "<H3>" . gettext("S&#233;lection du droit &#224; retirer") . "</H3>";
     echo "</TD><TD>";
@@ -80,7 +69,7 @@ if (! isset($right)) {
         echo "<input type=\"submit\" value=\"" . gettext("Valider") . "\">\n";
         echo "</FORM>\n";
         // Lecture des membres du droit
-        $mp_all = list_members_right($right);
+        $mp_all = list_members_rights($config,$right);
         // Filtrage selon critere
         if ("$filtrecomp" == "")
             $mp = $mp_all;
@@ -103,6 +92,7 @@ if (! isset($right)) {
             $form .= "<p><select size=\"" . $size . "\" name=\"old_rights[]\" multiple=\"multiple\">\n";
             echo $form;
             foreach ($mp as $nom) {
+                //$nom = ldap_dn2cn($nom);
                 if (type_ad($config, $nom) == "groupe") {
                     $type = "groupe";
                     $value = "$nom ($type)";
@@ -127,6 +117,7 @@ if (! isset($right)) {
     } else {
         // Suppression des drois
         echo "<H3>" . gettext("Modification du droit ") . " <U>$right</U></H3>";
+        //var_dump($old_rights);
         echo "<P>" . gettext("Vous avez s&#233;lectionn&#233; ") . count($old_rights) . gettext(" droit(s)") . "<BR>\n";
         for ($loop = 0; $loop < count($old_rights); $loop ++) {
             $pers = $old_rights[$loop];

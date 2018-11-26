@@ -3,27 +3,15 @@
 
    /**
 
-   * Ajoute des droits aux utilisateurs dans l'annuaire
-   * @Version $Id$
+ * Affiche les membres d'un groupe
+ * @Version 11/2018 - keyser
+ * @Projet LCS / SambaEdu
+ * @Auteurs Equipe Sambaedu
+ * @Licence Distribue sous la licence GPL
+ * @Repertoire: annu
+ * file: add_user_right.php
+ */
 
-   * @Projet LCS / SambaEdu
-
-   * @auteurs jLCF jean-luc.chretien@tice.ac-caen.fr
-   * @auteurs oluve olivier.le_monnier@crdp.ac-caen.fr
-   * @auteurs wawa  olivier.lecluse@crdp.ac-caen.fr
-   * @auteurs Equipe Tice academie de Caen
-   * @auteurs Philippe Chadefaux
-
-   * @Licence Distribue selon les termes de la licence GPL
-
-   * @note
-   */
-
-   /**
-
-   * @Repertoire: annu
-   * file: add_user_right.php
-   */
 
 
 include "entete.inc.php";
@@ -36,14 +24,14 @@ textdomain ('se3-annu');
 
 $_SESSION["pageaide"]="Annuaire";
 
-$cn=isset($_GET['cn']) ? $_GET['cn'] : (isset($_POST['cn']) ? $_POST['cn'] : "");
-$action = isset($_POST['action']) ? $_POST['action'] : "";
-$delrights = isset($_POST['delrights']) ? $_POST['delrights'] : "";
-$newrights = isset($_POST['newrights']) ? $_POST['newrights'] : "";
+$cn=isset($_GET['cn']) ? $_GET['cn'] : (isset($_POST['cn']) ? $_POST['cn'] : "mollef");
 
+$action = $_POST['action'] ?? "";
+$delrights = $_POST['delrights'] ?? "";
+$newrights = $_POST['newrights'] ?? "";
 
 echo "<h1>".gettext("Annuaire")."</h1>\n";
-
+//exit();
 if($cn=="") {
 	echo "<p>ERREUR : Il faut choisir un nom</p>\n";
 	include ("pdp.inc.php");
@@ -54,6 +42,7 @@ $filtre = "9_".$cn;
 aff_trailer ("$filtre");
 
 if (have_right($config, "se3_is_admin")) {
+    $user = search_user($config, $cn);
     if ($action == "AddRights") {
       	// Inscription des droits dans l'annuaire
       	echo "<H3>".gettext("Inscription des droits pour")." <U>$cn</U></H3>";
@@ -61,7 +50,7 @@ if (have_right($config, "se3_is_admin")) {
       	for ($loop=0; $loop < count($newrights); $loop++) {
         	$right=$newrights[$loop];
         	echo gettext("D&#233;l&#233;gation du droit")." <U>$right</U> ".gettext("&#224; l'utilisateur")." $cn<BR>";
-            add_right($config, $cn, $right);
+            add_right($config, $user['dn'], $right);
                 if ($right == "computers_is_admin") {
                     //echo "MAj interface wpkg";
                     $wpkgDroitSh="/usr/share/se3/scripts/update_droits_xml.sh";
@@ -77,18 +66,21 @@ if (have_right($config, "se3_is_admin")) {
       	for ($loop=0; $loop < count($delrights); $loop++) {
         	$right=$delrights[$loop];
         	echo gettext("Suppression du droit")." <U>$right</U> ".gettext("pour l'utilisateur")." $cn<BR>";
-            remove_right($config, $cn, $right);
+                remove_right($config, $user['dn'], $right);
         	echo "<BR>";
       	}
     }
-    $user = search_user($cn);
+    
+    //var_dump($user);
+    
     // Affichage du nom et de la description de l'utilisateur
     echo "<H3>".gettext("D&#233;l&#233;gation de droits &#224; ")."". $user["fullname"] ." (<U>$cn</U>)</H3>\n";
     echo gettext("S&#233;lectionnez les droits &#224; supprimer (liste de gauche) ou &#224; ajouter (liste de droite) ");
     echo gettext("et validez &#224; l'aide du bouton correspondant.")."<BR><BR>\n";
     // Lecture des droits disponibles
      $list_current_rights = list_rights($config, $cn);
-     $list_possible_rights = array_list_rights($config, "all", true);
+     $list_possible_rights = list_rights($config, $config['login']);
+     
      
     ?>
 <FORM method="post" action="../annu/add_user_right.php">
@@ -115,24 +107,27 @@ if (have_right($config, "se3_is_admin")) {
 	echo "<hr>";
 
 	echo "<font size=\"-1\">";
-	$pass_heritage="0";
-	if ( count($user['memberof']) ) {
-	    foreach ($user['memberof'] as $groupdn) {
-			$list_heritage_rights = list_rights($config, $groupdn);
-			if   ( count($list_heritage_rights)>15) $size=15; else $size=count($list_heritage_rights);
-			if ( $size>0) {
-				foreach  ($list_heritage_rights as $right) {
-					echo $right." ($groupdn)<br>\n";
-					$pass_heritage="1";
-				}
-			}
-		}
-	}
-	if ($pass_heritage=="0") {
-		echo "<center>";
-		echo "Aucun h&#233;ritage";
-		echo "</center>\n";
-	}
+        
+        // TODO !!
+        
+	//$pass_heritage="0";
+//	if ( count($user['memberof']) ) {
+//	    foreach ($user['memberof'] as $groupdn) {
+//			$list_heritage_rights = list_rights($config, $groupdn);
+//			if   ( count($list_heritage_rights)>15) $size=15; else $size=count($list_heritage_rights);
+//			if ( $size>0) {
+//				foreach  ($list_heritage_rights as $right) {
+//					echo $right." ($groupdn)<br>\n";
+//					$pass_heritage="1";
+//				}
+//			}
+//		}
+//	}
+//	if ($pass_heritage=="0") {
+//		echo "<center>";
+//		echo "Aucun h&#233;ritage";
+//		echo "</center>\n";
+//	}
 
 	echo "</font>";
 	echo "<hr>";
