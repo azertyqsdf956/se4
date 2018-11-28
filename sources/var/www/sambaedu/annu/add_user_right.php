@@ -19,12 +19,12 @@ include_once "ldap.inc.php";
 include "ihm.inc.php";
 
 require_once ("lang.inc.php");
-bindtextdomain('se3-annu',"/var/www/se3/locale");
-textdomain ('se3-annu');
+bindtextdomain('se4-core', "/var/www/sambaedu/locale");
+textdomain('se4-core');
 
 $_SESSION["pageaide"]="Annuaire";
 
-$cn=isset($_GET['cn']) ? $_GET['cn'] : (isset($_POST['cn']) ? $_POST['cn'] : "mollef");
+$cn=isset($_GET['cn']) ? $_GET['cn'] : (isset($_POST['cn']) ? $_POST['cn'] : "");
 
 $action = $_POST['action'] ?? "";
 $delrights = $_POST['delrights'] ?? "";
@@ -41,8 +41,11 @@ if($cn=="") {
 $filtre = "9_".$cn;
 aff_trailer ("$filtre");
 
+$user = search_user($config, $cn);
+    
+
 if (have_right($config, "se3_is_admin")) {
-    $user = search_user($config, $cn);
+    
     if ($action == "AddRights") {
       	// Inscription des droits dans l'annuaire
       	echo "<H3>".gettext("Inscription des droits pour")." <U>$cn</U></H3>";
@@ -51,12 +54,12 @@ if (have_right($config, "se3_is_admin")) {
         	$right=$newrights[$loop];
         	echo gettext("D&#233;l&#233;gation du droit")." <U>$right</U> ".gettext("&#224; l'utilisateur")." $cn<BR>";
             add_right($config, $user['dn'], $right);
-                if ($right == "computers_is_admin") {
-                    //echo "MAj interface wpkg";
-                    $wpkgDroitSh="/usr/share/se3/scripts/update_droits_xml.sh";
-                    if (file_exists($wpkgDroitSh)) exec ("$wpkgDroitSh");
-                }
-        	echo "<BR>";
+//                if ($right == "computers_is_admin") {
+//                    //echo "MAj interface wpkg";
+//                    $wpkgDroitSh="/usr/share/se3/scripts/update_droits_xml.sh";
+//                    if (file_exists($wpkgDroitSh)) exec ("$wpkgDroitSh");
+//                }
+//        	echo "<BR>";
       	}
     }
     if ( $action == "DelRights" ) {
@@ -72,16 +75,20 @@ if (have_right($config, "se3_is_admin")) {
     }
     
     //var_dump($user);
-    
+   
     // Affichage du nom et de la description de l'utilisateur
     echo "<H3>".gettext("D&#233;l&#233;gation de droits &#224; ")."". $user["fullname"] ." (<U>$cn</U>)</H3>\n";
     echo gettext("S&#233;lectionnez les droits &#224; supprimer (liste de gauche) ou &#224; ajouter (liste de droite) ");
     echo gettext("et validez &#224; l'aide du bouton correspondant.")."<BR><BR>\n";
     // Lecture des droits disponibles
-     $list_current_rights = list_rights($config, $cn);
-     $list_possible_rights = list_rights($config, $config['login']);
      
+    $list_current_rights = list_rights($config, $cn);
+    $list_rights = list_rights($config, $config['login']);
+    $list_possible_rights = array_diff($list_rights, $list_current_rights);
+    //var_dump($list_possible_rights);
      
+    
+    
     ?>
 <FORM method="post" action="../annu/add_user_right.php">
   <INPUT TYPE="hidden" VALUE="<?php echo $cn;?>" NAME="cn">
@@ -101,14 +108,14 @@ if (have_right($config, "se3_is_admin")) {
 
 <?php
 	// Gestion de l'heritage
-	$user = search_user($config, $cn);
+	//$user = search_user($config, $cn);
 	// echo gettext("H&#233;ritage ");
 
-	echo "<hr>";
-
-	echo "<font size=\"-1\">";
+//	echo "<hr>";
+//
+//	echo "<font size=\"-1\">";
         
-        // TODO !!
+    //    TODO !!
         
 	//$pass_heritage="0";
 //	if ( count($user['memberof']) ) {
@@ -156,9 +163,14 @@ if (have_right($config, "se3_is_admin")) {
 <?php  if   ( count($list_possible_rights)>15) $size=15; else $size=count($list_possible_rights);
     if ( $size>0) {
       echo "<SELECT NAME=\"newrights[]\" SIZE=\"$size\" multiple=\"multiple\">";
-      for ($loop=0; $loop < count($list_possible_rights); $loop++) {
-          echo "<option value=".$list_possible_rights[$loop].">".$list_possible_rights[$loop]."\n";
+      foreach ($list_possible_rights as $value) {
+         echo "<option value=".$value.">".$value."\n"; 
       }
+      
+//      for ($loop=0; $loop < count($list_possible_rights); $loop++) {
+//          echo "<option value=".$list_possible_rights[$loop].">".$list_possible_rights[$loop]."\n";
+//          var_dump($list_possible_rights[$loop]);
+//      }
 ?>
   </SELECT><BR><BR>
   <input type="submit" value="<?php echo gettext("Ajouter ces droits"); ?>" onClick="this.form.action.value ='AddRights';return true;">
@@ -170,7 +182,7 @@ if (have_right($config, "se3_is_admin")) {
 </TD></TR></TABLE>
 </FORM>
 <?php
-
+//echo "find epage";
 
 } else {
     echo "<div class=error_msg>".gettext("Cette application, necessite les droits d'administrateur du serveur SambaEdu !")."</div>";
