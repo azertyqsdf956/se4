@@ -314,7 +314,8 @@ function search_ad($config, $name, $type = "dn", $branch = "all", $attrs = array
             $ldap_attrs = array(
                 "cn",
                 "description",
-                "member"
+                "member",
+                "memberof"
             );
             if ($branch == "all") {
                 $branch = $config['ldap_base_dn'];
@@ -693,9 +694,30 @@ function filter_group($config, $filter)
     return $groups;
 }
 
+function search_group($config, $cn)
+{
+    /**
+     * Retourne un tableau avec les attributs d'un groupe 
+     *
+     * @Parametres $cn du groupe
+     *
+     * @return Un tableau contenant les informations du groupe $cn
+     * ['cn'] : nom court
+     * ['member']  : membres
+     * ['memberof'] : droits de la branche rights
+     * ['dn'] : dn complet
+     *
+     */
+    $ret = search_ad($config, $cn, "group", $config['dn']['groups']);
+    //var_dump($ret);
+    if (count($ret) > 0) {
+        return $ret[0];
+    } else
+        return array();
+    }
+    
 function search_user($config, $cn)
 {
-
     /**
      * Retourne un tableau avec les attributs d'un utilisateur (a partir de l'annuaire LDAP)
      *
