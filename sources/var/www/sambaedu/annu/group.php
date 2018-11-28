@@ -180,7 +180,7 @@ if ($admin_se) {
 // ajout du lien trombinoscope
 // Si Annu_is_admin et le repertoire existe on peut  voir les trombinoscopes
 //
-if ($admin_annu && is_dir("/var/se4/Docs/trombine")) {
+if ($admin_annu && is_dir("/var/sambaedu/Docs/trombine")) {
     echo "<ul style=\"color: red;\">\n";
     echo "<li><a href=\"trombin.php?filter=$filter\" target='_new'>" . gettext("Afficher un trombinoscope du groupe") . "</a></li>\n";
     echo "</ul>\n";
@@ -199,7 +199,7 @@ if (preg_match("/Cours_/i", "$filter")) {
 
 if (!$admin_annu) {
     // Si sovajon_is_admin et prof de la classe ou droits étendus du groupe profs
-    $acl_group_profs_classes = exec("cd /var/se4/Classes; /usr/bin/getfacl . | grep group:Profs >/dev/null && echo 1");
+    $acl_group_profs_classes = exec("cd /var/sambaedu/Classes; /usr/bin/getfacl . | grep group:Profs >/dev/null && echo 1");
 
     if (($admin_sovajon) and ( (are_you_in_group($login, $classe) or ( $acl_group_profs_classes == 1)))) {
 
